@@ -1,0 +1,101 @@
+/* BRICKHOUSE canonical design tokens (source: Brickhouse Design System reference) */
+:root {
+  /* Primary brand */
+  --bh-navy: #0f2d4a;
+  --bh-orange: #e1874f;
+  --bh-orange-hover: #c9733e;
+  --bh-orange-soft: #fbeee5;
+  --bh-pearl: #f8f6f0;
+
+  /* Neutrals */
+  --bh-navy-700: #132b45;
+  --bh-gray-700: #445566;
+  --bh-gray-500: #8a9ba8;
+  --bh-gray-300: #d5dee6;
+  --bh-gray-100: #eef2f6;
+  --bh-white: #ffffff;
+
+  /* Semantic */
+  --bh-success: #2e7d5b;
+  --bh-success-soft: #e3f1ea;
+  --bh-warning: #d98c3d;
+  --bh-warning-soft: #fbf0e2;
+  --bh-danger: #e15554;
+  --bh-danger-soft: #fce9e9;
+  --bh-info: #2f6fb2;
+  --bh-info-soft: #e5eef8;
+
+  /* Typography */
+  --bh-font-sans: 'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --bh-font-serif: 'Lora', Georgia, 'Times New Roman', serif;
+
+  /* Spacing (8pt) */
+  --bh-space-xs: 4px;
+  --bh-space-sm: 8px;
+  --bh-space-md: 16px;
+  --bh-space-lg: 24px;
+  --bh-space-xl: 32px;
+  --bh-space-2xl: 40px;
+
+  /* Radius */
+  --bh-radius-none: 0;
+  --bh-radius-xs: 4px;
+  --bh-radius-sm: 8px;
+  --bh-radius-md: 12px;
+  --bh-radius-lg: 16px;
+  --bh-radius-xl: 24px;
+
+  /* Shadows */
+  --bh-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --bh-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
+  --bh-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --bh-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+
+  /* Surfaces (theme-aware) */
+  --bh-bg: var(--bh-pearl);
+  --bh-surface: var(--bh-white);
+  --bh-surface-muted: var(--bh-gray-100);
+  --bh-border: var(--bh-gray-300);
+  --bh-text: var(--bh-navy);
+  --bh-text-muted: var(--bh-gray-700);
+  --bh-text-subtle: var(--bh-gray-500);
+
+  --bh-sidebar-width: 272px;
+  --bh-header-height: 76px;
+
+  /* Bootstrap bridge */
+  --bs-body-font-family: var(--bh-font-sans);
+  --bs-body-color: var(--bh-text);
+  --bs-body-bg: var(--bh-bg);
+  --bs-border-color: var(--bh-border);
+  --bs-primary: var(--bh-orange);
+  --bs-primary-rgb: 225, 135, 79;
+  --bs-link-color: var(--bh-info);
+  --bs-link-color-rgb: 47, 111, 178;
+  --bs-link-hover-color: var(--bh-navy);
+  --bs-success: var(--bh-success);
+  --bs-danger: var(--bh-danger);
+  --bs-warning: var(--bh-warning);
+  --bs-info: var(--bh-info);
+  --bs-border-radius: var(--bh-radius-sm);
+}
+
+[data-bs-theme='dark'] {
+  --bh-bg: #0b1826;
+  --bh-surface: #11243a;
+  --bh-surface-muted: #162d47;
+  --bh-border: #23405e;
+  --bh-text: #e8eef4;
+  --bh-text-muted: #b3c2cf;
+  --bh-text-subtle: #8a9ba8;
+  --bh-orange-soft: rgba(225, 135, 79, 0.16);
+  --bh-success-soft: rgba(46, 125, 91, 0.22);
+  --bh-warning-soft: rgba(217, 140, 61, 0.2);
+  --bh-danger-soft: rgba(225, 85, 84, 0.2);
+  --bh-info-soft: rgba(47, 111, 178, 0.22);
+  --bs-body-color: var(--bh-text);
+  --bs-body-bg: var(--bh-bg);
+  --bs-border-color: var(--bh-border);
+  --bs-link-color: #7fb0e3;
+  --bs-link-hover-color: #ffffff;
+}
