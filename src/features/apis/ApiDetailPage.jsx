@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
-import { Pencil, Trash2, Plus, Lock, Unlock } from 'lucide-react';
+import { Pencil, Trash2, Plus, Lock, Unlock, Plug } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
 import StatusBadge from '../../components/badges/StatusBadge';
 import ReviewSummary from '../../components/common/ReviewSummary';
@@ -50,16 +50,27 @@ export default function ApiDetailPage() {
         )} />
       <div className="row g-4">
         <div className="col-xl-7">
-          <div className="bh-card bh-card-body">
-            <ReviewSummary sections={[{ title: 'API & Service', fields: [
-              { label: 'Provider Application', value: provider ? <EntityLink entity="applications" record={provider} showId /> : (api.exposure === 'external' ? 'External provider' : null) },
-              { label: 'Company', value: companyOf(data, provider)?.name }, { label: 'Service Type', value: api.serviceType },
-              { label: 'Authentication', value: api.authentication }, { label: 'Environment', value: api.environment }, { label: 'Code', value: <span className="mono">{api.code}</span> },
-              { label: 'Base URL', value: api.baseUrl && <span className="mono">{api.baseUrl}</span>, wide: true },
-              { label: 'Documentation', value: <ExtLink href={api.documentationUrl} />, wide: true },
-              { label: 'Tags', value: (api.tags || []).map((t) => <span key={t} className="bh-chip me-1">{t}</span>) },
-              { label: 'Updated', value: fmt.date(api.updatedAt) },
-            ] }]} />
+          <div className="bh-card h-100">
+            <div className="bh-card-header">
+              <div className="d-flex align-items-center gap-2">
+                <Plug size={18} className="text-muted flex-shrink-0" />
+                <div>
+                  <h3 className="bh-card-title">API & Service</h3>
+                  <p className="bh-card-sub">Configuration, provider, and network endpoints</p>
+                </div>
+              </div>
+            </div>
+            <div className="bh-card-body">
+              <ReviewSummary sections={[{ title: 'API Details', icon: Plug, fields: [
+                { label: 'Provider Application', value: provider ? <EntityLink entity="applications" record={provider} showId /> : (api.exposure === 'external' ? 'External provider' : null) },
+                { label: 'Company', value: companyOf(data, provider)?.name }, { label: 'Service Type', value: api.serviceType },
+                { label: 'Authentication', value: api.authentication }, { label: 'Environment', value: api.environment }, { label: 'Code', value: <span className="mono">{api.code}</span> },
+                { label: 'Base URL', value: api.baseUrl && <span className="mono">{api.baseUrl}</span>, wide: true },
+                { label: 'Documentation', value: <ExtLink href={api.documentationUrl} />, wide: true },
+                { label: 'Tags', value: (api.tags || []).map((t) => <span key={t} className="bh-chip me-1">{t}</span>) },
+                { label: 'Updated', value: fmt.date(api.updatedAt) },
+              ] }]} />
+            </div>
           </div>
         </div>
         <div className="col-xl-5 d-flex flex-column gap-4">

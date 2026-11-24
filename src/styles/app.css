@@ -147,13 +147,33 @@ a { text-decoration: none; }
 .bh-card-icon { color: var(--bh-orange); flex-shrink: 0; }
 .bh-card-title { font-size: 16px; font-weight: 700; margin: 0; font-family: var(--bh-font-serif); color: var(--bh-text); line-height: 1.25; }
 .bh-card-sub { font-size: 13.5px; color: var(--bh-text-muted); margin: 3px 0 0; }
-.bh-stat { display: flex; align-items: flex-start; gap: 16px; padding: 18px 20px; height: 100%; position: relative; overflow: hidden; }
-.bh-stat-icon { width: 46px; height: 46px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.bh-stat.lg .bh-stat-icon { width: 58px; height: 58px; border-radius: 14px; }
-.bh-stat-label { font-family: var(--bh-font-serif); font-size: 15px; font-weight: 700; color: var(--bh-text); line-height: 1.25; }
-.bh-stat.lg .bh-stat-label { font-size: 16px; }
-.bh-stat-value { font-size: 28px; font-weight: 800; line-height: 1.1; color: var(--bh-text); margin-top: 2px; letter-spacing: -0.01em; }
-.bh-stat.lg .bh-stat-value { font-size: 28px; }
+.bh-headline-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+}
+@media (max-width: 1200px) {
+  .bh-headline-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 768px) {
+  .bh-headline-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 480px) {
+  .bh-headline-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.bh-stat { display: flex; align-items: flex-start; gap: 14px; padding: 15px 18px; height: 100%; position: relative; overflow: hidden; }
+.bh-stat-icon { width: 44px; height: 44px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.bh-stat.lg .bh-stat-icon { width: 48px; height: 48px; border-radius: 12px; }
+.bh-stat-label { font-family: var(--bh-font-serif); font-size: 14.5px; font-weight: 700; color: var(--bh-text); line-height: 1.25; }
+.bh-stat.lg .bh-stat-label { font-size: 15px; }
+.bh-stat-value { font-size: 26px; font-weight: 800; line-height: 1.1; color: var(--bh-text); margin-top: 2px; letter-spacing: -0.01em; }
+.bh-stat.lg .bh-stat-value { font-size: 26px; }
 .bh-stat-hint { font-size: 12.5px; color: var(--bh-text-muted); margin-top: 4px; }
 .bh-stat.clickable { cursor: pointer; transition: box-shadow 0.15s, border-color 0.15s, transform 0.15s; }
 .bh-stat.clickable:hover { border-color: rgba(225, 135, 79, 0.5); transform: translateY(-1px); }
@@ -175,11 +195,42 @@ a { text-decoration: none; }
 .btn { font-weight: 600; font-size: 13.5px; border-radius: var(--bh-radius-sm); display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; }
 .btn-sm { padding: 5px 10px; font-size: 12.5px; }
 .btn-primary { --bs-btn-bg: var(--bh-orange); --bs-btn-border-color: var(--bh-orange); --bs-btn-hover-bg: var(--bh-orange-hover); --bs-btn-hover-border-color: var(--bh-orange-hover); --bs-btn-active-bg: #b7652f; --bs-btn-active-border-color: #b7652f; --bs-btn-disabled-bg: var(--bh-gray-300); --bs-btn-disabled-border-color: var(--bh-gray-300); --bs-btn-disabled-color: var(--bh-gray-500); --bs-btn-color: #fff; --bs-btn-hover-color: #fff; --bs-btn-focus-shadow-rgb: 225, 135, 79; }
-.btn-secondary { --bs-btn-bg: var(--bh-surface); --bs-btn-color: var(--bh-navy); --bs-btn-border-color: var(--bh-navy); --bs-btn-hover-bg: var(--bh-info-soft); --bs-btn-hover-color: var(--bh-navy); --bs-btn-hover-border-color: var(--bh-navy); --bs-btn-active-bg: var(--bh-info-soft); --bs-btn-active-color: var(--bh-navy); --bs-btn-active-border-color: var(--bh-navy); --bs-btn-disabled-bg: var(--bh-surface); --bs-btn-disabled-color: var(--bh-gray-500); --bs-btn-disabled-border-color: var(--bh-gray-300); }
-[data-bs-theme='dark'] .btn-secondary { --bs-btn-color: var(--bh-text); --bs-btn-border-color: #5c7a99; --bs-btn-hover-color: #fff; --bs-btn-hover-border-color: #8fb0d0; --bs-btn-active-color: #fff; }
+.btn-secondary {
+  --bs-btn-bg: var(--bh-surface);
+  --bs-btn-color: var(--bh-text);
+  --bs-btn-border-color: rgba(15, 45, 74, 0.12);
+  --bs-btn-hover-bg: var(--bh-surface-muted);
+  --bs-btn-hover-color: var(--bh-navy);
+  --bs-btn-hover-border-color: rgba(15, 45, 74, 0.22);
+  --bs-btn-active-bg: var(--bh-surface-muted);
+  --bs-btn-active-color: var(--bh-navy);
+  --bs-btn-active-border-color: rgba(15, 45, 74, 0.35);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+[data-bs-theme='dark'] .btn-secondary {
+  --bs-btn-color: var(--bh-text);
+  --bs-btn-border-color: rgba(255, 255, 255, 0.12);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-border-color: rgba(255, 255, 255, 0.22);
+}
 .btn-ghost { --bs-btn-bg: transparent; --bs-btn-color: var(--bh-text-muted); --bs-btn-border-color: transparent; --bs-btn-hover-bg: var(--bh-surface-muted); --bs-btn-hover-color: var(--bh-text); --bs-btn-hover-border-color: transparent; --bs-btn-active-bg: var(--bh-surface-muted); --bs-btn-active-border-color: transparent; --bs-btn-disabled-color: var(--bh-gray-500); --bs-btn-disabled-border-color: transparent; }
 .btn-danger { --bs-btn-bg: var(--bh-danger); --bs-btn-border-color: var(--bh-danger); --bs-btn-hover-bg: #c94443; --bs-btn-hover-border-color: #c94443; --bs-btn-disabled-bg: var(--bh-gray-300); --bs-btn-disabled-border-color: var(--bh-gray-300); --bs-btn-disabled-color: var(--bh-gray-500); }
-.btn-outline-danger { --bs-btn-color: var(--bh-danger); --bs-btn-border-color: var(--bh-danger); --bs-btn-hover-bg: var(--bh-danger-soft); --bs-btn-hover-color: var(--bh-danger); --bs-btn-hover-border-color: var(--bh-danger); --bs-btn-active-bg: var(--bh-danger-soft); --bs-btn-active-color: var(--bh-danger); }
+.btn-outline-danger {
+  --bs-btn-bg: var(--bh-danger-soft, #fef2f2);
+  --bs-btn-color: var(--bh-danger);
+  --bs-btn-border-color: rgba(225, 85, 84, 0.25);
+  --bs-btn-hover-bg: #fee2e2;
+  --bs-btn-hover-color: #b91c1c;
+  --bs-btn-hover-border-color: var(--bh-danger);
+  --bs-btn-active-bg: #fecaca;
+  --bs-btn-active-color: #991b1b;
+  box-shadow: 0 1px 2px rgba(225, 85, 84, 0.05);
+}
+[data-bs-theme='dark'] .btn-outline-danger {
+  --bs-btn-bg: rgba(225, 85, 84, 0.16);
+  --bs-btn-border-color: rgba(225, 85, 84, 0.35);
+  --bs-btn-hover-bg: rgba(225, 85, 84, 0.24);
+}
 .btn-icon { width: 32px; height: 32px; padding: 0; justify-content: center; }
 .btn:focus-visible, .form-control:focus, .form-select:focus, .form-check-input:focus { border-color: var(--bh-info); box-shadow: 0 0 0 3px rgba(47, 111, 178, 0.18); }
 

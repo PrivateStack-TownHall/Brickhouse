@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
-import { Pencil, Trash2, LayoutGrid, GitBranch, Plug, Cpu, Server, Rocket, History, Plus, ExternalLink } from 'lucide-react';
+import {
+  Pencil, Trash2, LayoutGrid, GitBranch, Plug, Cpu, Server, Rocket, History, Plus, ExternalLink,
+  AppWindow, Boxes, Info,
+} from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
 import DetailTabs from '../../components/common/DetailTabs';
 import StatusBadge from '../../components/badges/StatusBadge';
@@ -72,28 +75,39 @@ export default function ApplicationDetailPage() {
       {tab === 'overview' && (
         <div className="row g-4">
           <div className="col-xl-7">
-            <div className="bh-card bh-card-body">
-              <ReviewSummary sections={[
-                { title: 'Application', fields: [
-                  { label: 'Company', value: company && <span>{company.name} <span className="bh-id">{company.id}</span></span> },
-                  { label: 'Category', value: app.category }, { label: 'Type', value: app.type },
-                  { label: 'Purpose', value: app.purpose }, { label: 'Tags', value: app.tags?.length ? app.tags.map((t) => <span key={t} className="bh-chip me-1">{t}</span>) : null },
-                  { label: 'Website', value: <ExtLink href={app.websiteUrl} /> }, { label: 'Documentation', value: <ExtLink href={app.documentationUrl} /> },
-                ] },
-                { title: 'Technical', fields: [
-                  { label: 'Architecture', value: app.architecture }, { label: 'Platform', value: app.platform },
-                  { label: 'Hosting', value: app.hosting }, { label: 'Environments', value: (app.environments || []).join(', ') },
-                ] },
-                { title: 'Record', fields: [{ label: 'Created', value: fmt.dateTime(app.createdAt) }, { label: 'Last Updated', value: fmt.dateTime(app.updatedAt) }] },
-              ]} />
+            <div className="bh-card h-100">
+              <div className="bh-card-header">
+                <div className="d-flex align-items-center gap-2">
+                  <AppWindow size={18} className="text-muted flex-shrink-0" />
+                  <div>
+                    <h3 className="bh-card-title">Application</h3>
+                    <p className="bh-card-sub">Application specifications, environment, and ownership</p>
+                  </div>
+                </div>
+              </div>
+              <div className="bh-card-body">
+                <ReviewSummary sections={[
+                  { title: 'General Information', icon: AppWindow, fields: [
+                    { label: 'Company', value: company && <span>{company.name} <span className="bh-id">{company.id}</span></span> },
+                    { label: 'Category', value: app.category }, { label: 'Type', value: app.type },
+                    { label: 'Purpose', value: app.purpose }, { label: 'Tags', value: app.tags?.length ? app.tags.map((t) => <span key={t} className="bh-chip me-1">{t}</span>) : null },
+                    { label: 'Website', value: <ExtLink href={app.websiteUrl} /> }, { label: 'Documentation', value: <ExtLink href={app.documentationUrl} /> },
+                  ] },
+                  { title: 'Technical Stack', icon: Cpu, fields: [
+                    { label: 'Architecture', value: app.architecture }, { label: 'Platform', value: app.platform },
+                    { label: 'Hosting', value: app.hosting }, { label: 'Environments', value: (app.environments || []).join(', ') },
+                  ] },
+                  { title: 'Record Audit', icon: History, fields: [{ label: 'Created', value: fmt.dateTime(app.createdAt) }, { label: 'Last Updated', value: fmt.dateTime(app.updatedAt) }] },
+                ]} />
+              </div>
             </div>
           </div>
           <div className="col-xl-5 d-flex flex-column gap-4">
-            <RelationshipCard title="Components" subtitle="Components whose parent is this application"
+            <RelationshipCard entity="components" icon={Boxes} title="Components" subtitle="Components whose parent is this application"
               action={<Link to={`/components/new?application=${id}`} className="btn btn-ghost btn-sm"><Plus size={14} />Add</Link>}
               items={components.map((c) => ({ entity: 'components', record: c, meta: `${c.layer} · ${c.type}`, badge: <StatusBadge value={c.lifecycle} /> }))} />
             {shared.length > 0 && (
-              <RelationshipCard title="Shared components used" subtitle="Owned by other applications"
+              <RelationshipCard entity="components" icon={Boxes} title="Shared components used" subtitle="Owned by other applications"
                 items={shared.map(({ link, record }) => ({ key: link.id, entity: 'components', record, meta: byId(data, 'applications', record.applicationId)?.name, onUnlink: () => unlink('applicationComponents', link.id) }))} />
             )}
           </div>

@@ -1,5 +1,5 @@
 import { Link, useNavigate, useParams } from 'react-router';
-import { Pencil, Trash2, Plus } from 'lucide-react';
+import { Pencil, Trash2, Plus, Boxes } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
 import StatusBadge from '../../components/badges/StatusBadge';
 import ReviewSummary from '../../components/common/ReviewSummary';
@@ -46,18 +46,29 @@ export default function ComponentDetailPage() {
         )} />
       <div className="row g-4">
         <div className="col-xl-6">
-          <div className="bh-card bh-card-body">
-            <ReviewSummary sections={[{ title: 'Component', fields: [
-              { label: 'Parent Application', value: <EntityLink entity="applications" record={app} showId /> },
-              { label: 'Code', value: <span className="mono">{c.code}</span> }, { label: 'Version', value: c.version },
-              { label: 'Category', value: c.category }, { label: 'Role', value: c.role },
-              { label: 'Capabilities', value: (c.capabilities || []).map((x) => <span key={x} className="bh-chip me-1">{x}</span>) },
-              { label: 'Created', value: fmt.date(c.createdAt) }, { label: 'Updated', value: fmt.date(c.updatedAt) },
-            ] }]} />
+          <div className="bh-card h-100">
+            <div className="bh-card-header">
+              <div className="d-flex align-items-center gap-2">
+                <Boxes size={18} className="text-muted flex-shrink-0" />
+                <div>
+                  <h3 className="bh-card-title">Component</h3>
+                  <p className="bh-card-sub">Component details, parent application, and capabilities</p>
+                </div>
+              </div>
+            </div>
+            <div className="bh-card-body">
+              <ReviewSummary sections={[{ title: 'Component Details', icon: Boxes, fields: [
+                { label: 'Parent Application', value: <EntityLink entity="applications" record={app} showId /> },
+                { label: 'Code', value: <span className="mono">{c.code}</span> }, { label: 'Version', value: c.version },
+                { label: 'Category', value: c.category }, { label: 'Role', value: c.role },
+                { label: 'Capabilities', value: (c.capabilities || []).map((x) => <span key={x} className="bh-chip me-1">{x}</span>) },
+                { label: 'Created', value: fmt.date(c.createdAt) }, { label: 'Updated', value: fmt.date(c.updatedAt) },
+              ] }]} />
+            </div>
           </div>
         </div>
         <div className="col-xl-6">
-          <RelationshipCard title="Technology Stack" items={techs.map(({ link, record }) => ({ key: link.id, entity: 'technologies', record, meta: `${link.role || record.category}${link.version ? ` · v${link.version}` : ''}`, onUnlink: () => unlink('componentTechnologies', link.id) }))} />
+          <RelationshipCard entity="technologies" title="Technology Stack" items={techs.map(({ link, record }) => ({ key: link.id, entity: 'technologies', record, meta: `${link.role || record.category}${link.version ? ` · v${link.version}` : ''}`, onUnlink: () => unlink('componentTechnologies', link.id) }))} />
         </div>
         <div className="col-lg-6"><RelationshipCard title="Repositories" items={repos.map(({ link, record }) => ({ key: link.id, entity: 'repositories', record, meta: `${record.provider}${link.path ? ` · ${link.path}` : ''}`, onUnlink: () => unlink('componentRepositories', link.id) }))} /></div>
         <div className="col-lg-6"><RelationshipCard title="Infrastructure" items={infra.map(({ link, record }) => ({ key: link.id, entity: 'infrastructure', record, meta: link.resourceName || record.resourceType, onUnlink: () => unlink('componentInfrastructure', link.id) }))} /></div>

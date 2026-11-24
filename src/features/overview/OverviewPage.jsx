@@ -55,6 +55,7 @@ export default function OverviewPage() {
     { label: 'Repositories', value: data.repositories.length, icon: Code2, tone: 'info', to: '/repositories', rows: data.repositories },
     { label: 'APIs & Services', value: data.apis.length, icon: Layers, tone: 'warning', to: '/apis', rows: data.apis },
     { label: 'Infrastructure Assets', value: data.infrastructure.length, icon: Server, tone: 'navy', to: '/infrastructure', rows: data.infrastructure },
+    { label: 'Deployments', value: data.deployments.length, icon: Rocket, tone: 'success', to: '/deployments', rows: data.deployments },
   ];
   const lifecycle = LIFECYCLES.map((l) => ({ key: l, label: titleCase(l), value: data.applications.filter((a) => a.lifecycle === l).length, color: LIFECYCLE_BAR[l][0], text: LIFECYCLE_BAR[l][1] }));
   const recent = [...data.applications].sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt))).slice(0, 5);
@@ -90,7 +91,7 @@ export default function OverviewPage() {
       <PageHeader title="Ecosystem Overview" description={`A single source of truth for your ${data.settings.general.organization} digital assets.`}
         actions={<Link to="/applications/new" className="btn btn-primary"><Plus size={18} />Add Application</Link>} />
 
-      <div className="mb-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 240px), 1fr))', gap: 18 }}>
+      <div className="bh-headline-grid mb-4">
         {headline.map((h) => (
           <StatCard key={h.label} size="lg" label={h.label} value={h.value} icon={h.icon} tone={h.tone} onClick={() => navigate(h.to)}
             trend={<Trend delta={recentCount(h.rows)} label="added in last 30 days" />} />
@@ -98,21 +99,21 @@ export default function OverviewPage() {
       </div>
 
       <div className="row g-4 mb-4">
-        <div className="col-xl-7">
-          <SectionCard icon={BarChart3} title="Application Lifecycle" subtitle="Distribution of applications by lifecycle status.">
-            <div className="pt-2"><StackedBar data={lifecycle} onSelect={() => navigate('/applications')} /></div>
-          </SectionCard>
-        </div>
-        <div className="col-xl-5">
-          <SectionCard icon={Zap} title="Quick Access" subtitle="Jump to the most used registry pages.">
-            <QuickLinkGrid items={[
-              { to: '/applications', label: 'Applications', icon: AppWindow },
-              { to: '/repositories', label: 'Repositories', icon: GitBranch },
-              { to: '/components', label: 'Components', icon: Boxes },
-              { to: '/deployments', label: 'Deployments', icon: Rocket },
-              { to: '/technologies', label: 'Technology Stack', icon: Cpu },
-              { to: '/infrastructure', label: 'Infrastructure', icon: Server },
-            ]} />
+        <div className="col-12">
+          <SectionCard icon={Code2} title="Commit Activity" subtitle="Number of code commits per day across all repositories." badge={<GitSourceBadge source={gitData.source} />}
+            actions={<SelectMenu ariaLabel="Commit period" value={period} onChange={setPeriod} options={PERIODS} />}>
+            <div className="d-flex align-items-end gap-4 mb-2 flex-wrap">
+              <div>
+                <div style={{ fontSize: 34, fontWeight: 800, lineHeight: 1 }}>{git.totals.commits}</div>
+                <div className="text-muted small mt-1">Total Commits</div>
+              </div>
+              <div className="pb-1"><Trend delta={pctChange(git.totals.commits, previousCommits)} percent label={pctChange(git.totals.commits, previousCommits) === null ? 'no commits in previous period' : `vs. previous ${period} days`} /></div>
+            </div>
+            <BarChart data={bars} gradient valueLabel="commits" ariaLabel="Commits per day" maxTicks={period === 7 ? 7 : 14} height={200} maxBar={24} />
+            <div className="d-flex justify-content-between align-items-center mt-2 small text-subtle">
+              <span>{gitData.source.kind === 'recorded' ? `${gitData.source.synced ? 'Synced' : 'Recorded'} snapshot, not full history` : 'Illustrative — no commits recorded'}</span>
+              <Link to="/progress" className="d-inline-flex align-items-center gap-1">Progress & Review <ArrowRight size={13} /></Link>
+            </div>
           </SectionCard>
         </div>
       </div>
@@ -125,20 +126,15 @@ export default function OverviewPage() {
           </SectionCard>
         </div>
         <div className="col-xl-5">
-          <SectionCard icon={Code2} title="Commit Activity" subtitle="Number of code commits per day." badge={<GitSourceBadge source={gitData.source} />}
-            actions={<SelectMenu ariaLabel="Commit period" value={period} onChange={setPeriod} options={PERIODS} />}>
-            <div className="d-flex align-items-end gap-4 mb-2 flex-wrap">
-              <div>
-                <div style={{ fontSize: 34, fontWeight: 800, lineHeight: 1 }}>{git.totals.commits}</div>
-                <div className="text-muted small mt-1">Total Commits</div>
-              </div>
-              <div className="pb-1"><Trend delta={pctChange(git.totals.commits, previousCommits)} percent label={pctChange(git.totals.commits, previousCommits) === null ? 'no commits in previous period' : `vs. previous ${period} days`} /></div>
-            </div>
-            <BarChart data={bars} gradient valueLabel="commits" ariaLabel="Commits per day" maxTicks={period === 7 ? 7 : 11} height={190} maxBar={18} />
-            <div className="d-flex justify-content-between align-items-center mt-2 small text-subtle">
-              <span>{gitData.source.kind === 'recorded' ? `${gitData.source.synced ? 'Synced' : 'Recorded'} snapshot, not full history` : 'Illustrative — no commits recorded'}</span>
-              <Link to="/progress" className="d-inline-flex align-items-center gap-1">Progress & Review <ArrowRight size={13} /></Link>
-            </div>
+          <SectionCard icon={Zap} title="Quick Access" subtitle="Jump to the most used registry pages.">
+            <QuickLinkGrid items={[
+              { to: '/applications', label: 'Applications', icon: AppWindow },
+              { to: '/repositories', label: 'Repositories', icon: GitBranch },
+              { to: '/components', label: 'Components', icon: Boxes },
+              { to: '/deployments', label: 'Deployments', icon: Rocket },
+              { to: '/technologies', label: 'Technology Stack', icon: Cpu },
+              { to: '/infrastructure', label: 'Infrastructure', icon: Server },
+            ]} />
           </SectionCard>
         </div>
       </div>

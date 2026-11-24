@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Trash2, GitBranch } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
 import StatusBadge from '../../components/badges/StatusBadge';
 import SampleDataBadge from '../../components/badges/SampleDataBadge';
@@ -48,14 +48,25 @@ export default function RepositoryDetailPage() {
         )} />
       <div className="row g-4">
         <div className="col-xl-7">
-          <div className="bh-card bh-card-body mb-4">
-            <ReviewSummary sections={[{ title: 'Repository', fields: [
-              { label: 'Provider', value: repo.provider }, { label: 'Organization / Group', value: repo.organization }, { label: 'Type', value: <span className="text-capitalize">{repo.type}</span> },
-              { label: 'Primary Branch', value: <span className="mono">{repo.mainBranch}</span> }, { label: 'Language', value: repo.language }, { label: 'Code', value: repo.code },
-              { label: 'URL', value: <ExtLink href={repo.url} />, wide: true },
-              { label: 'Topics', value: (repo.topics || []).map((t) => <span key={t} className="bh-chip me-1">{t}</span>) },
-              { label: 'Created', value: fmt.date(repo.createdAt) }, { label: 'Updated', value: fmt.date(repo.updatedAt) },
-            ] }]} />
+          <div className="bh-card mb-4">
+            <div className="bh-card-header">
+              <div className="d-flex align-items-center gap-2">
+                <GitBranch size={18} className="text-muted flex-shrink-0" />
+                <div>
+                  <h3 className="bh-card-title">Repository</h3>
+                  <p className="bh-card-sub">Repository configuration, branch, and upstream links</p>
+                </div>
+              </div>
+            </div>
+            <div className="bh-card-body">
+              <ReviewSummary sections={[{ title: 'Repository Details', icon: GitBranch, fields: [
+                { label: 'Provider', value: repo.provider }, { label: 'Organization / Group', value: repo.organization }, { label: 'Type', value: <span className="text-capitalize">{repo.type}</span> },
+                { label: 'Primary Branch', value: <span className="mono">{repo.mainBranch}</span> }, { label: 'Language', value: repo.language }, { label: 'Code', value: repo.code },
+                { label: 'URL', value: <ExtLink href={repo.url} />, wide: true },
+                { label: 'Topics', value: (repo.topics || []).map((t) => <span key={t} className="bh-chip me-1">{t}</span>) },
+                { label: 'Created', value: fmt.date(repo.createdAt) }, { label: 'Updated', value: fmt.date(repo.updatedAt) },
+              ] }]} />
+            </div>
           </div>
           {gitData.source.kind === 'recorded' ? (
             <div className="bh-card">

@@ -5,7 +5,12 @@ export default function ReviewSummary({ sections }) {
     <div className="d-flex flex-column gap-4">
       {sections.map((s) => (
         <div key={s.title}>
-          {s.title && <div className="bh-section-title">{s.title}</div>}
+          {s.title && (
+            <div className="bh-section-title">
+              {s.icon && <s.icon size={15} className="text-muted flex-shrink-0" />}
+              <span>{s.title}</span>
+            </div>
+          )}
           <div className="bh-review-grid">
             {s.fields.map((f) => (
               <div key={f.label} style={f.wide ? { gridColumn: '1 / -1' } : undefined}>

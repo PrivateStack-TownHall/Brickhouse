@@ -1,6 +1,6 @@
 import { Link } from 'react-router';
 import { Unlink } from 'lucide-react';
-import EntityIcon from './EntityIcon';
+import EntityIcon, { ENTITY_ICONS } from './EntityIcon';
 import Avatar from './Avatar';
 import EmptyState from './EmptyState';
 import { routeFor } from '../../services/schema';
@@ -10,13 +10,17 @@ import { resolveLogo } from '../../assets/logos';
  * A titled list of related records.
  * items: [{ key, entity, record, meta, badge, onUnlink }]
  */
-export default function RelationshipCard({ title, subtitle, items, emptyText = 'No related records.', action, columns = 1 }) {
+export default function RelationshipCard({ icon: Icon, entity, title, subtitle, items, emptyText = 'No related records.', action, columns = 1 }) {
+  const HeaderIcon = Icon || (entity ? ENTITY_ICONS[entity] : null);
   return (
     <div className="bh-card h-100">
       <div className="bh-card-header">
-        <div>
-          <h3 className="bh-card-title">{title} <span className="text-subtle fw-normal">({items.length})</span></h3>
-          {subtitle && <p className="bh-card-sub">{subtitle}</p>}
+        <div className="d-flex align-items-center gap-2">
+          {HeaderIcon && <HeaderIcon size={18} className="text-muted flex-shrink-0" />}
+          <div>
+            <h3 className="bh-card-title">{title} <span className="text-subtle fw-normal">({items.length})</span></h3>
+            {subtitle && <p className="bh-card-sub">{subtitle}</p>}
+          </div>
         </div>
         {action}
       </div>
