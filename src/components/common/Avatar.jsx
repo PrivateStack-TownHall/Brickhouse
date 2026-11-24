@@ -1,3 +1,5 @@
+import { resolveLogo } from '../../assets/logos';
+
 // Initials avatar with a stable color per name (mockup: "OL", "SC", "MM" tiles).
 const TONES = [
   ['#fde8da', '#c65f22'], ['#dcebfb', '#2a78d6'], ['#dcf3e8', '#16855a'], ['#fbe1ea', '#c2406f'],
@@ -12,10 +14,48 @@ export function initials(name = '') {
   return (words[0][0] + words[1][0]).toUpperCase();
 }
 
-export default function Avatar({ name, seed, size = 34, round = false }) {
+export default function Avatar({ name, seed, size = 34, round = false, src }) {
+  const logoUrl = src || resolveLogo(name, seed);
+  if (logoUrl) {
+    return (
+      <span
+        className="bh-av bh-av-logo"
+        style={{
+          width: size,
+          height: size,
+          minWidth: size,
+          minHeight: size,
+          borderRadius: round ? '50%' : Math.round(size * 0.24),
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'var(--bh-surface, #ffffff)',
+          border: '1px solid var(--bh-border, #e5dfd5)',
+          padding: Math.max(2, Math.round(size * 0.12)),
+          overflow: 'hidden',
+          flexShrink: 0,
+          boxShadow: 'var(--bh-shadow-xs)',
+        }}
+        aria-label={name}
+      >
+        <img
+          src={logoUrl}
+          alt={name}
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'contain',
+            display: 'block',
+          }}
+          loading="lazy"
+        />
+      </span>
+    );
+  }
+
   const [bg, fg] = TONES[hash(seed || name) % TONES.length];
   return (
-    <span className="bh-av" style={{ width: size, height: size, background: bg, color: fg, fontSize: size * 0.36, borderRadius: round ? '50%' : Math.round(size * 0.26) }} aria-hidden>
+    <span className="bh-av" style={{ width: size, height: size, minWidth: size, minHeight: size, background: bg, color: fg, fontSize: size * 0.36, borderRadius: round ? '50%' : Math.round(size * 0.26) }} aria-hidden>
       {initials(name)}
     </span>
   );

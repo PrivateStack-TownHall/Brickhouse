@@ -9,6 +9,7 @@ import DataTable from '../../components/tables/DataTable';
 import EntityLink from '../../components/common/EntityLink';
 import HBarList from '../../components/charts/HBarList';
 import EmptyState from '../../components/common/EmptyState';
+import Avatar from '../../components/common/Avatar';
 import { useRegistry } from '../../hooks/useRegistry';
 import { useDeleteRecord } from '../../hooks/useDeleteRecord';
 import { technologyUsage } from '../../services/query.service';
@@ -33,6 +34,7 @@ export default function TechnologyDetailPage() {
   return (
     <>
       <PageHeader title={t.name}
+        avatar={<Avatar name={t.name} seed={t.id} size={48} />}
         meta={<div className="d-flex gap-2 align-items-center"><span className="bh-id">{t.id}</span><StatusBadge value={t.status} /><span className="bh-chip">{t.category}</span></div>}
         description={t.description}
         actions={(

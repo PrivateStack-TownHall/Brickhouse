@@ -9,6 +9,7 @@ import RelationshipCard from '../../components/common/RelationshipCard';
 import ActivityTimeline from '../../components/common/ActivityTimeline';
 import DataTable from '../../components/tables/DataTable';
 import EntityLink from '../../components/common/EntityLink';
+import Avatar from '../../components/common/Avatar';
 import { useRegistry } from '../../hooks/useRegistry';
 import { useFormat } from '../../hooks/useFormat';
 import { useToast } from '../../hooks/useToast';
@@ -57,6 +58,7 @@ export default function ApplicationDetailPage() {
   return (
     <>
       <PageHeader title={app.name}
+        avatar={<Avatar name={app.name} seed={app.id} size={48} />}
         meta={<div className="d-flex gap-2 align-items-center flex-wrap"><span className="bh-id">{app.id}</span><StatusBadge value={app.lifecycle} /><span className="bh-chip">{app.code}</span></div>}
         description={app.description}
         actions={(
@@ -117,7 +119,7 @@ export default function ApplicationDetailPage() {
       {tab === 'technologies' && (
         <div className="bh-card">
           <DataTable rowKey={(r) => `${r.record.id}-${r.source}-${r.role}`} rows={techs} pageSize={15} columns={[
-            { key: 'name', label: 'Technology', sortValue: (r) => r.record.name, render: (r) => <EntityLink entity="technologies" record={r.record} /> },
+            { key: 'name', label: 'Technology', sortValue: (r) => r.record.name, render: (r) => <div className="d-flex align-items-center gap-2"><Avatar name={r.record.name} seed={r.record.id} size={24} /><EntityLink entity="technologies" record={r.record} /></div> },
             { key: 'category', label: 'Category', sortValue: (r) => r.record.category, render: (r) => r.record.category },
             { key: 'role', label: 'Role' },
             { key: 'version', label: 'Version', render: (r) => r.version || '—' },

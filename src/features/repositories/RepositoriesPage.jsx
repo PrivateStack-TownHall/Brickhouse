@@ -50,7 +50,7 @@ export default function RepositoriesPage() {
   const columns = [
     { key: 'id', label: 'Repository ID', render: (r) => <IdChip id={r.id} /> },
     { key: 'name', label: 'Repository Name', render: (r) => <div className="d-flex align-items-center gap-2"><Avatar name={r.name} seed={r.id} size={32} /><div className="min-w-0"><Link to={`/repositories/${r.id}`} className="cell-strong">{r.name}</Link><div className="text-subtle" style={{ fontSize: 12 }}>{appsOf[r.id].map((a) => a.name).join(', ') || 'No application'}</div></div></div> },
-    { key: 'provider', label: 'Provider' },
+    { key: 'provider', label: 'Provider', render: (r) => <div className="d-flex align-items-center gap-2"><Avatar name={r.provider} size={20} /><span>{r.provider}</span></div> },
     { key: 'organization', label: 'Organization', render: (r) => r.organization || '—' },
     { key: 'url', label: 'URL', render: (r) => (r.url ? <a href={r.url} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} className="text-truncate d-inline-block" style={{ maxWidth: 180 }}>{r.url.replace(/^https?:\/\//, '')}</a> : <span className="text-subtle">—</span>) },
     { key: 'type', label: 'Type', render: (r) => <span className="text-capitalize">{r.type}</span> },

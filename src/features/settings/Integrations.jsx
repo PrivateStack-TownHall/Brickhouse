@@ -10,6 +10,7 @@ import { useRegistry } from '../../hooks/useRegistry';
 import { useToast } from '../../hooks/useToast';
 import { useFormat } from '../../hooks/useFormat';
 import { GIT_PROVIDERS, integrationConnections, matchingRepositories, validateIntegration, saveIntegration, removeIntegration, fetchIntegrationCommits, applyIntegrationSync } from '../../services/git-integrations.service';
+import { resolveLogo } from '../../assets/logos';
 
 const ICONS = { github: Github, gitlab: Gitlab, bitbucket: Box };
 
@@ -69,12 +70,22 @@ export default function Integrations() {
       {connections.map((connection) => {
         const provider = GIT_PROVIDERS.find((p) => p.key === connection.provider);
         const Icon = ICONS[connection.provider] || Box;
+        const logo = resolveLogo(connection.provider);
         const repositories = matchingRepositories(data.repositories, connection);
         const report = reports[connection.id];
         return (
           <section className="bh-card" key={connection.id} aria-label={connection.name}>
             <div className="bh-card-header flex-wrap">
-              <div className="d-flex align-items-center gap-2 min-w-0"><Icon size={20} className="flex-shrink-0" /><div className="min-w-0"><h3 className="bh-card-title text-break">{connection.name}</h3><p className="bh-card-sub text-break">{provider?.label} · {connection.organization} · {repositories.length} matching repositories</p></div></div>
+              <div className="d-flex align-items-center gap-2 min-w-0">
+                {logo ? (
+                  <span className="bh-av bh-av-logo flex-shrink-0" style={{ width: 26, height: 26, minWidth: 26, borderRadius: 6, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#fff', border: '1px solid var(--bh-border)', padding: 3, overflow: 'hidden' }}>
+                    <img src={logo} alt={connection.provider} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                  </span>
+                ) : (
+                  <Icon size={20} className="flex-shrink-0" />
+                )}
+                <div className="min-w-0"><h3 className="bh-card-title text-break">{connection.name}</h3><p className="bh-card-sub text-break">{provider?.label} · {connection.organization} · {repositories.length} matching repositories</p></div>
+              </div>
               <div className="d-flex gap-1 align-items-center"><span className={`bh-badge bh-tone-${connection.lastSyncedAt ? 'success' : 'gray'}`}>{connection.lastSyncedAt ? 'Snapshot synced' : 'Not synced'}</span><button type="button" className="btn btn-ghost btn-icon" aria-label={`Edit ${connection.name}`} disabled={!!busy} onClick={() => edit(connection)}><Pencil size={15} /></button><button type="button" className="btn btn-ghost btn-icon text-danger" aria-label={`Remove ${connection.name}`} disabled={!!busy} onClick={() => setRemoving(connection)}><Trash2 size={15} /></button></div>
             </div>
             <div className="bh-card-body">

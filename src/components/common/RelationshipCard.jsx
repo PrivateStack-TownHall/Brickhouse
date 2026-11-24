@@ -1,8 +1,10 @@
 import { Link } from 'react-router';
 import { Unlink } from 'lucide-react';
 import EntityIcon from './EntityIcon';
+import Avatar from './Avatar';
 import EmptyState from './EmptyState';
 import { routeFor } from '../../services/schema';
+import { resolveLogo } from '../../assets/logos';
 
 /**
  * A titled list of related records.
@@ -31,9 +33,10 @@ export default function RelationshipCard({ title, subtitle, items, emptyText = '
 
 export function RelationshipRow({ entity, record, meta, badge, onUnlink }) {
   const to = routeFor(entity, record.id);
+  const hasLogo = resolveLogo(record.name, record.id);
   const body = (
     <>
-      <EntityIcon entity={entity} boxed />
+      {hasLogo ? <Avatar name={record.name} seed={record.id} size={28} /> : <EntityIcon entity={entity} boxed />}
       <div className="min-w-0 flex-grow-1">
         <div className="fw-semibold text-truncate">{record.name || record.id}</div>
         <div className="text-subtle text-truncate" style={{ fontSize: 12 }}><span className="bh-id">{record.id}</span>{meta && <> · {meta}</>}</div>
