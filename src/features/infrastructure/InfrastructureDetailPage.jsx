@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { Pencil, Trash2, Info } from 'lucide-react';
+import { Pencil, Trash2, Info, Server } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
 import StatusBadge from '../../components/badges/StatusBadge';
 import ReviewSummary from '../../components/common/ReviewSummary';
@@ -41,12 +41,25 @@ export default function InfrastructureDetailPage() {
       </div>
       <div className="row g-4">
         <div className="col-xl-5 d-flex flex-column gap-4">
-          <div className="bh-card bh-card-body">
-            <ReviewSummary sections={[{ title: 'Resource', fields: [
-              { label: 'Provider', value: inf.provider }, { label: 'Resource Type', value: inf.resourceType }, { label: 'Category', value: inf.category },
-              { label: 'Region', value: inf.region }, { label: 'Dashboard', value: <ExtLink href={inf.dashboardUrl} />, wide: true },
-              { label: 'Created', value: fmt.date(inf.createdAt) }, { label: 'Updated', value: fmt.date(inf.updatedAt) },
-            ] }]} />
+          <div className="bh-card h-100">
+            <div className="bh-card-header colored">
+              <div className="d-flex align-items-center">
+                <span className="bh-card-header-icon">
+                  <Server size={18} />
+                </span>
+                <div>
+                  <h3 className="bh-card-title">Resource</h3>
+                  <p className="bh-card-sub">Cloud asset configuration, provider, and region</p>
+                </div>
+              </div>
+            </div>
+            <div className="bh-card-body">
+              <ReviewSummary sections={[{ title: 'Resource Details', icon: Server, fields: [
+                { label: 'Provider', value: inf.provider }, { label: 'Resource Type', value: inf.resourceType }, { label: 'Category', value: inf.category },
+                { label: 'Region', value: inf.region }, { label: 'Dashboard', value: <ExtLink href={inf.dashboardUrl} />, wide: true },
+                { label: 'Created', value: fmt.date(inf.createdAt) }, { label: 'Updated', value: fmt.date(inf.updatedAt) },
+              ] }]} />
+            </div>
           </div>
           <RelationshipCard title={`Other ${inf.provider} resources`} items={siblings.map((s) => ({ entity: 'infrastructure', record: s, meta: s.resourceType, badge: <StatusBadge value={s.status} /> }))} emptyText="No other resources at this provider." />
         </div>

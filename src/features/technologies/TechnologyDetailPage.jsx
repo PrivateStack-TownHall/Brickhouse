@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Trash2, Cpu, BarChart2, Layers } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
 import StatusBadge from '../../components/badges/StatusBadge';
 import ReviewSummary from '../../components/common/ReviewSummary';
@@ -45,21 +45,52 @@ export default function TechnologyDetailPage() {
         )} />
       <div className="row g-4">
         <div className="col-xl-4 d-flex flex-column gap-4">
-          <div className="bh-card bh-card-body">
-            <ReviewSummary sections={[{ title: 'Catalog entry', fields: [
-              { label: 'Website', value: <ExtLink href={t.websiteUrl} />, wide: true }, { label: 'Category', value: t.category },
-              { label: 'Used by applications', value: usage.applications.length }, { label: 'Used by components', value: usage.components.length },
-            ] }]} />
+          <div className="bh-card">
+            <div className="bh-card-header colored">
+              <div className="d-flex align-items-center">
+                <span className="bh-card-header-icon">
+                  <Cpu size={18} />
+                </span>
+                <div>
+                  <h3 className="bh-card-title">Technology</h3>
+                  <p className="bh-card-sub">Catalog entry and usage summary</p>
+                </div>
+              </div>
+            </div>
+            <div className="bh-card-body">
+              <ReviewSummary sections={[{ title: 'Catalog Entry', icon: Cpu, fields: [
+                { label: 'Website', value: <ExtLink href={t.websiteUrl} />, wide: true }, { label: 'Category', value: t.category },
+                { label: 'Used by applications', value: usage.applications.length }, { label: 'Used by components', value: usage.components.length },
+              ] }]} />
+            </div>
           </div>
           <div className="bh-card">
-            <div className="bh-card-header"><h3 className="bh-card-title">Version by usage</h3></div>
+            <div className="bh-card-header colored">
+              <div className="d-flex align-items-center">
+                <span className="bh-card-header-icon">
+                  <BarChart2 size={18} />
+                </span>
+                <div>
+                  <h3 className="bh-card-title">Version by usage</h3>
+                </div>
+              </div>
+            </div>
             <div className="bh-card-body">{versions.length ? <HBarList data={versions} valueSuffix=" usage(s)" /> : <EmptyState title="Not used yet" message="This entry stays in the catalog until it is linked." />}</div>
           </div>
         </div>
         <div className="col-xl-8 d-flex flex-column gap-4">
           <RelationshipCard title="Used By Applications" columns={2} items={usage.applications.map((a) => ({ entity: 'applications', record: a.record, meta: `${a.role || ''}${a.version ? ` · v${a.version}` : ''}` }))} emptyText="No application uses this technology." />
           <div className="bh-card">
-            <div className="bh-card-header"><h3 className="bh-card-title">Usage information</h3></div>
+            <div className="bh-card-header colored">
+              <div className="d-flex align-items-center">
+                <span className="bh-card-header-icon">
+                  <Layers size={18} />
+                </span>
+                <div>
+                  <h3 className="bh-card-title">Usage information</h3>
+                </div>
+              </div>
+            </div>
             <DataTable rows={rows} rowKey={(r) => r.key} empty={<EmptyState title="No usage recorded" />} columns={[
               { key: 'kind', label: 'Declared on' },
               { key: 'name', label: 'Record', sortValue: (r) => r.record.name, render: (r) => <EntityLink entity={r.entity} record={r.record} /> },

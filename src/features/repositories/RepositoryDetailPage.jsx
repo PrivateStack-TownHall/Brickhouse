@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
-import { Pencil, Trash2, GitBranch } from 'lucide-react';
+import { Pencil, Trash2, GitBranch, Activity } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
 import StatusBadge from '../../components/badges/StatusBadge';
 import SampleDataBadge from '../../components/badges/SampleDataBadge';
@@ -49,9 +49,11 @@ export default function RepositoryDetailPage() {
       <div className="row g-4">
         <div className="col-xl-7">
           <div className="bh-card mb-4">
-            <div className="bh-card-header">
-              <div className="d-flex align-items-center gap-2">
-                <GitBranch size={18} className="text-muted flex-shrink-0" />
+            <div className="bh-card-header colored">
+              <div className="d-flex align-items-center">
+                <span className="bh-card-header-icon">
+                  <GitBranch size={18} />
+                </span>
                 <div>
                   <h3 className="bh-card-title">Repository</h3>
                   <p className="bh-card-sub">Repository configuration, branch, and upstream links</p>
@@ -70,7 +72,20 @@ export default function RepositoryDetailPage() {
           </div>
           {gitData.source.kind === 'recorded' ? (
             <div className="bh-card">
-              <div className="bh-card-header"><div className="d-flex gap-2 align-items-center"><h3 className="bh-card-title">Recorded commits <span className="text-subtle fw-normal">({recorded.length})</span></h3><GitSourceBadge source={gitData.source} /></div><Link to="/progress" className="btn btn-ghost btn-sm">Progress & Review</Link></div>
+              <div className="bh-card-header colored">
+                <div className="d-flex align-items-center">
+                  <span className="bh-card-header-icon">
+                    <GitBranch size={18} />
+                  </span>
+                  <div>
+                    <div className="d-flex gap-2 align-items-center">
+                      <h3 className="bh-card-title">Recorded commits <span className="bh-card-count">({recorded.length})</span></h3>
+                      <GitSourceBadge source={gitData.source} />
+                    </div>
+                  </div>
+                </div>
+                <Link to="/progress" className="btn btn-ghost btn-sm">Progress & Review</Link>
+              </div>
               <div className="bh-card-body">
                 {recorded.length === 0 ? <div className="text-subtle">No commits recorded for this repository.</div> : (
                   <div className="d-flex flex-column gap-2">
@@ -87,7 +102,20 @@ export default function RepositoryDetailPage() {
             </div>
           ) : git && (
             <div className="bh-card">
-              <div className="bh-card-header"><div className="d-flex gap-2 align-items-center"><h3 className="bh-card-title">Development activity · last 30 days</h3><SampleDataBadge /></div><Link to="/progress" className="btn btn-ghost btn-sm">Progress & Review</Link></div>
+              <div className="bh-card-header colored">
+                <div className="d-flex align-items-center">
+                  <span className="bh-card-header-icon">
+                    <Activity size={18} />
+                  </span>
+                  <div>
+                    <div className="d-flex gap-2 align-items-center">
+                      <h3 className="bh-card-title">Development activity <span className="bh-card-count">· last 30 days</span></h3>
+                      <SampleDataBadge />
+                    </div>
+                  </div>
+                </div>
+                <Link to="/progress" className="btn btn-ghost btn-sm">Progress & Review</Link>
+              </div>
               <div className="bh-card-body">
                 <ReviewSummary sections={[{ title: '', fields: [
                   { label: 'Commits', value: git.commits }, { label: 'Active branches', value: git.branches }, { label: 'Pull requests', value: `${git.prs} (${git.openPrs} open)` },

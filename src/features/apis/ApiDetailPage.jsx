@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
-import { Pencil, Trash2, Plus, Lock, Unlock, Plug } from 'lucide-react';
+import { Pencil, Trash2, Plus, Lock, Unlock, Plug, Route } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
 import StatusBadge from '../../components/badges/StatusBadge';
 import ReviewSummary from '../../components/common/ReviewSummary';
@@ -51,9 +51,11 @@ export default function ApiDetailPage() {
       <div className="row g-4">
         <div className="col-xl-7">
           <div className="bh-card h-100">
-            <div className="bh-card-header">
-              <div className="d-flex align-items-center gap-2">
-                <Plug size={18} className="text-muted flex-shrink-0" />
+            <div className="bh-card-header colored">
+              <div className="d-flex align-items-center">
+                <span className="bh-card-header-icon">
+                  <Plug size={18} />
+                </span>
                 <div>
                   <h3 className="bh-card-title">API & Service</h3>
                   <p className="bh-card-sub">Configuration, provider, and network endpoints</p>
@@ -80,9 +82,17 @@ export default function ApiDetailPage() {
         </div>
         <div className="col-12">
           <div className="bh-card">
-            <div className="bh-card-header">
-              <div><h3 className="bh-card-title">Endpoints <span className="text-subtle fw-normal">({endpoints.length})</span></h3><p className="bh-card-sub">Each endpoint references this API by ID.</p></div>
-              <button type="button" className="btn btn-primary btn-sm" onClick={() => setEditing('new')}><Plus size={14} />Add Endpoint</button>
+            <div className="bh-card-header colored">
+              <div className="d-flex align-items-center">
+                <span className="bh-card-header-icon">
+                  <Route size={18} />
+                </span>
+                <div>
+                  <h3 className="bh-card-title">Endpoints <span className="bh-card-count">({endpoints.length})</span></h3>
+                  <p className="bh-card-sub">Each endpoint references this API by ID.</p>
+                </div>
+              </div>
+              <button type="button" className="btn btn-ghost btn-sm" onClick={() => setEditing('new')}><Plus size={14} />Add Endpoint</button>
             </div>
             <DataTable rows={endpoints} pageSize={15} empty={<EmptyState title="No endpoints yet" />} columns={[
               { key: 'id', label: 'Endpoint ID', render: (e) => <span className="bh-id">{e.id}</span> },

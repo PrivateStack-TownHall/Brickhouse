@@ -1,5 +1,5 @@
 import { Link, useNavigate, useParams } from 'react-router';
-import { Pencil, Trash2, Info } from 'lucide-react';
+import { Pencil, Trash2, Info, Rocket, Plug } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
 import StatusBadge from '../../components/badges/StatusBadge';
 import ReviewSummary from '../../components/common/ReviewSummary';
@@ -42,21 +42,34 @@ export default function DeploymentDetailPage() {
       </div>
       <div className="row g-4">
         <div className="col-xl-7">
-          <div className="bh-card bh-card-body">
-            <ReviewSummary sections={[
-              { title: 'Deployment', fields: [
-                { label: 'Code', value: <span className="mono">{d.code}</span> }, { label: 'Type', value: d.deploymentType }, { label: 'Hosting Platform', value: d.platform },
-                { label: 'Version / Release', value: d.version }, { label: 'Deploy Method', value: d.deployMethod }, { label: 'Branch / Source', value: <span className="mono">{d.branch}</span> },
-                { label: 'Deployed At', value: fmt.dateTime(d.lastDeployedAt) }, { label: 'Record Updated', value: fmt.dateTime(d.updatedAt) },
-                { label: 'Deployment URL', value: <ExtLink href={d.deploymentUrl} />, wide: true }, { label: 'Health Check URL', value: <ExtLink href={d.healthCheckUrl} />, wide: true },
-              ] },
-              { title: 'Relations', fields: [
-                { label: 'Component', value: <EntityLink entity="components" record={cmp} showId /> },
-                { label: 'Application (derived)', value: <EntityLink entity="applications" record={app} showId /> },
-                { label: 'Repository', value: <EntityLink entity="repositories" record={repo} showId /> },
-                { label: 'Infrastructure', value: <EntityLink entity="infrastructure" record={inf} showId /> },
-              ] },
-            ]} />
+          <div className="bh-card h-100">
+            <div className="bh-card-header colored">
+              <div className="d-flex align-items-center">
+                <span className="bh-card-header-icon">
+                  <Rocket size={18} />
+                </span>
+                <div>
+                  <h3 className="bh-card-title">Deployment</h3>
+                  <p className="bh-card-sub">Deployment configuration, target hosting, and source</p>
+                </div>
+              </div>
+            </div>
+            <div className="bh-card-body">
+              <ReviewSummary sections={[
+                { title: 'Deployment Details', icon: Rocket, fields: [
+                  { label: 'Code', value: <span className="mono">{d.code}</span> }, { label: 'Type', value: d.deploymentType }, { label: 'Hosting Platform', value: d.platform },
+                  { label: 'Version / Release', value: d.version }, { label: 'Deploy Method', value: d.deployMethod }, { label: 'Branch / Source', value: <span className="mono">{d.branch}</span> },
+                  { label: 'Deployed At', value: fmt.dateTime(d.lastDeployedAt) }, { label: 'Record Updated', value: fmt.dateTime(d.updatedAt) },
+                  { label: 'Deployment URL', value: <ExtLink href={d.deploymentUrl} />, wide: true }, { label: 'Health Check URL', value: <ExtLink href={d.healthCheckUrl} />, wide: true },
+                ] },
+                { title: 'Relations', icon: Plug, fields: [
+                  { label: 'Component', value: <EntityLink entity="components" record={cmp} showId /> },
+                  { label: 'Application (derived)', value: <EntityLink entity="applications" record={app} showId /> },
+                  { label: 'Repository', value: <EntityLink entity="repositories" record={repo} showId /> },
+                  { label: 'Infrastructure', value: <EntityLink entity="infrastructure" record={inf} showId /> },
+                ] },
+              ]} />
+            </div>
           </div>
         </div>
         <div className="col-xl-5">
