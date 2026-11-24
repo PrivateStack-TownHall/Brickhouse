@@ -47,9 +47,11 @@ export default function ComponentDetailPage() {
       <div className="row g-4">
         <div className="col-xl-6">
           <div className="bh-card h-100">
-            <div className="bh-card-header">
-              <div className="d-flex align-items-center gap-2">
-                <Boxes size={18} className="text-muted flex-shrink-0" />
+            <div className="bh-card-header colored">
+              <div className="d-flex align-items-center">
+                <span className="bh-card-header-icon">
+                  <Boxes size={18} />
+                </span>
                 <div>
                   <h3 className="bh-card-title">Component</h3>
                   <p className="bh-card-sub">Component details, parent application, and capabilities</p>

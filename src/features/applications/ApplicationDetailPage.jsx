@@ -76,9 +76,11 @@ export default function ApplicationDetailPage() {
         <div className="row g-4">
           <div className="col-xl-7">
             <div className="bh-card h-100">
-              <div className="bh-card-header">
-                <div className="d-flex align-items-center gap-2">
-                  <AppWindow size={18} className="text-muted flex-shrink-0" />
+              <div className="bh-card-header colored">
+                <div className="d-flex align-items-center">
+                  <span className="bh-card-header-icon">
+                    <AppWindow size={18} />
+                  </span>
                   <div>
                     <h3 className="bh-card-title">Application</h3>
                     <p className="bh-card-sub">Application specifications, environment, and ownership</p>
@@ -161,7 +163,24 @@ export default function ApplicationDetailPage() {
         </div>
       )}
 
-      {tab === 'activity' && <div className="bh-card bh-card-body"><ActivityTimeline activities={activities} /></div>}
+      {tab === 'activity' && (
+        <div className="bh-card">
+          <div className="bh-card-header colored">
+            <div className="d-flex align-items-center">
+              <span className="bh-card-header-icon">
+                <History size={18} />
+              </span>
+              <div>
+                <h3 className="bh-card-title">Activity Timeline</h3>
+                <p className="bh-card-sub">Audit trail of changes for this application</p>
+              </div>
+            </div>
+          </div>
+          <div className="bh-card-body">
+            <ActivityTimeline activities={activities} />
+          </div>
+        </div>
+      )}
       {deleteDialog}
     </>
   );
