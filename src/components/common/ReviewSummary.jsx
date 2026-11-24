@@ -7,7 +7,7 @@ export default function ReviewSummary({ sections }) {
         <div key={s.title}>
           {s.title && (
             <div className="bh-section-title">
-              {s.icon && <s.icon size={15} className="text-muted flex-shrink-0" />}
+              {s.icon && <s.icon size={15} className="bh-section-icon" />}
               <span>{s.title}</span>
             </div>
           )}

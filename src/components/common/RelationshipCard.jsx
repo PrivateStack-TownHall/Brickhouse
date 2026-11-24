@@ -14,11 +14,15 @@ export default function RelationshipCard({ icon: Icon, entity, title, subtitle, 
   const HeaderIcon = Icon || (entity ? ENTITY_ICONS[entity] : null);
   return (
     <div className="bh-card h-100">
-      <div className="bh-card-header">
-        <div className="d-flex align-items-center gap-2">
-          {HeaderIcon && <HeaderIcon size={18} className="text-muted flex-shrink-0" />}
+      <div className="bh-card-header colored">
+        <div className="d-flex align-items-center">
+          {HeaderIcon && (
+            <span className="bh-card-header-icon">
+              <HeaderIcon size={18} />
+            </span>
+          )}
           <div>
-            <h3 className="bh-card-title">{title} <span className="text-subtle fw-normal">({items.length})</span></h3>
+            <h3 className="bh-card-title">{title} <span className="bh-card-count">({items.length})</span></h3>
             {subtitle && <p className="bh-card-sub">{subtitle}</p>}
           </div>
         </div>
