@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
+import { motion } from 'framer-motion';
 import {
   Box, Code2, Layers, Server, Plus, BarChart3, Zap, Clock3, ArrowRight, ShieldCheck, ShieldAlert, Building2,
   AppWindow, GitBranch, Boxes, Rocket, Cpu, BarChartBig,
@@ -32,8 +33,16 @@ const PERIODS = [{ value: 7, label: 'Last 7 Days' }, { value: 30, label: 'Last 3
 const MONTH_RANGES = [{ value: 6, label: 'Last 6 Months' }, { value: 12, label: 'Last 12 Months' }];
 const DAY = 86400000;
 
-/** Records created in the last 30 days (shown as the trend on headline cards). */
 const recentCount = (rows) => rows.filter((r) => r.createdAt && Date.now() - new Date(r.createdAt).getTime() <= 30 * DAY).length;
+
+const headlineVariants = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { staggerChildren: 0.06 } },
+};
+const cardVariant = {
+  hidden: { opacity: 0, y: 14 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.28, ease: 'easeOut' } },
+};
 
 export default function OverviewPage() {
   const { data, health } = useRegistry();
@@ -91,14 +100,16 @@ export default function OverviewPage() {
       <PageHeader title="Ecosystem Overview" description={`A single source of truth for your ${data.settings.general.organization} digital assets.`}
         actions={<Link to="/applications/new" className="btn btn-primary"><Plus size={18} />Add Application</Link>} />
 
-      <div className="bh-headline-grid mb-4">
+      <motion.div className="bh-headline-grid mb-4" variants={headlineVariants} initial="hidden" animate="show">
         {headline.map((h) => (
-          <StatCard key={h.label} size="lg" label={h.label} value={h.value} icon={h.icon} tone={h.tone} onClick={() => navigate(h.to)}
-            trend={<Trend delta={recentCount(h.rows)} label="added in last 30 days" />} />
+          <motion.div key={h.label} variants={cardVariant}>
+            <StatCard size="lg" label={h.label} value={h.value} icon={h.icon} tone={h.tone} onClick={() => navigate(h.to)}
+              trend={<Trend delta={recentCount(h.rows)} label="added in last 30 days" />} />
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
-      <div className="row g-4 mb-4">
+      <motion.div className="row g-4 mb-4" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.32, delay: 0.12 }}>
         <div className="col-12">
           <SectionCard icon={Code2} title="Commit Activity" subtitle="Number of code commits per day across all repositories." badge={<GitSourceBadge source={gitData.source} />}
             actions={<SelectMenu ariaLabel="Commit period" value={period} onChange={setPeriod} options={PERIODS} />}>
@@ -116,9 +127,9 @@ export default function OverviewPage() {
             </div>
           </SectionCard>
         </div>
-      </div>
+      </motion.div>
 
-      <div className="row g-4 mb-4">
+      <motion.div className="row g-4 mb-4" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.32, delay: 0.22 }}>
         <div className="col-xl-7">
           <SectionCard icon={Clock3} title="Recently Updated Applications" subtitle="Latest changes to registered applications." noBody
             actions={<Link to="/applications" className="btn btn-secondary btn-sm">View All <ArrowRight size={14} /></Link>}>
@@ -137,9 +148,9 @@ export default function OverviewPage() {
             ]} />
           </SectionCard>
         </div>
-      </div>
+      </motion.div>
 
-      <div className="row g-4">
+      <motion.div className="row g-4" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.32, delay: 0.32 }}>
         <div className="col-xl-5">
           <SectionCard icon={ShieldCheck} title="Registry Health" subtitle="Overall status of your application registry."
             actions={<Link to="/data" className="btn btn-ghost btn-sm">Details <ArrowRight size={14} /></Link>}>
@@ -164,7 +175,7 @@ export default function OverviewPage() {
             <BarChart data={registrations} gradient valueLabel="applications registered" ariaLabel="Applications registered per month" height={210} maxBar={64} maxTicks={12} />
           </SectionCard>
         </div>
-      </div>
+      </motion.div>
       {deleteDialog}
     </>
   );

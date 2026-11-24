@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   Pencil, Trash2, LayoutGrid, GitBranch, Plug, Cpu, Server, Rocket, History, Plus, ExternalLink,
   AppWindow, Boxes, Info,
@@ -72,115 +73,125 @@ export default function ApplicationDetailPage() {
         )} />
       <DetailTabs tabs={tabs} active={tab} onChange={setTab} />
 
-      {tab === 'overview' && (
-        <div className="row g-4">
-          <div className="col-xl-7">
-            <div className="bh-card h-100">
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={tab}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -6 }}
+          transition={{ duration: 0.18, ease: 'easeOut' }}
+        >
+          {tab === 'overview' && (
+            <div className="row g-4">
+              <div className="col-xl-7">
+                <div className="bh-card h-100">
+                  <div className="bh-card-header colored">
+                    <div className="d-flex align-items-center">
+                      <span className="bh-card-header-icon">
+                        <AppWindow size={18} />
+                      </span>
+                      <div>
+                        <h3 className="bh-card-title">Application</h3>
+                        <p className="bh-card-sub">Application specifications, environment, and ownership</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bh-card-body">
+                    <ReviewSummary sections={[
+                      { title: 'General Information', icon: AppWindow, fields: [
+                        { label: 'Company', value: company && <span>{company.name} <span className="bh-id">{company.id}</span></span> },
+                        { label: 'Category', value: app.category }, { label: 'Type', value: app.type },
+                        { label: 'Purpose', value: app.purpose }, { label: 'Tags', value: app.tags?.length ? app.tags.map((t) => <span key={t} className="bh-chip me-1">{t}</span>) : null },
+                        { label: 'Website', value: <ExtLink href={app.websiteUrl} /> }, { label: 'Documentation', value: <ExtLink href={app.documentationUrl} /> },
+                      ] },
+                      { title: 'Technical Stack', icon: Cpu, fields: [
+                        { label: 'Architecture', value: app.architecture }, { label: 'Platform', value: app.platform },
+                        { label: 'Hosting', value: app.hosting }, { label: 'Environments', value: (app.environments || []).join(', ') },
+                      ] },
+                      { title: 'Record Audit', icon: History, fields: [{ label: 'Created', value: fmt.dateTime(app.createdAt) }, { label: 'Last Updated', value: fmt.dateTime(app.updatedAt) }] },
+                    ]} />
+                  </div>
+                </div>
+              </div>
+              <div className="col-xl-5 d-flex flex-column gap-4">
+                <RelationshipCard entity="components" icon={Boxes} title="Components" subtitle="Components whose parent is this application"
+                  action={<Link to={`/components/new?application=${id}`} className="btn btn-ghost btn-sm"><Plus size={14} />Add</Link>}
+                  items={components.map((c) => ({ entity: 'components', record: c, meta: `${c.layer} · ${c.type}`, badge: <StatusBadge value={c.lifecycle} /> }))} />
+                {shared.length > 0 && (
+                  <RelationshipCard entity="components" icon={Boxes} title="Shared components used" subtitle="Owned by other applications"
+                    items={shared.map(({ link, record }) => ({ key: link.id, entity: 'components', record, meta: byId(data, 'applications', record.applicationId)?.name, onUnlink: () => unlink('applicationComponents', link.id) }))} />
+                )}
+              </div>
+            </div>
+          )}
+
+          {tab === 'repositories' && (
+            <RelationshipCard title="Repositories" subtitle="Linked directly or through this application's components" columns={2}
+              items={repos.map((r) => ({
+                key: r.record.id, entity: 'repositories', record: r.record, meta: `${r.record.provider} · ${r.role || r.record.type} · via ${r.source}`,
+                badge: r.record.accessStatus === 'inaccessible' ? <AccessBadge value="inaccessible" /> : <StatusBadge value={r.record.visibility} />,
+                onUnlink: r.linkId ? () => unlink('applicationRepositories', r.linkId) : undefined,
+              }))} />
+          )}
+
+          {tab === 'apis' && (
+            <div className="row g-4">
+              <div className="col-lg-6"><RelationshipCard title="Provided" items={apis.filter((a) => a.relation === 'provider').map((a) => ({ entity: 'apis', record: a.record, meta: `${a.record.protocol} · ${a.record.version}`, badge: <StatusBadge value="provider" /> }))} emptyText="This application provides no APIs." /></div>
+              <div className="col-lg-6"><RelationshipCard title="Consumed" items={apis.filter((a) => a.relation === 'consumer').map((a) => ({ entity: 'apis', record: a.record, meta: `${a.record.protocol} · ${a.record.version}`, badge: <StatusBadge value="consumer" /> }))} emptyText="This application consumes no registered APIs." /></div>
+            </div>
+          )}
+
+          {tab === 'technologies' && (
+            <div className="bh-card">
+              <DataTable rowKey={(r) => `${r.record.id}-${r.source}-${r.role}`} rows={techs} pageSize={15} columns={[
+                { key: 'name', label: 'Technology', sortValue: (r) => r.record.name, render: (r) => <div className="d-flex align-items-center gap-2"><Avatar name={r.record.name} seed={r.record.id} size={24} /><EntityLink entity="technologies" record={r.record} /></div> },
+                { key: 'category', label: 'Category', sortValue: (r) => r.record.category, render: (r) => r.record.category },
+                { key: 'role', label: 'Role' },
+                { key: 'version', label: 'Version', render: (r) => r.version || '—' },
+                { key: 'source', label: 'Declared on', render: (r) => (r.source === 'Application' ? <span className="bh-chip">Application</span> : r.source) },
+              ]} />
+            </div>
+          )}
+
+          {tab === 'infrastructure' && (
+            <RelationshipCard title="Infrastructure" subtitle="Declared on the application, its components and its deployments" columns={2}
+              items={infra.map((r, i) => ({ key: `${r.record.id}-${i}`, entity: 'infrastructure', record: r.record, meta: `${r.record.provider} · ${r.role || r.record.resourceType} · ${r.source}`, badge: <StatusBadge value={r.record.status} /> }))} />
+          )}
+
+          {tab === 'deployments' && (
+            <div className="bh-card">
+              <DataTable rows={deployments} columns={[
+                { key: 'id', label: 'ID', render: (d) => <span className="bh-id">{d.id}</span> },
+                { key: 'name', label: 'Deployment', render: (d) => <EntityLink entity="deployments" record={d} /> },
+                { key: 'component', label: 'Component', render: (d) => <EntityLink entity="components" record={byId(data, 'components', d.componentId)} /> },
+                { key: 'environment', label: 'Environment', render: (d) => <StatusBadge value={d.environment} dot={false} /> },
+                { key: 'platform', label: 'Provider' },
+                { key: 'version', label: 'Version' },
+                { key: 'status', label: 'Status', render: (d) => <StatusBadge value={d.status} /> },
+              ]} />
+            </div>
+          )}
+
+          {tab === 'activity' && (
+            <div className="bh-card">
               <div className="bh-card-header colored">
                 <div className="d-flex align-items-center">
                   <span className="bh-card-header-icon">
-                    <AppWindow size={18} />
+                    <History size={18} />
                   </span>
                   <div>
-                    <h3 className="bh-card-title">Application</h3>
-                    <p className="bh-card-sub">Application specifications, environment, and ownership</p>
+                    <h3 className="bh-card-title">Activity Timeline</h3>
+                    <p className="bh-card-sub">Audit trail of changes for this application</p>
                   </div>
                 </div>
               </div>
               <div className="bh-card-body">
-                <ReviewSummary sections={[
-                  { title: 'General Information', icon: AppWindow, fields: [
-                    { label: 'Company', value: company && <span>{company.name} <span className="bh-id">{company.id}</span></span> },
-                    { label: 'Category', value: app.category }, { label: 'Type', value: app.type },
-                    { label: 'Purpose', value: app.purpose }, { label: 'Tags', value: app.tags?.length ? app.tags.map((t) => <span key={t} className="bh-chip me-1">{t}</span>) : null },
-                    { label: 'Website', value: <ExtLink href={app.websiteUrl} /> }, { label: 'Documentation', value: <ExtLink href={app.documentationUrl} /> },
-                  ] },
-                  { title: 'Technical Stack', icon: Cpu, fields: [
-                    { label: 'Architecture', value: app.architecture }, { label: 'Platform', value: app.platform },
-                    { label: 'Hosting', value: app.hosting }, { label: 'Environments', value: (app.environments || []).join(', ') },
-                  ] },
-                  { title: 'Record Audit', icon: History, fields: [{ label: 'Created', value: fmt.dateTime(app.createdAt) }, { label: 'Last Updated', value: fmt.dateTime(app.updatedAt) }] },
-                ]} />
+                <ActivityTimeline activities={activities} />
               </div>
             </div>
-          </div>
-          <div className="col-xl-5 d-flex flex-column gap-4">
-            <RelationshipCard entity="components" icon={Boxes} title="Components" subtitle="Components whose parent is this application"
-              action={<Link to={`/components/new?application=${id}`} className="btn btn-ghost btn-sm"><Plus size={14} />Add</Link>}
-              items={components.map((c) => ({ entity: 'components', record: c, meta: `${c.layer} · ${c.type}`, badge: <StatusBadge value={c.lifecycle} /> }))} />
-            {shared.length > 0 && (
-              <RelationshipCard entity="components" icon={Boxes} title="Shared components used" subtitle="Owned by other applications"
-                items={shared.map(({ link, record }) => ({ key: link.id, entity: 'components', record, meta: byId(data, 'applications', record.applicationId)?.name, onUnlink: () => unlink('applicationComponents', link.id) }))} />
-            )}
-          </div>
-        </div>
-      )}
-
-      {tab === 'repositories' && (
-        <RelationshipCard title="Repositories" subtitle="Linked directly or through this application's components" columns={2}
-          items={repos.map((r) => ({
-            key: r.record.id, entity: 'repositories', record: r.record, meta: `${r.record.provider} · ${r.role || r.record.type} · via ${r.source}`,
-            badge: r.record.accessStatus === 'inaccessible' ? <AccessBadge value="inaccessible" /> : <StatusBadge value={r.record.visibility} />,
-            onUnlink: r.linkId ? () => unlink('applicationRepositories', r.linkId) : undefined,
-          }))} />
-      )}
-
-      {tab === 'apis' && (
-        <div className="row g-4">
-          <div className="col-lg-6"><RelationshipCard title="Provided" items={apis.filter((a) => a.relation === 'provider').map((a) => ({ entity: 'apis', record: a.record, meta: `${a.record.protocol} · ${a.record.version}`, badge: <StatusBadge value="provider" /> }))} emptyText="This application provides no APIs." /></div>
-          <div className="col-lg-6"><RelationshipCard title="Consumed" items={apis.filter((a) => a.relation === 'consumer').map((a) => ({ entity: 'apis', record: a.record, meta: `${a.record.protocol} · ${a.record.version}`, badge: <StatusBadge value="consumer" /> }))} emptyText="This application consumes no registered APIs." /></div>
-        </div>
-      )}
-
-      {tab === 'technologies' && (
-        <div className="bh-card">
-          <DataTable rowKey={(r) => `${r.record.id}-${r.source}-${r.role}`} rows={techs} pageSize={15} columns={[
-            { key: 'name', label: 'Technology', sortValue: (r) => r.record.name, render: (r) => <div className="d-flex align-items-center gap-2"><Avatar name={r.record.name} seed={r.record.id} size={24} /><EntityLink entity="technologies" record={r.record} /></div> },
-            { key: 'category', label: 'Category', sortValue: (r) => r.record.category, render: (r) => r.record.category },
-            { key: 'role', label: 'Role' },
-            { key: 'version', label: 'Version', render: (r) => r.version || '—' },
-            { key: 'source', label: 'Declared on', render: (r) => (r.source === 'Application' ? <span className="bh-chip">Application</span> : r.source) },
-          ]} />
-        </div>
-      )}
-
-      {tab === 'infrastructure' && (
-        <RelationshipCard title="Infrastructure" subtitle="Declared on the application, its components and its deployments" columns={2}
-          items={infra.map((r, i) => ({ key: `${r.record.id}-${i}`, entity: 'infrastructure', record: r.record, meta: `${r.record.provider} · ${r.role || r.record.resourceType} · ${r.source}`, badge: <StatusBadge value={r.record.status} /> }))} />
-      )}
-
-      {tab === 'deployments' && (
-        <div className="bh-card">
-          <DataTable rows={deployments} columns={[
-            { key: 'id', label: 'ID', render: (d) => <span className="bh-id">{d.id}</span> },
-            { key: 'name', label: 'Deployment', render: (d) => <EntityLink entity="deployments" record={d} /> },
-            { key: 'component', label: 'Component', render: (d) => <EntityLink entity="components" record={byId(data, 'components', d.componentId)} /> },
-            { key: 'environment', label: 'Environment', render: (d) => <StatusBadge value={d.environment} dot={false} /> },
-            { key: 'platform', label: 'Provider' },
-            { key: 'version', label: 'Version' },
-            { key: 'status', label: 'Status', render: (d) => <StatusBadge value={d.status} /> },
-          ]} />
-        </div>
-      )}
-
-      {tab === 'activity' && (
-        <div className="bh-card">
-          <div className="bh-card-header colored">
-            <div className="d-flex align-items-center">
-              <span className="bh-card-header-icon">
-                <History size={18} />
-              </span>
-              <div>
-                <h3 className="bh-card-title">Activity Timeline</h3>
-                <p className="bh-card-sub">Audit trail of changes for this application</p>
-              </div>
-            </div>
-          </div>
-          <div className="bh-card-body">
-            <ActivityTimeline activities={activities} />
-          </div>
-        </div>
-      )}
+          )}
+        </motion.div>
+      </AnimatePresence>
       {deleteDialog}
     </>
   );
