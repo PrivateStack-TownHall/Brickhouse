@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import Modal from './Modal';
 
-/** Confirmation dialog. `requireText` forces the user to type a word (e.g. RESET). */
 export default function ConfirmDialog({ open, title, message, children, confirmLabel = 'Confirm', tone = 'primary', requireText, onConfirm, onCancel, confirmDisabled }) {
   const [typed, setTyped] = useState('');
   const close = () => { setTyped(''); onCancel(); };

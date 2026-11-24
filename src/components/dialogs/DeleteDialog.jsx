@@ -2,7 +2,6 @@ import { AlertTriangle, Link2 } from 'lucide-react';
 import ConfirmDialog from './ConfirmDialog';
 import { ENTITIES, LOCKED_ID_PREFIXES } from '../../services/schema';
 
-/** Delete confirmation that explains dependent relationships before anything is removed. */
 export default function DeleteDialog({ target, dependents, onConfirm, onCancel }) {
   if (!target) return null;
   const def = ENTITIES[target.entity];

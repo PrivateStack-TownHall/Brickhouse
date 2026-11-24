@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router';
+import { AnimatePresence, motion } from 'framer-motion';
 import { AlertTriangle } from 'lucide-react';
 import AppSidebar from './AppSidebar';
 import AppHeader from './AppHeader';
@@ -36,7 +37,17 @@ export default function AppShell() {
               <div><strong>Changes are not being saved.</strong> {health.message}</div>
             </div>
           )}
-          <Outlet />
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={pathname}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.18, ease: 'easeOut' }}
+            >
+              <Outlet />
+            </motion.div>
+          </AnimatePresence>
         </main>
       </div>
     </div>

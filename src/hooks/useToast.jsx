@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { CheckCircle2, AlertTriangle } from 'lucide-react';
 
 const ToastContext = createContext(() => {});
@@ -14,12 +15,21 @@ export function ToastProvider({ children }) {
     <ToastContext.Provider value={toast}>
       {children}
       <div className="bh-toasts" role="status" aria-live="polite">
-        {toasts.map((t) => (
-          <div key={t.id} className={`bh-toast ${t.type === 'error' ? 'error' : ''}`}>
-            {t.type === 'error' ? <AlertTriangle size={18} /> : <CheckCircle2 size={18} color="#7fd3a8" />}
-            <span>{t.message}</span>
-          </div>
-        ))}
+        <AnimatePresence>
+          {toasts.map((t) => (
+            <motion.div
+              key={t.id}
+              className={`bh-toast ${t.type === 'error' ? 'error' : ''}`}
+              initial={{ opacity: 0, y: 16, scale: 0.92 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 12, scale: 0.92 }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
+            >
+              {t.type === 'error' ? <AlertTriangle size={18} /> : <CheckCircle2 size={18} color="#7fd3a8" />}
+              <span>{t.message}</span>
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
     </ToastContext.Provider>
   );

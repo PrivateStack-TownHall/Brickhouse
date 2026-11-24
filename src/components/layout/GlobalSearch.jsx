@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Search } from 'lucide-react';
 import { useRegistry } from '../../hooks/useRegistry';
 import { ENTITIES, routeFor } from '../../services/schema';
@@ -8,7 +9,6 @@ import EntityIcon from '../common/EntityIcon';
 
 const SEARCHABLE = ['applications', 'components', 'repositories', 'deployments', 'apis', 'technologies', 'infrastructure', 'companies'];
 
-/** Searches every registry entity by name, ID, code, description and tags. */
 export default function GlobalSearch() {
   const { data } = useRegistry();
   const navigate = useNavigate();
@@ -51,21 +51,30 @@ export default function GlobalSearch() {
           }} />
         <span className="bh-kbd" aria-hidden>Ctrl K</span>
       </div>
-      {open && q.trim().length >= 2 && (
-        <div className="bh-search-results" role="listbox">
-          {results.length === 0 && <div className="p-3 text-subtle small">No records match “{q}”.</div>}
-          {results.map((r, i) => (
-            <div key={r.entity + r.record.id} role="option" aria-selected={i === active} className={`bh-search-item ${i === active ? 'active' : ''}`}
-              onMouseEnter={() => setActive(i)} onMouseDown={(e) => { e.preventDefault(); go(r); }}>
-              <EntityIcon entity={r.entity} boxed size={15} />
-              <div className="min-w-0">
-                <div className="fw-semibold text-truncate">{r.record.name}</div>
-                <div className="text-subtle" style={{ fontSize: 12 }}><span className="bh-id">{r.record.id}</span> · {ENTITIES[r.entity].label}</div>
+      <AnimatePresence>
+        {open && q.trim().length >= 2 && (
+          <motion.div
+            className="bh-search-results"
+            role="listbox"
+            initial={{ opacity: 0, scale: 0.96, y: -4 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.96, y: -4 }}
+            transition={{ duration: 0.15, ease: 'easeOut' }}
+          >
+            {results.length === 0 && <div className="p-3 text-subtle small">No records match “{q}”.</div>}
+            {results.map((r, i) => (
+              <div key={r.entity + r.record.id} role="option" aria-selected={i === active} className={`bh-search-item ${i === active ? 'active' : ''}`}
+                onMouseEnter={() => setActive(i)} onMouseDown={(e) => { e.preventDefault(); go(r); }}>
+                <EntityIcon entity={r.entity} boxed size={15} />
+                <div className="min-w-0">
+                  <div className="fw-semibold text-truncate">{r.record.name}</div>
+                  <div className="text-subtle" style={{ fontSize: 12 }}><span className="bh-id">{r.record.id}</span> · {ENTITIES[r.entity].label}</div>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

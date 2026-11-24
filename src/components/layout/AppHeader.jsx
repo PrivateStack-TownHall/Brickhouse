@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Bell, Menu, Database, ShieldCheck, AlertTriangle, Compass, ExternalLink } from 'lucide-react';
 import Breadcrumb from './Breadcrumb';
 import GlobalSearch from './GlobalSearch';
@@ -41,16 +42,25 @@ export default function AppHeader({ onMenu }) {
         <button type="button" className="bh-icon-btn" aria-label={`Notifications (${notes.length})`} onClick={() => setMenu(menu === 'n' ? null : 'n')}>
           <Bell size={18} />{notes.length > 0 && <span className="bh-dot" />}
         </button>
-        {menu === 'n' && (
-          <div className="bh-dropdown" style={{ width: 340 }}>
-            <div className="small-caps px-2 py-1">Registry notifications</div>
-            {notes.length === 0 && <div className="d-flex gap-2 p-2 small"><ShieldCheck size={16} color="var(--bh-success)" />All integrity checks pass.</div>}
-            {notes.map((n) => (
-              <div key={n.key} className="d-flex gap-2 p-2 small"><AlertTriangle size={16} className="flex-shrink-0" color={`var(--bh-${n.tone})`} />{n.text}</div>
-            ))}
-            <Link to="/data" className="bh-dropdown-item mt-1" onClick={close}><Database size={16} />Open Data Management</Link>
-          </div>
-        )}
+        <AnimatePresence>
+          {menu === 'n' && (
+            <motion.div
+              className="bh-dropdown"
+              style={{ width: 340 }}
+              initial={{ opacity: 0, scale: 0.95, y: -4 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: -4 }}
+              transition={{ duration: 0.15, ease: 'easeOut' }}
+            >
+              <div className="small-caps px-2 py-1">Registry notifications</div>
+              {notes.length === 0 && <div className="d-flex gap-2 p-2 small"><ShieldCheck size={16} color="var(--bh-success)" />All integrity checks pass.</div>}
+              {notes.map((n) => (
+                <div key={n.key} className="d-flex gap-2 p-2 small"><AlertTriangle size={16} className="flex-shrink-0" color={`var(--bh-${n.tone})`} />{n.text}</div>
+              ))}
+              <Link to="/data" className="bh-dropdown-item mt-1" onClick={close}><Database size={16} />Open Data Management</Link>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
       <div className="d-flex align-items-center">
         <a
