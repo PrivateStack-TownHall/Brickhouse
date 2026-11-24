@@ -1,0 +1,31 @@
+{
+  "general": {
+    "appName": "BRICKHOUSE",
+    "description": "Application Registry & Ecosystem Inventory for VSG Group",
+    "organization": "VSG Group",
+    "ownerName": "Registry Owner",
+    "theme": "Brickhouse (default)"
+  },
+  "preferences": {
+    "themeMode": "light",
+    "dateFormat": "DD MMM YYYY",
+    "timeFormat": "24h"
+  },
+  "integrations": {
+    "github": {
+      "organization": "PrivateStack-TownHall",
+      "apiBaseUrl": "https://api.github.com",
+      "notes": "Repositories also live under vincent-guizot. Not connected: Git data is a recorded snapshot."
+    },
+    "gitlab": {
+      "organization": "",
+      "apiBaseUrl": "https://gitlab.com/api/v4",
+      "notes": ""
+    },
+    "bitbucket": {
+      "organization": "",
+      "apiBaseUrl": "https://api.bitbucket.org/2.0",
+      "notes": ""
+    }
+  }
+}

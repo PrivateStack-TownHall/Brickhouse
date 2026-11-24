@@ -1,0 +1,262 @@
+[
+  {
+    "id": "TECH-001",
+    "name": "React",
+    "category": "Frontend Framework",
+    "websiteUrl": "https://react.dev",
+    "description": "Component-based UI library.",
+    "status": "active",
+    "createdAt": "2026-01-06T09:00:00.000Z",
+    "updatedAt": "2026-01-06T09:00:00.000Z"
+  },
+  {
+    "id": "TECH-002",
+    "name": "Vite",
+    "category": "DevOps",
+    "websiteUrl": "https://vite.dev",
+    "description": "Frontend build tool and dev server.",
+    "status": "active",
+    "createdAt": "2026-01-06T09:00:00.000Z",
+    "updatedAt": "2026-01-06T09:00:00.000Z"
+  },
+  {
+    "id": "TECH-003",
+    "name": "JavaScript",
+    "category": "Programming Language",
+    "websiteUrl": "https://developer.mozilla.org/docs/Web/JavaScript",
+    "description": "Language of the web platform.",
+    "status": "active",
+    "createdAt": "2026-01-06T09:00:00.000Z",
+    "updatedAt": "2026-01-06T09:00:00.000Z"
+  },
+  {
+    "id": "TECH-004",
+    "name": "Node.js",
+    "category": "Programming Language",
+    "websiteUrl": "https://nodejs.org",
+    "description": "JavaScript runtime for servers.",
+    "status": "active",
+    "createdAt": "2026-01-06T09:00:00.000Z",
+    "updatedAt": "2026-01-06T09:00:00.000Z"
+  },
+  {
+    "id": "TECH-005",
+    "name": "Express",
+    "category": "Backend Framework",
+    "websiteUrl": "https://expressjs.com",
+    "description": "Minimal Node.js web framework.",
+    "status": "active",
+    "createdAt": "2026-01-06T09:00:00.000Z",
+    "updatedAt": "2026-01-06T09:00:00.000Z"
+  },
+  {
+    "id": "TECH-006",
+    "name": "Laravel",
+    "category": "Backend Framework",
+    "websiteUrl": "https://laravel.com",
+    "description": "PHP web application framework.",
+    "status": "active",
+    "createdAt": "2026-01-06T09:00:00.000Z",
+    "updatedAt": "2026-01-06T09:00:00.000Z"
+  },
+  {
+    "id": "TECH-007",
+    "name": "PHP",
+    "category": "Programming Language",
+    "websiteUrl": "https://www.php.net",
+    "description": "Server-side scripting language.",
+    "status": "active",
+    "createdAt": "2026-01-06T09:00:00.000Z",
+    "updatedAt": "2026-01-06T09:00:00.000Z"
+  },
+  {
+    "id": "TECH-008",
+    "name": "Go",
+    "category": "Programming Language",
+    "websiteUrl": "https://go.dev",
+    "description": "Compiled language for services.",
+    "status": "active",
+    "createdAt": "2026-01-06T09:00:00.000Z",
+    "updatedAt": "2026-01-06T09:00:00.000Z"
+  },
+  {
+    "id": "TECH-009",
+    "name": "Python",
+    "category": "Programming Language",
+    "websiteUrl": "https://www.python.org",
+    "description": "General-purpose language.",
+    "status": "active",
+    "createdAt": "2026-01-06T09:00:00.000Z",
+    "updatedAt": "2026-01-06T09:00:00.000Z"
+  },
+  {
+    "id": "TECH-010",
+    "name": "FastAPI",
+    "category": "Backend Framework",
+    "websiteUrl": "https://fastapi.tiangolo.com",
+    "description": "Python API framework.",
+    "status": "active",
+    "createdAt": "2026-01-06T09:00:00.000Z",
+    "updatedAt": "2026-01-06T09:00:00.000Z"
+  },
+  {
+    "id": "TECH-011",
+    "name": "Flutter",
+    "category": "Frontend Framework",
+    "websiteUrl": "https://flutter.dev",
+    "description": "Cross-platform mobile UI toolkit.",
+    "status": "active",
+    "createdAt": "2026-01-06T09:00:00.000Z",
+    "updatedAt": "2026-01-06T09:00:00.000Z"
+  },
+  {
+    "id": "TECH-012",
+    "name": "Next.js",
+    "category": "Frontend Framework",
+    "websiteUrl": "https://nextjs.org",
+    "description": "React framework with server rendering.",
+    "status": "active",
+    "createdAt": "2026-01-06T09:00:00.000Z",
+    "updatedAt": "2026-01-06T09:00:00.000Z"
+  },
+  {
+    "id": "TECH-013",
+    "name": "PostgreSQL",
+    "category": "Database",
+    "websiteUrl": "https://www.postgresql.org",
+    "description": "Relational database.",
+    "status": "active",
+    "createdAt": "2026-01-06T09:00:00.000Z",
+    "updatedAt": "2026-01-06T09:00:00.000Z"
+  },
+  {
+    "id": "TECH-014",
+    "name": "MySQL",
+    "category": "Database",
+    "websiteUrl": "https://www.mysql.com",
+    "description": "Relational database.",
+    "status": "active",
+    "createdAt": "2026-01-06T09:00:00.000Z",
+    "updatedAt": "2026-01-06T09:00:00.000Z"
+  },
+  {
+    "id": "TECH-015",
+    "name": "Prisma",
+    "category": "ORM",
+    "websiteUrl": "https://www.prisma.io",
+    "description": "Node.js ORM.",
+    "status": "active",
+    "createdAt": "2026-01-06T09:00:00.000Z",
+    "updatedAt": "2026-01-06T09:00:00.000Z"
+  },
+  {
+    "id": "TECH-016",
+    "name": "Eloquent",
+    "category": "ORM",
+    "websiteUrl": "https://laravel.com/docs/eloquent",
+    "description": "Laravel ORM.",
+    "status": "active",
+    "createdAt": "2026-01-06T09:00:00.000Z",
+    "updatedAt": "2026-01-06T09:00:00.000Z"
+  },
+  {
+    "id": "TECH-017",
+    "name": "Bootstrap",
+    "category": "Styling",
+    "websiteUrl": "https://getbootstrap.com",
+    "description": "CSS framework.",
+    "status": "active",
+    "createdAt": "2026-01-06T09:00:00.000Z",
+    "updatedAt": "2026-01-06T09:00:00.000Z"
+  },
+  {
+    "id": "TECH-018",
+    "name": "Tailwind CSS",
+    "category": "Styling",
+    "websiteUrl": "https://tailwindcss.com",
+    "description": "Utility-first CSS framework.",
+    "status": "active",
+    "createdAt": "2026-01-06T09:00:00.000Z",
+    "updatedAt": "2026-01-06T09:00:00.000Z"
+  },
+  {
+    "id": "TECH-019",
+    "name": "Redis",
+    "category": "Database",
+    "websiteUrl": "https://redis.io",
+    "description": "In-memory data store and queue backend.",
+    "status": "active",
+    "createdAt": "2026-01-06T09:00:00.000Z",
+    "updatedAt": "2026-01-06T09:00:00.000Z"
+  },
+  {
+    "id": "TECH-020",
+    "name": "Docker",
+    "category": "DevOps",
+    "websiteUrl": "https://www.docker.com",
+    "description": "Container platform.",
+    "status": "active",
+    "createdAt": "2026-01-06T09:00:00.000Z",
+    "updatedAt": "2026-01-06T09:00:00.000Z"
+  },
+  {
+    "id": "TECH-021",
+    "name": "GitHub Actions",
+    "category": "DevOps",
+    "websiteUrl": "https://github.com/features/actions",
+    "description": "CI/CD workflows.",
+    "status": "active",
+    "createdAt": "2026-01-06T09:00:00.000Z",
+    "updatedAt": "2026-01-06T09:00:00.000Z"
+  },
+  {
+    "id": "TECH-022",
+    "name": "Vitest",
+    "category": "Testing",
+    "websiteUrl": "https://vitest.dev",
+    "description": "Vite-native test runner.",
+    "status": "active",
+    "createdAt": "2026-01-06T09:00:00.000Z",
+    "updatedAt": "2026-01-06T09:00:00.000Z"
+  },
+  {
+    "id": "TECH-023",
+    "name": "Gin",
+    "category": "Backend Framework",
+    "websiteUrl": "https://gin-gonic.com",
+    "description": "Go HTTP framework.",
+    "status": "active",
+    "createdAt": "2026-01-06T09:00:00.000Z",
+    "updatedAt": "2026-01-06T09:00:00.000Z"
+  },
+  {
+    "id": "TECH-024",
+    "name": "Axios",
+    "category": "Library",
+    "websiteUrl": "https://axios-http.com",
+    "description": "Promise-based HTTP client.",
+    "status": "active",
+    "createdAt": "2026-01-06T09:00:00.000Z",
+    "updatedAt": "2026-01-06T09:00:00.000Z"
+  },
+  {
+    "id": "TECH-025",
+    "name": "Svelte",
+    "category": "Frontend Framework",
+    "websiteUrl": "https://svelte.dev",
+    "description": "Compiler-based UI framework.",
+    "status": "active",
+    "createdAt": "2026-01-06T09:00:00.000Z",
+    "updatedAt": "2026-01-06T09:00:00.000Z"
+  },
+  {
+    "id": "TECH-026",
+    "name": "jQuery",
+    "category": "Library",
+    "websiteUrl": "https://jquery.com",
+    "description": "DOM utility library.",
+    "status": "active",
+    "createdAt": "2026-01-06T09:00:00.000Z",
+    "updatedAt": "2026-01-06T09:00:00.000Z"
+  }
+]

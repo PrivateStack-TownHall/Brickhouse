@@ -1,0 +1,74 @@
+[
+  {
+    "id": "AA-001",
+    "applicationId": "APP-021",
+    "apiId": "API-001",
+    "role": "provider"
+  },
+  {
+    "id": "AA-002",
+    "applicationId": "APP-022",
+    "apiId": "API-002",
+    "role": "provider"
+  },
+  {
+    "id": "AA-003",
+    "applicationId": "APP-023",
+    "apiId": "API-003",
+    "role": "provider"
+  },
+  {
+    "id": "AA-004",
+    "applicationId": "APP-024",
+    "apiId": "API-004",
+    "role": "provider"
+  },
+  {
+    "id": "AA-005",
+    "applicationId": "APP-025",
+    "apiId": "API-005",
+    "role": "provider"
+  },
+  {
+    "id": "AA-006",
+    "applicationId": "APP-026",
+    "apiId": "API-006",
+    "role": "provider"
+  },
+  {
+    "id": "AA-007",
+    "applicationId": "APP-027",
+    "apiId": "API-007",
+    "role": "provider"
+  },
+  {
+    "id": "AA-008",
+    "applicationId": "APP-028",
+    "apiId": "API-008",
+    "role": "provider"
+  },
+  {
+    "id": "AA-009",
+    "applicationId": "APP-029",
+    "apiId": "API-009",
+    "role": "provider"
+  },
+  {
+    "id": "AA-010",
+    "applicationId": "APP-030",
+    "apiId": "API-010",
+    "role": "provider"
+  },
+  {
+    "id": "AA-011",
+    "applicationId": "APP-031",
+    "apiId": "API-011",
+    "role": "provider"
+  },
+  {
+    "id": "AA-012",
+    "applicationId": "APP-032",
+    "apiId": "API-012",
+    "role": "provider"
+  }
+]

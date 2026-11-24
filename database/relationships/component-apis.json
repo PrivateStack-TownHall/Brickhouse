@@ -1,0 +1,38 @@
+[
+  {
+    "id": "CA-001",
+    "componentId": "CMP-001",
+    "apiId": "API-008",
+    "role": "provider"
+  },
+  {
+    "id": "CA-002",
+    "componentId": "CMP-002",
+    "apiId": "API-008",
+    "role": "consumer"
+  },
+  {
+    "id": "CA-003",
+    "componentId": "CMP-003",
+    "apiId": "API-007",
+    "role": "consumer"
+  },
+  {
+    "id": "CA-004",
+    "componentId": "CMP-004",
+    "apiId": "API-006",
+    "role": "consumer"
+  },
+  {
+    "id": "CA-005",
+    "componentId": "CMP-005",
+    "apiId": "API-010",
+    "role": "consumer"
+  },
+  {
+    "id": "CA-006",
+    "componentId": "CMP-006",
+    "apiId": "API-012",
+    "role": "consumer"
+  }
+]

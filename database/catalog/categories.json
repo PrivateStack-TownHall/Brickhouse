@@ -1,0 +1,151 @@
+{
+  "applicationCategories": [
+    "Main Applications",
+    "Learning & Experimental",
+    "API Portfolio",
+    "Infrastructure & Ecosystem",
+    "Templates & Developer Tools"
+  ],
+  "applicationTypes": [
+    "Web Application",
+    "Mobile Application",
+    "API Platform",
+    "Ecosystem Platform",
+    "Core Infrastructure",
+    "Asset Management",
+    "Dashboard Toolkit",
+    "Experimental / Sandbox",
+    "Template",
+    "Learning Resource",
+    "Developer Tool",
+    "Unspecified"
+  ],
+  "repositoryProviders": [
+    "GitHub",
+    "GitLab",
+    "Bitbucket"
+  ],
+  "repositoryTypes": [
+    "application",
+    "frontend",
+    "backend",
+    "fullstack",
+    "mobile",
+    "library",
+    "content",
+    "template",
+    "learning-resource",
+    "tool",
+    "monorepo",
+    "infrastructure",
+    "documentation"
+  ],
+  "componentCategories": [
+    "Application Module",
+    "Shared Module",
+    "Integration",
+    "Platform"
+  ],
+  "componentRoles": [
+    "Feature",
+    "Core",
+    "Utility",
+    "Gateway"
+  ],
+  "componentTypes": [
+    "Module",
+    "Service",
+    "Library",
+    "UI"
+  ],
+  "componentLayers": [
+    "Frontend",
+    "Backend",
+    "Shared",
+    "Full Stack"
+  ],
+  "componentRelationshipTypes": [
+    "depends_on",
+    "calls",
+    "publishes_to",
+    "extends"
+  ],
+  "technologyCategories": [
+    "Frontend Framework",
+    "Backend Framework",
+    "Programming Language",
+    "Database",
+    "ORM",
+    "Styling",
+    "Library",
+    "DevOps",
+    "Testing",
+    "Other"
+  ],
+  "infrastructureCategories": [
+    "Hosting",
+    "Compute",
+    "Database",
+    "Storage",
+    "CDN",
+    "Network",
+    "Security",
+    "Monitoring",
+    "Other"
+  ],
+  "serviceTypes": [
+    "API Service",
+    "Microservice",
+    "Integration",
+    "Background Service",
+    "External Service"
+  ],
+  "protocols": [
+    "REST",
+    "GraphQL",
+    "gRPC",
+    "WebSocket"
+  ],
+  "authenticationMethods": [
+    "JWT",
+    "API Key",
+    "OAuth 2.0",
+    "None"
+  ],
+  "httpMethods": [
+    "GET",
+    "POST",
+    "PUT",
+    "PATCH",
+    "DELETE"
+  ],
+  "environments": [
+    "production",
+    "staging",
+    "development",
+    "preview"
+  ],
+  "deploymentTypes": [
+    "Web Application",
+    "Static Site",
+    "Web Service",
+    "Container",
+    "Serverless Function",
+    "Mobile Release",
+    "Background Worker"
+  ],
+  "deployMethods": [
+    "Git integration",
+    "CI/CD pipeline",
+    "Manual",
+    "CLI"
+  ],
+  "lifecycleOptions": [
+    "planning",
+    "development",
+    "testing",
+    "active",
+    "maintenance",
+    "archived"
+  ]
+}

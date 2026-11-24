@@ -1,0 +1,38 @@
+[
+  {
+    "id": "CR-001",
+    "componentId": "CMP-001",
+    "repositoryId": "REPO-019",
+    "path": ""
+  },
+  {
+    "id": "CR-002",
+    "componentId": "CMP-002",
+    "repositoryId": "REPO-028",
+    "path": ""
+  },
+  {
+    "id": "CR-003",
+    "componentId": "CMP-003",
+    "repositoryId": "REPO-029",
+    "path": ""
+  },
+  {
+    "id": "CR-004",
+    "componentId": "CMP-004",
+    "repositoryId": "REPO-030",
+    "path": ""
+  },
+  {
+    "id": "CR-005",
+    "componentId": "CMP-005",
+    "repositoryId": "REPO-031",
+    "path": ""
+  },
+  {
+    "id": "CR-006",
+    "componentId": "CMP-006",
+    "repositoryId": "REPO-032",
+    "path": ""
+  }
+]

@@ -1,0 +1,13 @@
+[
+  {
+    "id": "ACT-001",
+    "timestamp": "2026-11-23T14:38:47Z",
+    "actor": "Registry Owner",
+    "category": "system",
+    "action": "Workbook imported",
+    "resourceType": "System",
+    "resourceId": null,
+    "applicationId": null,
+    "description": "Imported source.xlsx: 40 applications, 32 repositories, 12 APIs, 6 components, 23 recorded commits."
+  }
+]

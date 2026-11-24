@@ -1,0 +1,6 @@
+{
+  "version": 2,
+  "name": "brickhouse-registry",
+  "description": "v2: recorded Git commits and repository access status",
+  "releasedAt": "2026-11-23"
+}

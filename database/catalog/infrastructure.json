@@ -1,0 +1,28 @@
+[
+  {
+    "id": "INF-001",
+    "name": "GitHub – PrivateStack-TownHall",
+    "provider": "GitHub",
+    "category": "Other",
+    "resourceType": "Source Control Organization",
+    "region": "",
+    "dashboardUrl": "https://github.com/PrivateStack-TownHall",
+    "description": "GitHub owner of registered repositories (PrivateStack-TownHall).",
+    "status": "active",
+    "createdAt": "2026-11-23T14:38:47Z",
+    "updatedAt": "2026-11-23T14:38:47Z"
+  },
+  {
+    "id": "INF-002",
+    "name": "GitHub – vincent-guizot",
+    "provider": "GitHub",
+    "category": "Other",
+    "resourceType": "Source Control Organization",
+    "region": "",
+    "dashboardUrl": "https://github.com/vincent-guizot",
+    "description": "GitHub owner of registered repositories (vincent-guizot).",
+    "status": "active",
+    "createdAt": "2026-11-23T14:38:47Z",
+    "updatedAt": "2026-11-23T14:38:47Z"
+  }
+]

@@ -1,0 +1,194 @@
+[
+  {
+    "id": "AR-001",
+    "applicationId": "APP-001",
+    "repositoryId": "REPO-001",
+    "role": "Application"
+  },
+  {
+    "id": "AR-002",
+    "applicationId": "APP-002",
+    "repositoryId": "REPO-002",
+    "role": "Application"
+  },
+  {
+    "id": "AR-003",
+    "applicationId": "APP-003",
+    "repositoryId": "REPO-003",
+    "role": "Application"
+  },
+  {
+    "id": "AR-004",
+    "applicationId": "APP-004",
+    "repositoryId": "REPO-004",
+    "role": "Application UI"
+  },
+  {
+    "id": "AR-005",
+    "applicationId": "APP-004",
+    "repositoryId": "REPO-005",
+    "role": "Content Repository"
+  },
+  {
+    "id": "AR-006",
+    "applicationId": "APP-005",
+    "repositoryId": "REPO-006",
+    "role": "Application"
+  },
+  {
+    "id": "AR-007",
+    "applicationId": "APP-006",
+    "repositoryId": "REPO-007",
+    "role": "Application / CMS"
+  },
+  {
+    "id": "AR-008",
+    "applicationId": "APP-007",
+    "repositoryId": "REPO-008",
+    "role": "Application"
+  },
+  {
+    "id": "AR-009",
+    "applicationId": "APP-008",
+    "repositoryId": "REPO-009",
+    "role": "Application"
+  },
+  {
+    "id": "AR-010",
+    "applicationId": "APP-009",
+    "repositoryId": "REPO-010",
+    "role": "Application"
+  },
+  {
+    "id": "AR-011",
+    "applicationId": "APP-011",
+    "repositoryId": "REPO-011",
+    "role": "Web Application"
+  },
+  {
+    "id": "AR-012",
+    "applicationId": "APP-012",
+    "repositoryId": "REPO-012",
+    "role": "Web Application"
+  },
+  {
+    "id": "AR-013",
+    "applicationId": "APP-013",
+    "repositoryId": "REPO-013",
+    "role": "Web Application"
+  },
+  {
+    "id": "AR-014",
+    "applicationId": "APP-015",
+    "repositoryId": "REPO-014",
+    "role": "Web Application"
+  },
+  {
+    "id": "AR-015",
+    "applicationId": "APP-016",
+    "repositoryId": "REPO-015",
+    "role": "Web Application / Admin UI"
+  },
+  {
+    "id": "AR-016",
+    "applicationId": "APP-017",
+    "repositoryId": "REPO-016",
+    "role": "Mobile Application"
+  },
+  {
+    "id": "AR-017",
+    "applicationId": "APP-018",
+    "repositoryId": "REPO-017",
+    "role": "Mobile / Experimental"
+  },
+  {
+    "id": "AR-018",
+    "applicationId": "APP-020",
+    "repositoryId": "REPO-018",
+    "role": "Experimental / Sandbox"
+  },
+  {
+    "id": "AR-019",
+    "applicationId": "APP-028",
+    "repositoryId": "REPO-019",
+    "role": "API"
+  },
+  {
+    "id": "AR-020",
+    "applicationId": "APP-033",
+    "repositoryId": "REPO-020",
+    "role": "Ecosystem Platform"
+  },
+  {
+    "id": "AR-021",
+    "applicationId": "APP-034",
+    "repositoryId": "REPO-021",
+    "role": "Core Infrastructure"
+  },
+  {
+    "id": "AR-022",
+    "applicationId": "APP-035",
+    "repositoryId": "REPO-022",
+    "role": "Asset Management"
+  },
+  {
+    "id": "AR-023",
+    "applicationId": "APP-036",
+    "repositoryId": "REPO-023",
+    "role": "Dashboard Toolkit"
+  },
+  {
+    "id": "AR-024",
+    "applicationId": "APP-037",
+    "repositoryId": "REPO-024",
+    "role": "API Template"
+  },
+  {
+    "id": "AR-025",
+    "applicationId": "APP-038",
+    "repositoryId": "REPO-025",
+    "role": "Backend Template"
+  },
+  {
+    "id": "AR-026",
+    "applicationId": "APP-039",
+    "repositoryId": "REPO-026",
+    "role": "Learning Resource"
+  },
+  {
+    "id": "AR-027",
+    "applicationId": "APP-040",
+    "repositoryId": "REPO-027",
+    "role": "Developer Tool"
+  },
+  {
+    "id": "AR-028",
+    "applicationId": "APP-028",
+    "repositoryId": "REPO-028",
+    "role": "Frontend UI (UI-01, separate repository)"
+  },
+  {
+    "id": "AR-029",
+    "applicationId": "APP-027",
+    "repositoryId": "REPO-029",
+    "role": "Frontend UI (UI-02, separate repository)"
+  },
+  {
+    "id": "AR-030",
+    "applicationId": "APP-026",
+    "repositoryId": "REPO-030",
+    "role": "Frontend UI (UI-03, separate repository)"
+  },
+  {
+    "id": "AR-031",
+    "applicationId": "APP-030",
+    "repositoryId": "REPO-031",
+    "role": "Frontend UI (UI-04, separate repository)"
+  },
+  {
+    "id": "AR-032",
+    "applicationId": "APP-032",
+    "repositoryId": "REPO-032",
+    "role": "Frontend UI (UI-05, separate repository)"
+  }
+]

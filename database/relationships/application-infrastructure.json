@@ -1,0 +1,182 @@
+[
+  {
+    "id": "AI-001",
+    "applicationId": "APP-001",
+    "infrastructureId": "INF-001",
+    "role": "Source control (GitHub)"
+  },
+  {
+    "id": "AI-002",
+    "applicationId": "APP-002",
+    "infrastructureId": "INF-001",
+    "role": "Source control (GitHub)"
+  },
+  {
+    "id": "AI-003",
+    "applicationId": "APP-003",
+    "infrastructureId": "INF-001",
+    "role": "Source control (GitHub)"
+  },
+  {
+    "id": "AI-004",
+    "applicationId": "APP-004",
+    "infrastructureId": "INF-001",
+    "role": "Source control (GitHub)"
+  },
+  {
+    "id": "AI-005",
+    "applicationId": "APP-005",
+    "infrastructureId": "INF-001",
+    "role": "Source control (GitHub)"
+  },
+  {
+    "id": "AI-006",
+    "applicationId": "APP-006",
+    "infrastructureId": "INF-001",
+    "role": "Source control (GitHub)"
+  },
+  {
+    "id": "AI-007",
+    "applicationId": "APP-007",
+    "infrastructureId": "INF-001",
+    "role": "Source control (GitHub)"
+  },
+  {
+    "id": "AI-008",
+    "applicationId": "APP-008",
+    "infrastructureId": "INF-001",
+    "role": "Source control (GitHub)"
+  },
+  {
+    "id": "AI-009",
+    "applicationId": "APP-009",
+    "infrastructureId": "INF-001",
+    "role": "Source control (GitHub)"
+  },
+  {
+    "id": "AI-010",
+    "applicationId": "APP-011",
+    "infrastructureId": "INF-002",
+    "role": "Source control (GitHub)"
+  },
+  {
+    "id": "AI-011",
+    "applicationId": "APP-012",
+    "infrastructureId": "INF-002",
+    "role": "Source control (GitHub)"
+  },
+  {
+    "id": "AI-012",
+    "applicationId": "APP-013",
+    "infrastructureId": "INF-002",
+    "role": "Source control (GitHub)"
+  },
+  {
+    "id": "AI-013",
+    "applicationId": "APP-015",
+    "infrastructureId": "INF-002",
+    "role": "Source control (GitHub)"
+  },
+  {
+    "id": "AI-014",
+    "applicationId": "APP-016",
+    "infrastructureId": "INF-002",
+    "role": "Source control (GitHub)"
+  },
+  {
+    "id": "AI-015",
+    "applicationId": "APP-017",
+    "infrastructureId": "INF-002",
+    "role": "Source control (GitHub)"
+  },
+  {
+    "id": "AI-016",
+    "applicationId": "APP-018",
+    "infrastructureId": "INF-002",
+    "role": "Source control (GitHub)"
+  },
+  {
+    "id": "AI-017",
+    "applicationId": "APP-020",
+    "infrastructureId": "INF-001",
+    "role": "Source control (GitHub)"
+  },
+  {
+    "id": "AI-018",
+    "applicationId": "APP-028",
+    "infrastructureId": "INF-002",
+    "role": "Source control (GitHub)"
+  },
+  {
+    "id": "AI-019",
+    "applicationId": "APP-033",
+    "infrastructureId": "INF-001",
+    "role": "Source control (GitHub)"
+  },
+  {
+    "id": "AI-020",
+    "applicationId": "APP-034",
+    "infrastructureId": "INF-001",
+    "role": "Source control (GitHub)"
+  },
+  {
+    "id": "AI-021",
+    "applicationId": "APP-035",
+    "infrastructureId": "INF-002",
+    "role": "Source control (GitHub)"
+  },
+  {
+    "id": "AI-022",
+    "applicationId": "APP-036",
+    "infrastructureId": "INF-002",
+    "role": "Source control (GitHub)"
+  },
+  {
+    "id": "AI-023",
+    "applicationId": "APP-037",
+    "infrastructureId": "INF-001",
+    "role": "Source control (GitHub)"
+  },
+  {
+    "id": "AI-024",
+    "applicationId": "APP-038",
+    "infrastructureId": "INF-002",
+    "role": "Source control (GitHub)"
+  },
+  {
+    "id": "AI-025",
+    "applicationId": "APP-039",
+    "infrastructureId": "INF-001",
+    "role": "Source control (GitHub)"
+  },
+  {
+    "id": "AI-026",
+    "applicationId": "APP-040",
+    "infrastructureId": "INF-002",
+    "role": "Source control (GitHub)"
+  },
+  {
+    "id": "AI-027",
+    "applicationId": "APP-027",
+    "infrastructureId": "INF-002",
+    "role": "Source control (GitHub)"
+  },
+  {
+    "id": "AI-028",
+    "applicationId": "APP-026",
+    "infrastructureId": "INF-002",
+    "role": "Source control (GitHub)"
+  },
+  {
+    "id": "AI-029",
+    "applicationId": "APP-030",
+    "infrastructureId": "INF-001",
+    "role": "Source control (GitHub)"
+  },
+  {
+    "id": "AI-030",
+    "applicationId": "APP-032",
+    "infrastructureId": "INF-002",
+    "role": "Source control (GitHub)"
+  }
+]

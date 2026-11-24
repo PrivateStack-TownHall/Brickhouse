@@ -1,0 +1,242 @@
+[
+  {
+    "id": "API-001",
+    "name": "Kings Brew API",
+    "code": "API-01",
+    "version": "",
+    "baseUrl": "",
+    "protocol": "REST",
+    "authentication": "None",
+    "serviceType": "API Service",
+    "exposure": "internal",
+    "environment": "",
+    "documentationUrl": "",
+    "description": "Commerce Core",
+    "tags": [
+      "Commerce Core"
+    ],
+    "lifecycle": "development",
+    "createdAt": "2026-11-23T14:38:47Z",
+    "updatedAt": "2026-11-23T14:38:47Z"
+  },
+  {
+    "id": "API-002",
+    "name": "Castle Kitchen API",
+    "code": "API-02",
+    "version": "",
+    "baseUrl": "",
+    "protocol": "REST",
+    "authentication": "None",
+    "serviceType": "API Service",
+    "exposure": "internal",
+    "environment": "",
+    "documentationUrl": "",
+    "description": "Commerce Core",
+    "tags": [
+      "Commerce Core"
+    ],
+    "lifecycle": "development",
+    "createdAt": "2026-11-23T14:38:47Z",
+    "updatedAt": "2026-11-23T14:38:47Z"
+  },
+  {
+    "id": "API-003",
+    "name": "Byte Burger API",
+    "code": "API-03",
+    "version": "",
+    "baseUrl": "",
+    "protocol": "REST",
+    "authentication": "None",
+    "serviceType": "API Service",
+    "exposure": "internal",
+    "environment": "",
+    "documentationUrl": "",
+    "description": "Commerce Core",
+    "tags": [
+      "Commerce Core"
+    ],
+    "lifecycle": "development",
+    "createdAt": "2026-11-23T14:38:47Z",
+    "updatedAt": "2026-11-23T14:38:47Z"
+  },
+  {
+    "id": "API-004",
+    "name": "Quantum Mart API",
+    "code": "API-04",
+    "version": "",
+    "baseUrl": "",
+    "protocol": "REST",
+    "authentication": "None",
+    "serviceType": "API Service",
+    "exposure": "internal",
+    "environment": "",
+    "documentationUrl": "",
+    "description": "Commerce Core",
+    "tags": [
+      "Commerce Core"
+    ],
+    "lifecycle": "development",
+    "createdAt": "2026-11-23T14:38:47Z",
+    "updatedAt": "2026-11-23T14:38:47Z"
+  },
+  {
+    "id": "API-005",
+    "name": "Trade Hub API",
+    "code": "API-05",
+    "version": "",
+    "baseUrl": "",
+    "protocol": "REST",
+    "authentication": "None",
+    "serviceType": "API Service",
+    "exposure": "internal",
+    "environment": "",
+    "documentationUrl": "",
+    "description": "Commerce Core",
+    "tags": [
+      "Commerce Core"
+    ],
+    "lifecycle": "development",
+    "createdAt": "2026-11-23T14:38:47Z",
+    "updatedAt": "2026-11-23T14:38:47Z"
+  },
+  {
+    "id": "API-006",
+    "name": "Pineapple Stack API",
+    "code": "API-06",
+    "version": "",
+    "baseUrl": "",
+    "protocol": "REST",
+    "authentication": "None",
+    "serviceType": "API Service",
+    "exposure": "internal",
+    "environment": "",
+    "documentationUrl": "",
+    "description": "Operations Core · UI is separate; API ID unchanged",
+    "tags": [
+      "Operations Core"
+    ],
+    "lifecycle": "development",
+    "createdAt": "2026-11-23T14:38:47Z",
+    "updatedAt": "2026-11-23T14:38:47Z"
+  },
+  {
+    "id": "API-007",
+    "name": "M-ployee API",
+    "code": "API-07",
+    "version": "",
+    "baseUrl": "",
+    "protocol": "REST",
+    "authentication": "None",
+    "serviceType": "API Service",
+    "exposure": "internal",
+    "environment": "",
+    "documentationUrl": "",
+    "description": "Operations Core · UI is separate; API ID unchanged",
+    "tags": [
+      "Operations Core"
+    ],
+    "lifecycle": "development",
+    "createdAt": "2026-11-23T14:38:47Z",
+    "updatedAt": "2026-11-23T14:38:47Z"
+  },
+  {
+    "id": "API-008",
+    "name": "Codigram API",
+    "code": "API-08",
+    "version": "",
+    "baseUrl": "",
+    "protocol": "REST",
+    "authentication": "None",
+    "serviceType": "API Service",
+    "exposure": "internal",
+    "environment": "",
+    "documentationUrl": "",
+    "description": "Operations Core · Codigram API repo is separate from codigram-ui.",
+    "tags": [
+      "Operations Core"
+    ],
+    "lifecycle": "development",
+    "createdAt": "2026-11-23T14:38:47Z",
+    "updatedAt": "2026-11-23T14:38:47Z"
+  },
+  {
+    "id": "API-009",
+    "name": "Leather Shelf API",
+    "code": "API-09",
+    "version": "",
+    "baseUrl": "",
+    "protocol": "REST",
+    "authentication": "None",
+    "serviceType": "API Service",
+    "exposure": "internal",
+    "environment": "",
+    "documentationUrl": "",
+    "description": "Operations Core",
+    "tags": [
+      "Operations Core"
+    ],
+    "lifecycle": "development",
+    "createdAt": "2026-11-23T14:38:47Z",
+    "updatedAt": "2026-11-23T14:38:47Z"
+  },
+  {
+    "id": "API-010",
+    "name": "WareTrack API",
+    "code": "API-10",
+    "version": "",
+    "baseUrl": "",
+    "protocol": "REST",
+    "authentication": "None",
+    "serviceType": "API Service",
+    "exposure": "internal",
+    "environment": "",
+    "documentationUrl": "",
+    "description": "Operations Core · UI is separate; API ID unchanged",
+    "tags": [
+      "Operations Core"
+    ],
+    "lifecycle": "development",
+    "createdAt": "2026-11-23T14:38:47Z",
+    "updatedAt": "2026-11-23T14:38:47Z"
+  },
+  {
+    "id": "API-011",
+    "name": "Medieval Airbnb API",
+    "code": "API-11",
+    "version": "",
+    "baseUrl": "",
+    "protocol": "REST",
+    "authentication": "None",
+    "serviceType": "API Service",
+    "exposure": "internal",
+    "environment": "",
+    "documentationUrl": "",
+    "description": "Rental Core",
+    "tags": [
+      "Rental Core"
+    ],
+    "lifecycle": "development",
+    "createdAt": "2026-11-23T14:38:47Z",
+    "updatedAt": "2026-11-23T14:38:47Z"
+  },
+  {
+    "id": "API-012",
+    "name": "Nomad API",
+    "code": "API-12",
+    "version": "",
+    "baseUrl": "",
+    "protocol": "REST",
+    "authentication": "None",
+    "serviceType": "API Service",
+    "exposure": "internal",
+    "environment": "",
+    "documentationUrl": "",
+    "description": "Rental Core · UI is separate; API ID unchanged",
+    "tags": [
+      "Rental Core"
+    ],
+    "lifecycle": "development",
+    "createdAt": "2026-11-23T14:38:47Z",
+    "updatedAt": "2026-11-23T14:38:47Z"
+  }
+]
