@@ -1,16 +1,21 @@
 import { useNavigate } from 'react-router';
+import { motion } from 'framer-motion';
 import Avatar from '../common/Avatar';
 import IdChip from '../common/IdChip';
 import RowActions from '../tables/RowActions';
 
-/**
- * Grid card for any registry record (design-system "Cards" pattern).
- * { title, id, to, avatar, status, subtitle, description, meta: [{ icon, text }], tags, actions: RowActions props }
- */
 export default function EntityCard({ title, id, to, avatar, status, subtitle, description, meta = [], tags = [], actions }) {
   const navigate = useNavigate();
   return (
-    <article className="bh-ecard" onClick={() => to && navigate(to)} onKeyDown={(e) => e.key === 'Enter' && e.target === e.currentTarget && to && navigate(to)} tabIndex={0} aria-label={title}>
+    <motion.article
+      className="bh-ecard"
+      onClick={() => to && navigate(to)}
+      onKeyDown={(e) => e.key === 'Enter' && e.target === e.currentTarget && to && navigate(to)}
+      tabIndex={0}
+      aria-label={title}
+      whileHover={{ y: -3, transition: { duration: 0.15 } }}
+      whileTap={{ scale: 0.99 }}
+    >
       <div className="d-flex align-items-start justify-content-between gap-2">
         <Avatar name={avatar || title} seed={id} size={44} />
         {actions && <RowActions label={title} {...actions} />}
@@ -32,6 +37,6 @@ export default function EntityCard({ title, id, to, avatar, status, subtitle, de
           {meta.filter((m) => m && m.text).map((m, i) => <span key={i}>{m.icon && <m.icon size={13} />}<span className="text-truncate">{m.text}</span></span>)}
         </div>
       )}
-    </article>
+    </motion.article>
   );
 }

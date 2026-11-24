@@ -1,6 +1,5 @@
 import { cx } from '../../helpers';
 
-/** Card with the mockup header: orange icon, serif title, subtitle, actions on the right. */
 export default function SectionCard({ icon: Icon, title, subtitle, badge, actions, children, className = '', bodyClassName = '', flush = true, noBody = false }) {
   return (
     <div className={cx('bh-card h-100 d-flex flex-column', className)}>

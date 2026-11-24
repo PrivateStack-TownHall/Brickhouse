@@ -6,10 +6,6 @@ import EmptyState from './EmptyState';
 import { routeFor } from '../../services/schema';
 import { resolveLogo } from '../../assets/logos';
 
-/**
- * A titled list of related records.
- * items: [{ key, entity, record, meta, badge, onUnlink }]
- */
 export default function RelationshipCard({ icon: Icon, entity, title, subtitle, items, emptyText = 'No related records.', action, columns = 1 }) {
   const HeaderIcon = Icon || (entity ? ENTITY_ICONS[entity] : null);
   return (

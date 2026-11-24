@@ -1,5 +1,3 @@
-/** Read-only field grid used by wizard review steps and detail pages.
- * sections: [{ title, fields: [{ label, value }] }] */
 export default function ReviewSummary({ sections }) {
   return (
     <div className="d-flex flex-column gap-4">

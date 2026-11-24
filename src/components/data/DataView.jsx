@@ -9,14 +9,8 @@ import EntityCard from './EntityCard';
 import { useSortedPaged } from '../../hooks/useSortedPaged';
 
 const readView = (key) => { try { return localStorage.getItem(`brickhouse.view.${key}`) || 'table'; } catch { return 'table'; } };
-const saveView = (key, v) => { try { localStorage.setItem(`brickhouse.view.${key}`, v); } catch { /* storage unavailable */ } };
+const saveView = (key, v) => { try { localStorage.setItem(`brickhouse.view.${key}`, v); } catch { } };
 
-/**
- * List page body with a Table / Grid switch. Both views share search, filters, sorting and paging.
- * columns: table columns (also the sort options in grid view)
- * card(row): EntityCard props for grid view
- * viewKey: remembers the chosen view per page
- */
 export default function DataView({
   viewKey, columns, rows, card, rowKey = (r) => r.id, initialSort, onRowClick, empty, noun = 'records',
   search, onSearch, searchPlaceholder, filters, filtersActive, onClearFilters,
