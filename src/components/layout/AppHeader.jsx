@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router';
-import { Bell, Menu, Settings, Database, ShieldCheck, AlertTriangle, ChevronDown } from 'lucide-react';
+import { Bell, Menu, Database, ShieldCheck, AlertTriangle, Compass, ExternalLink } from 'lucide-react';
 import Breadcrumb from './Breadcrumb';
 import GlobalSearch from './GlobalSearch';
 import { useRegistry } from '../../hooks/useRegistry';
@@ -21,7 +21,6 @@ export default function AppHeader({ onMenu }) {
   const [menu, setMenu] = useState(null);
   const close = () => setMenu(null);
   const notifRef = useOutside(close);
-  const profileRef = useOutside(close);
   const issues = useMemo(() => validateDataset(data), [data]);
   const notes = [
     ...(!health.persistence || health.status === 'error' ? [{ key: 'storage', tone: 'danger', text: health.message }] : []),
@@ -29,13 +28,15 @@ export default function AppHeader({ onMenu }) {
     ...(() => { const n = data.repositories.filter((r) => r.accessStatus === 'inaccessible').length; return n ? [{ key: 'access', tone: 'warning', text: `${n} repositor${n === 1 ? 'y is' : 'ies are'} inaccessible (404) — see Repositories → Access Issues.` }] : []; })(),
     ...(!data.meta?.lastBackupAt ? [{ key: 'backup', tone: 'warning', text: 'No backup has been exported yet.' }] : []),
   ];
-  const name = data.settings.general.ownerName || 'Registry Owner';
-  const initials = name.split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase();
+  const lighthouseUrl = data.settings?.general?.lighthouseUrl || 'http://localhost:5174';
+
   return (
     <header className="bh-header">
       <button type="button" className="bh-icon-btn d-lg-none" onClick={onMenu} aria-label="Open navigation"><Menu size={18} /></button>
-      <div className="flex-grow-1 min-w-0"><Breadcrumb /></div>
-      <GlobalSearch />
+      <div className="flex-shrink-1 min-w-0 me-2 d-none d-sm-block"><Breadcrumb /></div>
+      <div className="flex-grow-1 d-flex justify-content-center px-2">
+        <GlobalSearch />
+      </div>
       <div className="position-relative" ref={notifRef}>
         <button type="button" className="bh-icon-btn" aria-label={`Notifications (${notes.length})`} onClick={() => setMenu(menu === 'n' ? null : 'n')}>
           <Bell size={18} />{notes.length > 0 && <span className="bh-dot" />}
@@ -51,21 +52,18 @@ export default function AppHeader({ onMenu }) {
           </div>
         )}
       </div>
-      <div className="position-relative" ref={profileRef}>
-        <button type="button" className="btn btn-ghost px-1" onClick={() => setMenu(menu === 'p' ? null : 'p')} aria-label="Profile menu">
-          <span className="bh-avatar">{initials}</span><ChevronDown size={15} className="d-none d-sm-inline" />
-        </button>
-        {menu === 'p' && (
-          <div className="bh-dropdown">
-            <div className="px-2 py-1">
-              <div className="fw-semibold">{name}</div>
-              <div className="text-subtle small">Single-user local workspace</div>
-            </div>
-            <hr className="my-2" />
-            <Link to="/settings" className="bh-dropdown-item" onClick={close}><Settings size={16} />Settings</Link>
-            <Link to="/data" className="bh-dropdown-item" onClick={close}><Database size={16} />Data Management</Link>
-          </div>
-        )}
+      <div className="d-flex align-items-center">
+        <a
+          href={lighthouseUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn btn-primary d-inline-flex align-items-center gap-2 bh-lighthouse-btn"
+          title="Open Lighthouse"
+        >
+          <Compass size={17} />
+          <span>Lighthouse</span>
+          <ExternalLink size={13} className="opacity-75" />
+        </a>
       </div>
     </header>
   );

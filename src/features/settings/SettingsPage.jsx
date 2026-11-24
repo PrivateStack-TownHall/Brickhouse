@@ -84,6 +84,7 @@ function General() {
         <div className="col-md-6"><FormField label="Organization" value={v.organization} onChange={(e) => setV({ ...v, organization: e.target.value })} /></div>
         <div className="col-12"><FormTextarea label="Description" rows={2} value={v.description} onChange={(e) => setV({ ...v, description: e.target.value })} /></div>
         <div className="col-md-6"><FormField label="Registry owner (activity actor)" value={v.ownerName} onChange={(e) => setV({ ...v, ownerName: e.target.value })} help="Shown as the actor in the Activity Log. Not an account — v1.0 has no authentication." /></div>
+        <div className="col-md-6"><FormField label="Lighthouse URL" value={v.lighthouseUrl || ''} onChange={(e) => setV({ ...v, lighthouseUrl: e.target.value })} placeholder="http://localhost:5174" help="Target URL for the TopBar Lighthouse navigation button." /></div>
         <div className="col-md-6"><FormField label="Theme" value={v.theme} disabled help="The canonical Brickhouse design system. Light/dark mode is under System Preferences." /></div>
         <div className="col-12">
           <label className="form-label">Logo</label>
@@ -131,7 +132,7 @@ function Companies() {
     } catch (e) { if (e instanceof ValidationError) setErrors(e.errors); else toast(e.message, 'error'); }
   };
   return (
-    <Section title="Companies" description="The five VSG Group company profiles that own applications. Additional companies require explicit approval and are not created here.">
+    <Section title="Company Ownership" description="The company and entity ownership profiles (including Personal and Other) that own applications in the registry.">
       <div className="bh-card" style={{ boxShadow: 'none' }}>
         <DataTable rows={data.companies} pageSize={10} columns={[
           { key: 'id', label: 'ID', render: (c) => <span className="bh-id">{c.id}</span> },

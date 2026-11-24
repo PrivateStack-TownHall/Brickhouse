@@ -155,7 +155,7 @@ export const ENTITY_KEYS = Object.keys(ENTITIES);
 export const RELATION_KEYS = Object.keys(RELATIONS);
 
 export const DEFAULT_SETTINGS = {
-  general: { appName: 'BRICKHOUSE', description: 'Application Registry & Ecosystem Inventory for VSG Group', organization: 'VSG Group', ownerName: 'Registry Owner', theme: 'Brickhouse (default)' },
+  general: { appName: 'BRICKHOUSE', description: 'Application Registry & Ecosystem Inventory for VSG Group', organization: 'VSG Group', ownerName: 'Registry Owner', theme: 'Brickhouse (default)', lighthouseUrl: 'http://localhost:5174' },
   preferences: { themeMode: 'light', dateFormat: 'DD MMM YYYY', timeFormat: '24h' },
   integrations: {
     github: { organization: '', apiBaseUrl: 'https://api.github.com', notes: '' },

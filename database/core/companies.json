@@ -43,5 +43,23 @@
     "websiteUrl": "",
     "createdAt": "2026-11-23T14:38:47Z",
     "updatedAt": "2026-11-23T14:38:47Z"
+  },
+  {
+    "id": "COMP-006",
+    "code": "PER",
+    "name": "Personal",
+    "description": "Personal projects and individual ownership",
+    "websiteUrl": "",
+    "createdAt": "2026-11-24T00:00:00Z",
+    "updatedAt": "2026-11-24T00:00:00Z"
+  },
+  {
+    "id": "COMP-007",
+    "code": "OTH",
+    "name": "Other",
+    "description": "Other third-party or unclassified ownership",
+    "websiteUrl": "",
+    "createdAt": "2026-11-24T00:00:00Z",
+    "updatedAt": "2026-11-24T00:00:00Z"
   }
 ]

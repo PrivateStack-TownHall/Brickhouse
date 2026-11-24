@@ -25,6 +25,10 @@ function storage() {
 export function normalizeDataset(ds, seed = buildSeedDataset()) {
   const out = { ...ds };
   for (const k of [...ENTITY_KEYS, ...RELATION_KEYS]) if (!Array.isArray(out[k])) out[k] = [];
+  const existingCompanyIds = new Set((out.companies || []).map((c) => c.id));
+  for (const sc of seed.companies || []) {
+    if (!existingCompanyIds.has(sc.id)) out.companies.push(sc);
+  }
   out.categories = { ...seed.categories, ...(out.categories || {}) };
   out.categories.lifecycleOptions = seed.categories.lifecycleOptions; // canonical, not editable
   const s = out.settings || {};
