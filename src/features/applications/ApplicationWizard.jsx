@@ -23,14 +23,24 @@ import NotFoundPage from '../overview/NotFoundPage';
 
 const FIELDS = ['name', 'code', 'ownerId', 'category', 'type', 'lifecycle', 'description', 'purpose', 'websiteUrl', 'documentationUrl', 'tags', 'architecture', 'platform', 'hosting', 'environments'];
 
-// Step 02 technology roles → catalog categories offered for each.
+const sortAsc = (arr, labelOf = (x) => x.label) => [...arr].sort((a, b) => String(labelOf(a)).localeCompare(String(labelOf(b)), undefined, { sensitivity: 'base' }));
+
+const ENV_GUIDE = {
+  development: 'Lingkungan kerja developer untuk coding, eksperimen, dan debugging awal sebelum digabung.',
+  preview: 'Lingkungan pratinjau sementara (biasanya per branch / PR) untuk mengecek hasil build sebelum staging.',
+  staging: 'Lingkungan uji coba pra-rilis yang menyerupai production untuk QA dan UAT sebelum live.',
+  production: 'Lingkungan live utama yang diakses langsung oleh pengguna akhir dengan data nyata.',
+};
+
+// Step 02 technology roles → catalog categories offered for each (disjoint so each tech appears in one card).
 const TECH_ROLES = [
   { key: 'techLanguage', role: 'Programming Language', label: 'Programming Language', categories: ['Programming Language'] },
-  { key: 'techFrontend', role: 'Frontend Technology', label: 'Frontend Technology', categories: ['Frontend Framework', 'Styling', 'Library'] },
-  { key: 'techBackend', role: 'Backend Technology', label: 'Backend Technology', categories: ['Backend Framework', 'Library'] },
+  { key: 'techFrontend', role: 'Frontend Technology', label: 'Frontend Technology', categories: ['Frontend Framework', 'Styling'] },
+  { key: 'techBackend', role: 'Backend Technology', label: 'Backend Technology', categories: ['Backend Framework', 'Runtime'] },
   { key: 'techDatabase', role: 'Database', label: 'Database', categories: ['Database'] },
   { key: 'techOrm', role: 'ORM / Data Access', label: 'ORM / Data Access', categories: ['ORM'] },
-  { key: 'techTools', role: 'Additional Tools', label: 'Additional Tools', categories: ['DevOps', 'Testing', 'Library', 'Other'] },
+  { key: 'techTesting', role: 'Testings', label: 'Testings', categories: ['Testing'] },
+  { key: 'techTools', role: 'Additional Tools', label: 'Additional Tools', categories: ['DevOps', 'Library', 'Other'] },
 ];
 
 function initialValues(ds, app) {
@@ -119,8 +129,8 @@ function WizardBody({ app }) {
           <div className="col-md-6"><FormField label="Application Platform" placeholder="e.g. Web, Mobile (Android, iOS)" {...bind('platform')} /></div>
           <div className="col-12 mb-2"><div className="bh-section-title"><Cpu size={15} className="bh-section-icon" /><span>Technology Stack · from the Technology Master Catalog</span></div></div>
           {TECH_ROLES.map((r) => (
-            <div className="col-md-6" key={r.key}>
-              <MultiSelect label={r.label} options={technologyOptions(data, r.categories)} value={v[r.key]} onChange={(x) => set(r.key, x)}
+            <div className="col-md-6 col-lg-4 d-flex flex-column" key={r.key}>
+              <MultiSelect fill label={r.label} options={sortAsc(technologyOptions(data, r.categories))} value={v[r.key]} onChange={(x) => set(r.key, x)}
                 extraFields={[{ key: 'version', label: 'Version' }]} emptyText="No catalog entries in this category yet. Add them in Technology Stack." />
             </div>
           ))}
@@ -128,12 +138,20 @@ function WizardBody({ app }) {
           <div className="col-md-6">
             <label className="form-label">Environment</label>
             <div className="d-flex flex-wrap gap-3 pt-1">
-              {cat.environments.map((e) => (
+              {sortAsc(cat.environments, (x) => x).map((e) => (
                 <label key={e} className="form-check d-flex align-items-center gap-2 m-0">
                   <input type="checkbox" className="form-check-input m-0" checked={v.environments.includes(e)}
                     onChange={() => set('environments', v.environments.includes(e) ? v.environments.filter((x) => x !== e) : [...v.environments, e])} />
                   <span className="text-capitalize">{e}</span>
                 </label>
+              ))}
+            </div>
+            <div className="mt-2 p-2 rounded border bg-body-tertiary small d-flex flex-column gap-1">
+              {sortAsc(cat.environments, (x) => x).map((e) => (
+                <div key={e} className="d-flex align-items-baseline gap-2">
+                  <span className="badge text-bg-light border text-capitalize" style={{ minWidth: 86 }}>{e}</span>
+                  <span className="text-muted">{ENV_GUIDE[e] || 'Environment deployment aplikasi.'}</span>
+                </div>
               ))}
             </div>
           </div>
@@ -159,7 +177,7 @@ function WizardBody({ app }) {
             <label className="form-label">Technology Stack</label>
             <div className="bh-card bh-card-body py-2 mb-3 small">{TECH_ROLES.some((r) => v[r.key].length) ? TECH_ROLES.filter((r) => v[r.key].length).map((r) => <div key={r.key}><strong>{r.label}:</strong> {nameList(data, 'technologies', v[r.key])}</div>) : <span className="text-subtle">Selected in Step 02.</span>}</div>
             <label className="form-label">Deployments</label>
-            <div className="bh-card bh-card-body py-2 small text-muted">Deployments belong to components and appear on the application automatically.{app && <> Currently {data.deployments.filter((d) => ownComponentIds.has(d.componentId)).length} deployment(s).</>}</div>
+            <div className="bh-card bh-card-body py-2 small text-muted">Deployments can be linked directly to an application or to its components.{app && <> Currently {data.deployments.filter((d) => d.applicationId === app.id || ownComponentIds.has(d.componentId)).length} deployment(s).</>}</div>
           </div>
         </div>
       ),

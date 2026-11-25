@@ -9,7 +9,7 @@ import { cx } from '../../helpers';
  * extraFields: [{ key, label, options? }] – edited per selected item (e.g. role, version)
  * single: only one selection allowed
  */
-export default function MultiSelect({ label, help, error, options, value = [], onChange, extraFields = [], single = false, required, emptyText = 'No records available.' }) {
+export default function MultiSelect({ label, help, error, options, value = [], onChange, extraFields = [], single = false, required, emptyText = 'No records available.', fill = false }) {
   const [q, setQ] = useState('');
   const selected = new Map(value.map((v) => [v.targetId, v]));
   const filtered = useMemo(() => {
@@ -26,22 +26,20 @@ export default function MultiSelect({ label, help, error, options, value = [], o
   const setExtra = (id, key, v) => onChange(value.map((x) => (x.targetId === id ? { ...x, [key]: v } : x)));
   const labelOf = (id) => options.find((o) => o.value === id)?.label || id;
   return (
-    <div className="mb-3">
+    <div className={cx('mb-3', fill && 'flex-grow-1 d-flex flex-column')}>
       {label && <label className="form-label">{label}{required && <span className="req">*</span>}</label>}
-      <div className={cx('bh-multiselect', error && 'is-invalid')}>
+      <div className={cx('bh-multiselect', fill && 'flex-grow-1 d-flex flex-column', error && 'is-invalid')}>
         <div className="bh-ms-selected">
           {value.length === 0 && <span className="text-subtle small">Nothing selected</span>}
           {value.map((v) => (
             <span key={v.targetId} className="bh-chip">{labelOf(v.targetId)}<button type="button" aria-label="Remove" onClick={() => toggle(v.targetId)}><X size={12} /></button></span>
           ))}
         </div>
-        {options.length > 6 && (
-          <div className="bh-search p-2 border-bottom" style={{ borderColor: 'var(--bh-border)' }}>
-            <Search size={14} style={{ left: 18 }} />
-            <input className="form-control form-control-sm" placeholder="Search records…" value={q} onChange={(e) => setQ(e.target.value)} />
-          </div>
-        )}
-        <div className="bh-ms-list">
+        <div className="bh-search p-2 border-bottom" style={{ borderColor: 'var(--bh-border)' }}>
+          <Search size={14} style={{ left: 18 }} />
+          <input className="form-control form-control-sm" placeholder="Search records…" value={q} onChange={(e) => setQ(e.target.value)} />
+        </div>
+        <div className={cx('bh-ms-list', fill && 'bh-ms-list-uniform flex-grow-1')}>
           {options.length === 0 && <div className="text-subtle small p-2">{emptyText}</div>}
           {filtered.map((o) => {
             const sel = selected.get(o.value);
