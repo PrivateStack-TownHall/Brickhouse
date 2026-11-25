@@ -1,12 +1,20 @@
 import { useState } from 'react';
-import { ArrowLeft, ArrowRight, Check, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, X, FileText, Cpu, Link2, ClipboardCheck, Layers } from 'lucide-react';
 import { cx } from '../../helpers';
 import ConfirmDialog from '../dialogs/ConfirmDialog';
 import { ValidationError } from '../../services/registry.service';
 
+const STEP_ICONS = {
+  basic: FileText,
+  identity: FileText,
+  technical: Cpu,
+  relations: Link2,
+  review: ClipboardCheck,
+};
+
 /**
  * Consistent multi-step form.
- * steps: [{ key, title, description, fields?: [names], validate?: () => errors, render: () => node }]
+ * steps: [{ key, title, description, icon?, fields?: [names], validate?: () => errors, render: () => node }]
  * The last step is the review step. onSubmit may throw ValidationError.
  */
 export default function StepWizard({ steps, errors, setErrors, dirty, onSubmit, onCancel, submitLabel = 'Save' }) {
@@ -16,6 +24,7 @@ export default function StepWizard({ steps, errors, setErrors, dirty, onSubmit, 
   const [formError, setFormError] = useState('');
   const step = steps[index];
   const last = index === steps.length - 1;
+  const StepIcon = step.icon || STEP_ICONS[step.key] || Layers;
 
   const validateUpTo = (i) => {
     for (let s = 0; s <= i; s += 1) {
@@ -73,6 +82,20 @@ export default function StepWizard({ steps, errors, setErrors, dirty, onSubmit, 
         ))}
       </ol>
       <div className="bh-card">
+        <div className="bh-card-header colored">
+          <div className="d-flex align-items-center">
+            <span className="bh-card-header-icon">
+              <StepIcon size={18} />
+            </span>
+            <div>
+              <h3 className="bh-card-title">{step.title}</h3>
+              {step.description && <p className="bh-card-sub">{step.description}</p>}
+            </div>
+          </div>
+          <span className="bh-card-count small fw-semibold">
+            Step {String(index + 1).padStart(2, '0')} of {String(steps.length).padStart(2, '0')}
+          </span>
+        </div>
         <div className="bh-card-body">
           {formError && <div className="alert alert-danger py-2 small">{formError}</div>}
           {Object.keys(errors).length > 0 && !formError && <div className="alert alert-warning py-2 small mb-3">Please complete the required fields highlighted below.</div>}

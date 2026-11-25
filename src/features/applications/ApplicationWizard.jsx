@@ -1,4 +1,5 @@
 import { useNavigate, useParams } from 'react-router';
+import { Cpu } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
 import StepWizard from '../../components/forms/StepWizard';
 import FormField from '../../components/forms/FormField';
@@ -116,7 +117,7 @@ function WizardBody({ app }) {
         <div className="row">
           <div className="col-md-6"><FormField label="Architecture / Structure" placeholder="e.g. SPA + REST API" {...bind('architecture')} /></div>
           <div className="col-md-6"><FormField label="Application Platform" placeholder="e.g. Web, Mobile (Android, iOS)" {...bind('platform')} /></div>
-          <div className="col-12 mb-2"><div className="bh-section-title">Technology Stack · from the Technology Master Catalog</div></div>
+          <div className="col-12 mb-2"><div className="bh-section-title"><Cpu size={15} className="bh-section-icon" /><span>Technology Stack · from the Technology Master Catalog</span></div></div>
           {TECH_ROLES.map((r) => (
             <div className="col-md-6" key={r.key}>
               <MultiSelect label={r.label} options={technologyOptions(data, r.categories)} value={v[r.key]} onChange={(x) => set(r.key, x)}
