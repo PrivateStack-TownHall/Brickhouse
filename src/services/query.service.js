@@ -38,7 +38,7 @@ const uniqBy = (rows, key) => {
 export const companyOf = (ds, app) => byId(ds, 'companies', app?.ownerId);
 export const applicationOfComponent = (ds, cmp) => byId(ds, 'applications', cmp?.applicationId);
 export const componentOfDeployment = (ds, dep) => byId(ds, 'components', dep?.componentId);
-export const applicationOfDeployment = (ds, dep) => applicationOfComponent(ds, componentOfDeployment(ds, dep));
+export const applicationOfDeployment = (ds, dep) => byId(ds, 'applications', dep?.applicationId) || applicationOfComponent(ds, componentOfDeployment(ds, dep));
 export const providerOfApi = (ds, apiId) => linked(ds, 'applicationApis', 'to', apiId)[0]?.record || null;
 export const consumersOfApi = (ds, apiId) => linked(ds, 'apiConsumers', 'from', apiId);
 export const companyOfApi = (ds, apiId) => companyOf(ds, providerOfApi(ds, apiId));
@@ -48,7 +48,7 @@ export const sharedComponentsOfApp = (ds, appId) => linked(ds, 'applicationCompo
 export const deploymentsOfComponent = (ds, cmpId) => (ds.deployments || []).filter((d) => d.componentId === cmpId);
 export const deploymentsOfApp = (ds, appId) => {
   const ids = new Set(componentsOfApp(ds, appId).map((c) => c.id));
-  return (ds.deployments || []).filter((d) => ids.has(d.componentId));
+  return (ds.deployments || []).filter((d) => d.applicationId === appId || ids.has(d.componentId));
 };
 
 /** Repositories of an application: direct links plus repositories of its components. */
@@ -75,7 +75,7 @@ export function infrastructureOfApp(ds, appId) {
   const direct = linked(ds, 'applicationInfrastructure', 'from', appId).map(({ link, record }) => ({ record, role: link.role || '', source: 'Application' }));
   const via = componentsOfApp(ds, appId).flatMap((c) => linked(ds, 'componentInfrastructure', 'from', c.id).map(({ link, record }) => ({ record, role: link.resourceName || '', source: c.name })));
   const viaDeploy = deploymentsOfApp(ds, appId).filter((d) => d.infrastructureId).map((d) => ({ record: byId(ds, 'infrastructure', d.infrastructureId), role: `Deployment: ${d.name}`, source: 'Deployment' })).filter((x) => x.record);
-  return [...direct, ...via, ...viaDeploy];
+  return uniqBy([...direct, ...via, ...viaDeploy], (x) => x.record.id);
 }
 
 export function apisOfApp(ds, appId) {

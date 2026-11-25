@@ -64,6 +64,11 @@ function addApplication(ds, g, app, { deep = true } = {}) {
   for (const { record } of linked(ds, 'applicationApis', 'from', app.id)) g.edge(a, g.node('api', record), 'provides');
   for (const { record } of linked(ds, 'apiConsumers', 'to', app.id)) g.edge(g.node('api', record), a, 'consumed by');
   for (const { record } of linked(ds, 'applicationInfrastructure', 'from', app.id)) g.edge(a, g.node('infrastructure', record), 'uses');
+  for (const d of (ds.deployments || []).filter((x) => x.applicationId === app.id && !x.componentId)) {
+    const dn = g.node('deployment', d);
+    g.edge(a, dn, 'has deployment');
+    if (d.infrastructureId) g.edge(dn, g.node('infrastructure', byId(ds, 'infrastructure', d.infrastructureId)), 'runs on');
+  }
   return a;
 }
 
@@ -112,10 +117,15 @@ export function buildGraph(ds, view, opts = {}) {
         const dn = g.node('deployment', d);
         g.edge(dn, i, 'runs on');
         const c = byId(ds, 'components', d.componentId);
-        const cn = g.node('component', c);
-        g.edge(cn, dn, 'has deployment');
-        const app = byId(ds, 'applications', c?.applicationId);
-        if (app) g.edge(g.node('application', app), cn, 'contains');
+        if (c) {
+          const cn = g.node('component', c);
+          g.edge(cn, dn, 'has deployment');
+          const app = byId(ds, 'applications', c.applicationId);
+          if (app) g.edge(g.node('application', app), cn, 'contains');
+        } else if (d.applicationId) {
+          const app = byId(ds, 'applications', d.applicationId);
+          if (app) g.edge(g.node('application', app), dn, 'has deployment');
+        }
       }
       for (const { record: c } of linked(ds, 'componentInfrastructure', 'to', inf.id)) {
         const cn = g.node('component', c);

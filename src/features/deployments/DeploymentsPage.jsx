@@ -60,7 +60,7 @@ export default function DeploymentsPage() {
     { key: 'actions', label: '', sortable: false, render: (d) => <RowActions label={d.name} viewTo={`/deployments/${d.id}`} editTo={`/deployments/${d.id}/edit`} onDelete={() => requestDelete('deployments', d.id)} /> },
   ];
   const card = (d) => ({
-    title: d.name, id: d.id, to: `/deployments/${d.id}`, subtitle: byId(data, 'components', d.componentId)?.name, description: d.notes,
+    title: d.name, id: d.id, to: `/deployments/${d.id}`, subtitle: byId(data, 'components', d.componentId)?.name || appOf[d.id]?.name, description: d.notes,
     status: <StatusBadge value={d.status} />,
     meta: [{ icon: Globe2, text: d.environment }, { icon: Server, text: d.platform }, { icon: Tag, text: d.version }, { icon: CalendarClock, text: fmt.friendly(d.lastDeployedAt || d.updatedAt) }],
     actions: { viewTo: `/deployments/${d.id}`, editTo: `/deployments/${d.id}/edit`, onDelete: () => requestDelete('deployments', d.id) },

@@ -63,8 +63,8 @@ export default function DeploymentDetailPage() {
                   { label: 'Deployment URL', value: <ExtLink href={d.deploymentUrl} />, wide: true }, { label: 'Health Check URL', value: <ExtLink href={d.healthCheckUrl} />, wide: true },
                 ] },
                 { title: 'Relations', icon: Plug, fields: [
+                  { label: 'Application', value: <EntityLink entity="applications" record={app} showId /> },
                   { label: 'Component', value: <EntityLink entity="components" record={cmp} showId /> },
-                  { label: 'Application (derived)', value: <EntityLink entity="applications" record={app} showId /> },
                   { label: 'Repository', value: <EntityLink entity="repositories" record={repo} showId /> },
                   { label: 'Infrastructure', value: <EntityLink entity="infrastructure" record={inf} showId /> },
                 ] },

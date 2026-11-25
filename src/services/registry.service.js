@@ -64,7 +64,7 @@ export function contextApplicationId(ds, entity, record) {
   if (!record) return null;
   if (entity === 'applications') return record.id;
   if (entity === 'components') return record.applicationId || null;
-  if (entity === 'deployments') return (ds.components || []).find((c) => c.id === record.componentId)?.applicationId || null;
+  if (entity === 'deployments') return record.applicationId || (ds.components || []).find((c) => c.id === record.componentId)?.applicationId || null;
   if (entity === 'apis') return (ds.applicationApis || []).find((l) => l.apiId === record.id)?.applicationId || null;
   if (entity === 'endpoints') return (ds.applicationApis || []).find((l) => l.apiId === record.apiId)?.applicationId || null;
   return null;

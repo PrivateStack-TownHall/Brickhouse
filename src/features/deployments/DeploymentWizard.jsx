@@ -18,7 +18,7 @@ import { applicationOptions, componentOptions, repositoryOptions, infrastructure
 import { slugify } from '../../helpers';
 import NotFoundPage from '../overview/NotFoundPage';
 
-const FIELDS = ['name', 'code', 'componentId', 'repositoryId', 'infrastructureId', 'environment', 'deploymentType', 'platform', 'version', 'status', 'deployMethod', 'branch', 'deploymentUrl', 'healthCheckUrl', 'lastDeployedAt', 'notes'];
+const FIELDS = ['name', 'code', 'applicationId', 'componentId', 'repositoryId', 'infrastructureId', 'environment', 'deploymentType', 'platform', 'version', 'status', 'deployMethod', 'branch', 'deploymentUrl', 'healthCheckUrl', 'lastDeployedAt', 'notes'];
 const toLocal = (iso) => (iso ? new Date(new Date(iso).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16) : '');
 const fromLocal = (s) => (s ? new Date(s).toISOString() : null);
 
@@ -37,14 +37,15 @@ function Body({ dep }) {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const preCmp = params.get('component') || '';
+  const preApp = params.get('application') || '';
   const form = useWizardForm(() => {
     const base = dep ? Object.fromEntries(FIELDS.map((f) => [f, dep[f] ?? ''])) : {
-      name: '', code: '', componentId: preCmp, repositoryId: '', infrastructureId: '', environment: '', deploymentType: '', platform: '', version: '',
+      name: '', code: '', applicationId: preApp, componentId: preCmp, repositoryId: '', infrastructureId: '', environment: '', deploymentType: '', platform: '', version: '',
       status: 'active', deployMethod: '', branch: 'main', deploymentUrl: '', healthCheckUrl: '', lastDeployedAt: '', notes: '',
     };
     base.lastDeployedAt = toLocal(base.lastDeployedAt);
     const cmpId = base.componentId;
-    base.applicationId = cmpId ? byId(data, 'components', cmpId)?.applicationId || '' : '';
+    if (!base.applicationId && cmpId) base.applicationId = byId(data, 'components', cmpId)?.applicationId || '';
     base.included = dep ? linkValues(data, 'componentDeployments', 'deploymentId', 'componentId', dep.id, ['notes']) : [];
     return base;
   });
@@ -64,6 +65,8 @@ function Body({ dep }) {
   const save = () => {
     const values = Object.fromEntries(FIELDS.map((f) => [f, v[f]]));
     values.lastDeployedAt = fromLocal(v.lastDeployedAt);
+    values.componentId = values.componentId || null;
+    values.applicationId = values.applicationId || (values.componentId ? byId(data, 'components', values.componentId)?.applicationId || null : null);
     values.repositoryId = values.repositoryId || null;
     values.infrastructureId = values.infrastructureId || null;
     if (!values.code) values.code = slugify(values.name);
@@ -79,17 +82,22 @@ function Body({ dep }) {
     }
   };
 
+  const componentPlaceholder = cmpOpts.length ? 'Optional — select component' : 'No components available';
+  const componentHelp = !cmpOpts.length
+    ? 'Optional — no components registered for the selected application.'
+    : 'Optional — select a specific component if applicable.';
+
   const steps = [
     {
       key: 'info', title: 'Deployment Information', description: 'Where and what is deployed',
-      fields: ['name', 'componentId', 'environment', 'status', 'deploymentUrl', 'healthCheckUrl'],
-      validate: () => requireFields(v, [['name', 'Deployment name'], ['componentId', 'Component'], ['environment', 'Environment'], ['status', 'Status']]),
+      fields: ['name', 'environment', 'status', 'deploymentUrl', 'healthCheckUrl'],
+      validate: () => requireFields(v, [['name', 'Deployment name'], ['environment', 'Environment'], ['status', 'Status']]),
       render: () => (
         <div className="row">
           <div className="col-md-8"><FormField label="Deployment Name" required placeholder="e.g. Orange LMS Web – Production" {...bind('name')} /></div>
           <div className="col-md-4"><FormField label="Deployment Code" placeholder="auto from name" {...bind('code')} /></div>
-          <div className="col-md-6"><FormSelect label="Application" options={applicationOptions(data)} value={v.applicationId} onChange={pickApp} help="Narrows the component list." /></div>
-          <div className="col-md-6"><FormSelect label="Component" required options={cmpOpts} {...bindSelect('componentId')} onChange={pickComponent} /></div>
+          <div className="col-md-6"><FormSelect label="Application" options={applicationOptions(data)} value={v.applicationId} onChange={pickApp} help="Links the deployment to an application and filters components." /></div>
+          <div className="col-md-6"><FormSelect label="Component" options={cmpOpts} placeholder={componentPlaceholder} disabled={!cmpOpts.length} {...bindSelect('componentId')} onChange={pickComponent} help={componentHelp} /></div>
           <div className="col-md-4"><FormSelect label="Environment" required options={cat.environments} {...bindSelect('environment')} /></div>
           <div className="col-md-4"><FormSelect label="Deployment Type" options={cat.deploymentTypes} format={(x) => x} {...bindSelect('deploymentType')} /></div>
           <div className="col-md-4"><FormField label="Hosting Platform" placeholder="e.g. Vercel, Render" list="bh-platforms" {...bind('platform')} /></div>
@@ -110,12 +118,8 @@ function Body({ dep }) {
       fields: ['repositoryId', 'infrastructureId'],
       render: () => (
         <div className="row">
-          <div className="col-md-6"><FormSelect label="Component" required options={cmpOpts} {...bindSelect('componentId')} onChange={pickComponent} /></div>
-          <div className="col-md-6">
-            <label className="form-label">Related Application</label>
-            <div className="form-control bg-transparent" style={{ minHeight: 40 }}>{byId(data, 'applications', v.applicationId)?.name || <span className="text-subtle">Derived from the component</span>}</div>
-            <div className="form-text">Derived through the component — not stored twice.</div>
-          </div>
+          <div className="col-md-6"><FormSelect label="Application" options={applicationOptions(data)} value={v.applicationId} onChange={pickApp} /></div>
+          <div className="col-md-6"><FormSelect label="Component" options={cmpOpts} placeholder={componentPlaceholder} disabled={!cmpOpts.length} {...bindSelect('componentId')} onChange={pickComponent} help={componentHelp} /></div>
           <div className="col-md-6"><FormSelect label="Repository" options={repositoryOptions(data)} {...bindSelect('repositoryId')} placeholder="None" /></div>
           <div className="col-md-6"><FormSelect label="Infrastructure Resource" options={infrastructureOptions(data)} {...bindSelect('infrastructureId')} placeholder="None" /></div>
           <div className="col-lg-8"><MultiSelect label="Other components included in this deployment" options={componentOptions(data, (c) => c.id !== v.componentId)} value={v.included} onChange={(x) => set('included', x)} extraFields={[{ key: 'notes', label: 'Notes' }]} help="Optional, e.g. a shared library bundled into the build." /></div>
@@ -134,8 +138,10 @@ function Body({ dep }) {
             { label: 'Deployment URL', value: v.deploymentUrl }, { label: 'Health Check URL', value: v.healthCheckUrl }, { label: 'Description', value: v.notes, wide: true },
           ] },
           { title: 'Relationships', fields: [
-            { label: 'Component', value: byId(data, 'components', v.componentId)?.name }, { label: 'Application', value: byId(data, 'applications', v.applicationId)?.name },
-            { label: 'Repository', value: byId(data, 'repositories', v.repositoryId)?.name }, { label: 'Infrastructure', value: byId(data, 'infrastructure', v.infrastructureId)?.name },
+            { label: 'Application', value: byId(data, 'applications', v.applicationId)?.name },
+            { label: 'Component', value: byId(data, 'components', v.componentId)?.name },
+            { label: 'Repository', value: byId(data, 'repositories', v.repositoryId)?.name },
+            { label: 'Infrastructure', value: byId(data, 'infrastructure', v.infrastructureId)?.name },
             { label: 'Also includes', value: nameList(data, 'components', v.included) },
           ] },
         ]} />
@@ -144,7 +150,7 @@ function Body({ dep }) {
   ];
   return (
     <>
-      <PageHeader title={dep ? `Edit ${dep.name}` : 'Add Deployment'} description={dep ? `Update ${dep.id}.` : 'Record a deployment of a component to an environment.'} />
+      <PageHeader title={dep ? `Edit ${dep.name}` : 'Add Deployment'} description={dep ? `Update ${dep.id}.` : 'Record a deployment of an application or component to an environment.'} />
       <StepWizard steps={steps} errors={form.errors} setErrors={form.setErrors} dirty={form.dirty} onSubmit={save}
         onCancel={() => navigate(dep ? `/deployments/${dep.id}` : '/deployments')} submitLabel={dep ? 'Save Changes' : 'Save Deployment'} />
     </>

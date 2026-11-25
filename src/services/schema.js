@@ -51,7 +51,7 @@ export const ENTITIES = {
   },
   deployments: {
     label: 'Deployment', plural: 'Deployments', prefix: 'DEP', group: 'core', file: 'core/deployments.json',
-    route: '/deployments', required: ['name', 'componentId', 'environment', 'status'],
+    route: '/deployments', required: ['name', 'environment', 'status'],
   },
   reviews: {
     label: 'Review Snapshot', plural: 'Review Snapshots', prefix: 'REV', group: 'core', file: 'core/reviews.json',
@@ -137,7 +137,8 @@ export const FOREIGN_KEYS = [
   { entity: 'applications', field: 'ownerId', target: 'companies', required: true },
   { entity: 'components', field: 'applicationId', target: 'applications', required: true },
   { entity: 'endpoints', field: 'apiId', target: 'apis', required: true },
-  { entity: 'deployments', field: 'componentId', target: 'components', required: true },
+  { entity: 'deployments', field: 'componentId', target: 'components', required: false },
+  { entity: 'deployments', field: 'applicationId', target: 'applications', required: false },
   { entity: 'deployments', field: 'repositoryId', target: 'repositories', required: false },
   { entity: 'deployments', field: 'infrastructureId', target: 'infrastructure', required: false },
   { entity: 'reviews', field: 'repositoryId', target: 'repositories', required: false },
