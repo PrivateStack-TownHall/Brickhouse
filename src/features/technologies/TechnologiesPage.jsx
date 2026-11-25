@@ -23,7 +23,7 @@ export const TECH_GROUPS = {
   frameworks: { label: 'Frameworks', categories: ['Frontend Framework', 'Backend Framework'] },
   libraries: { label: 'Libraries', categories: ['Library', 'ORM', 'Styling'] },
   tools: { label: 'Tools', categories: ['DevOps', 'Testing'] },
-  platforms: { label: 'Platforms', categories: ['Programming Language', 'Other'] },
+  platforms: { label: 'Platforms', categories: ['Programming Language', 'Runtime', 'Other'] },
   databases: { label: 'Databases', categories: ['Database'] },
 };
 

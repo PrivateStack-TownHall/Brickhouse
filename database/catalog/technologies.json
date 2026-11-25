@@ -32,12 +32,12 @@
   {
     "id": "TECH-004",
     "name": "Node.js",
-    "category": "Programming Language",
+    "category": "Runtime",
     "websiteUrl": "https://nodejs.org",
     "description": "JavaScript runtime for servers.",
     "status": "active",
     "createdAt": "2026-01-06T09:00:00.000Z",
-    "updatedAt": "2026-01-06T09:00:00.000Z"
+    "updatedAt": "2026-11-25T15:00:00.000Z"
   },
   {
     "id": "TECH-005",
@@ -258,5 +258,125 @@
     "status": "active",
     "createdAt": "2026-01-06T09:00:00.000Z",
     "updatedAt": "2026-01-06T09:00:00.000Z"
+  },
+  {
+    "id": "TECH-027",
+    "name": "MongoDB",
+    "category": "Database",
+    "websiteUrl": "https://www.mongodb.com",
+    "description": "Document-oriented NoSQL database.",
+    "status": "active",
+    "createdAt": "2026-11-25T15:00:00.000Z",
+    "updatedAt": "2026-11-25T15:00:00.000Z"
+  },
+  {
+    "id": "TECH-028",
+    "name": "Sequelize",
+    "category": "ORM",
+    "websiteUrl": "https://sequelize.org",
+    "description": "Promise-based Node.js ORM for SQL databases.",
+    "status": "active",
+    "createdAt": "2026-11-25T15:00:00.000Z",
+    "updatedAt": "2026-11-25T15:00:00.000Z"
+  },
+  {
+    "id": "TECH-029",
+    "name": "TypeScript",
+    "category": "Programming Language",
+    "websiteUrl": "https://www.typescriptlang.org",
+    "description": "Typed superset of JavaScript.",
+    "status": "active",
+    "createdAt": "2026-11-25T15:00:00.000Z",
+    "updatedAt": "2026-11-25T15:00:00.000Z"
+  },
+  {
+    "id": "TECH-030",
+    "name": "Dart",
+    "category": "Programming Language",
+    "websiteUrl": "https://dart.dev",
+    "description": "Client-optimized language for Flutter and multi-platform apps.",
+    "status": "active",
+    "createdAt": "2026-11-25T15:00:00.000Z",
+    "updatedAt": "2026-11-25T15:00:00.000Z"
+  },
+  {
+    "id": "TECH-031",
+    "name": "Java",
+    "category": "Programming Language",
+    "websiteUrl": "https://www.java.com",
+    "description": "General-purpose object-oriented programming language.",
+    "status": "active",
+    "createdAt": "2026-11-25T15:00:00.000Z",
+    "updatedAt": "2026-11-25T15:00:00.000Z"
+  },
+  {
+    "id": "TECH-032",
+    "name": "Jest",
+    "category": "Testing",
+    "websiteUrl": "https://jestjs.io",
+    "description": "JavaScript testing framework with built-in assertions and mocking.",
+    "status": "active",
+    "createdAt": "2026-11-25T15:00:00.000Z",
+    "updatedAt": "2026-11-25T15:00:00.000Z"
+  },
+  {
+    "id": "TECH-033",
+    "name": "Playwright",
+    "category": "Testing",
+    "websiteUrl": "https://playwright.dev",
+    "description": "End-to-end browser testing framework.",
+    "status": "active",
+    "createdAt": "2026-11-25T15:00:00.000Z",
+    "updatedAt": "2026-11-25T15:00:00.000Z"
+  },
+  {
+    "id": "TECH-034",
+    "name": "Cypress",
+    "category": "Testing",
+    "websiteUrl": "https://www.cypress.io",
+    "description": "Frontend end-to-end and component testing runner.",
+    "status": "active",
+    "createdAt": "2026-11-25T15:00:00.000Z",
+    "updatedAt": "2026-11-25T15:00:00.000Z"
+  },
+  {
+    "id": "TECH-035",
+    "name": "TypeORM",
+    "category": "ORM",
+    "websiteUrl": "https://typeorm.io",
+    "description": "TypeScript and JavaScript ORM for relational databases.",
+    "status": "active",
+    "createdAt": "2026-11-25T15:00:00.000Z",
+    "updatedAt": "2026-11-25T15:00:00.000Z"
+  },
+  {
+    "id": "TECH-036",
+    "name": "Mongoose",
+    "category": "ORM",
+    "websiteUrl": "https://mongoosejs.com",
+    "description": "MongoDB object modeling library for Node.js.",
+    "status": "active",
+    "createdAt": "2026-11-25T15:00:00.000Z",
+    "updatedAt": "2026-11-25T15:00:00.000Z"
+  },
+  {
+    "id": "TECH-037",
+    "name": "SQLite",
+    "category": "Database",
+    "websiteUrl": "https://www.sqlite.org",
+    "description": "Lightweight embedded relational SQL database.",
+    "status": "active",
+    "createdAt": "2026-11-25T15:00:00.000Z",
+    "updatedAt": "2026-11-25T15:00:00.000Z"
+  },
+  {
+    "id": "TECH-038",
+    "name": "shadcn/ui",
+    "category": "Styling",
+    "websiteUrl": "https://ui.shadcn.com",
+    "description": "Reusable accessible UI components built on Tailwind CSS.",
+    "status": "active",
+    "createdAt": "2026-11-25T15:00:00.000Z",
+    "updatedAt": "2026-11-25T15:00:00.000Z"
   }
 ]
