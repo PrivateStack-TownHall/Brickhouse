@@ -19,6 +19,7 @@ import LineChart from '../../components/charts/LineChart';
 import DonutChart from '../../components/charts/DonutChart';
 import Heatmap from '../../components/charts/Heatmap';
 import DataTable from '../../components/tables/DataTable';
+import FilterBar from '../../components/tables/FilterBar';
 import RowActions from '../../components/tables/RowActions';
 import EntityLink from '../../components/common/EntityLink';
 import StatusBadge from '../../components/badges/StatusBadge';
@@ -49,9 +50,10 @@ export default function ProgressReviewPage() {
   const [section, setSection] = useState('overview');
   const [periodKey, setPeriodKey] = useState('30d');
   const period = PERIODS.find((p) => p.key === periodKey);
-  const [groupingPref, setGrouping] = useState('day');
-  const grouping = period.groupings.includes(groupingPref) ? groupingPref : period.groupings[0];
+  const [grouping, setGrouping] = useState('day');
   const [appId, setAppId] = useState('');
+  const [prSearch, setPrSearch] = useState('');
+  const [branchSearch, setBranchSearch] = useState('');
 
   const git = useMemo(() => buildGitData(data), [data]);
   const source = git.source;
@@ -86,8 +88,38 @@ export default function ProgressReviewPage() {
   const trend = top.map((p, i) => ({ name: p.application.name, color: seriesColor(i), values: bucketize(p.series) }));
   const prDonut = ['open', 'merged', 'closed'].map((k) => ({ label: titleCase(k), value: s.totals[`${k}Prs`], color: PR_COLORS[k] }));
   const branchDonut = BRANCH_KINDS.map((k, i) => ({ label: titleCase(k), value: s.branchKinds[k] || 0, color: seriesColor(i) })).filter((d) => d.value > 0);
-  const allPrs = s.byRepo.flatMap((r) => r.prList.map((p) => ({ ...p, repository: r.repository, key: `${r.repository.id}#${p.number}`, createdAt: s.dayIndexToDate(p.idx) })));
+  const allPrs = s.byRepo.flatMap((r) => r.prList.map((p) => ({ ...p, repository: r.repository, key: `${r.repository.id}#${p.number}`, createdAt: p.createdAt ? new Date(p.createdAt) : s.dayIndexToDate(p.idx) })));
   const allBranches = s.byRepo.flatMap((r) => r.branchList.map((b) => ({ ...b, repository: r.repository, key: `${r.repository.id}:${b.name}`, lastCommitAt: s.dayIndexToDate(b.lastIdx) })));
+  const filteredPrs = useMemo(() => {
+    const q = prSearch.trim().toLowerCase();
+    if (!q) return allPrs;
+    return allPrs.filter((p) => (
+      `#${p.number}`.toLowerCase().includes(q)
+      || (p.repository?.name || '').toLowerCase().includes(q)
+      || (p.status || '').toLowerCase().includes(q)
+      || (p.author || '').toLowerCase().includes(q)
+    ));
+  }, [allPrs, prSearch]);
+  const filteredBranches = useMemo(() => {
+    const q = branchSearch.trim().toLowerCase();
+    if (!q) return allBranches;
+    return allBranches.filter((b) => (
+      (b.name || '').toLowerCase().includes(q)
+      || (b.kind || '').toLowerCase().includes(q)
+      || (b.repository?.name || '').toLowerCase().includes(q)
+    ));
+  }, [allBranches, branchSearch]);
+  const topPrAuthors = useMemo(() => {
+    const counts = new Map();
+    allPrs.forEach((p) => { if (p.author) counts.set(p.author, (counts.get(p.author) || 0) + 1); });
+    return [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3);
+  }, [allPrs]);
+  const topBranchRepos = useMemo(() => (
+    [...s.byRepo].filter((r) => r.branches > 0).sort((a, b) => b.branches - a.branches).slice(0, 3)
+  ), [s.byRepo]);
+  const prMergeRate = s.totals.prs ? Math.round((s.totals.mergedPrs / s.totals.prs) * 100) : 0;
+  const branchPrimaryCount = (s.branchKinds.main || 0) + (s.branchKinds.release || 0);
+  const branchDevCount = Math.max(0, s.totals.branches - branchPrimaryCount);
   const commitRows = git.commits.filter((c) => (!repoIds || repoIds.has(c.repositoryId)) && new Date(c.committedAt) >= periodDates[0]);
   const notRecorded = (what) => <EmptyState icon={Info} title={`${what} not recorded`} message="The recorded Git snapshot contains commits only. This fills in once a Git provider is connected." />;
 
@@ -101,24 +133,19 @@ export default function ProgressReviewPage() {
   ];
 
   const projectColumns = [
-    { key: 'rank', label: '#', sortable: false, width: 40, render: (p, i) => i + 1 },
+    { key: 'rank', label: '#', sortable: false, width: 32, render: (p, i) => i + 1 },
     { key: 'project', label: 'Project', sortValue: (p) => p.application.name, render: (p) => (
-      <div className="d-flex align-items-center gap-2"><Avatar name={p.application.name} seed={p.application.id} size={30} />
+      <div className="d-flex align-items-center gap-2 min-w-0"><Avatar name={p.application.name} seed={p.application.id} size={26} />
         {p.application.id === '—' ? 'Unassigned' : <EntityLink entity="applications" record={p.application} className="bh-nowrap" />}</div>
     ) },
     { key: 'repository', label: 'Repository', sortable: false, render: (p) => (
-      <div className="d-flex flex-column gap-1">{p.repositories.map((r) => <span key={r.id} className="d-inline-flex align-items-center gap-1 small bh-nowrap"><Github size={13} />{r.name}</span>)}</div>
+      <div className="d-flex flex-column gap-1 min-w-0" style={{ maxWidth: 165 }}>{p.repositories.slice(0, 2).map((r) => <span key={r.id} className="d-inline-flex align-items-center gap-1 small text-truncate"><Github size={12} className="flex-shrink-0" /><span className="text-truncate">{r.name}</span></span>)}</div>
     ) },
     { key: 'commits', label: 'Commits', sub: `(${period.label})`, align: 'right', render: (p) => {
       const prevN = p.repositories.reduce((a, r) => a + ((prevByRepo.get(r.id) || 0) - (s.byRepo.find((x) => x.repository.id === r.id)?.commits || 0)), 0);
       return <div className="text-nowrap"><strong>{p.commits}</strong>{prev && <div><Trend delta={pctChange(p.commits, prevN)} percent /></div>}</div>;
     } },
-    { key: 'branches', label: 'Branches', align: 'right', render: (p) => na(caps.branches, p.branches) },
-    { key: 'prs', label: 'PRs', sub: 'Total', align: 'right', render: (p) => na(caps.prs, p.prs) },
-    { key: 'openPrs', label: 'PRs', sub: 'Open', align: 'right', render: (p) => na(caps.prs, p.openPrs) },
-    { key: 'mergedPrs', label: 'PRs', sub: 'Merged', align: 'right', render: (p) => na(caps.prs, p.mergedPrs) },
-    { key: 'contributors', label: 'Contributors', align: 'right', render: (p) => na(caps.contributors, p.contributors) },
-    { key: 'share', label: 'Share', sortValue: (p) => p.commits, render: (p) => <div style={{ minWidth: 120 }}><ProgressBar value={share(p.commits)} color={seriesColor(activeProjects.indexOf(p) >= 0 && activeProjects.indexOf(p) < 8 ? activeProjects.indexOf(p) : 0)} label="Share of commits" /></div> },
+    { key: 'share', label: 'Share', sortValue: (p) => p.commits, render: (p) => <div style={{ minWidth: 70 }}><ProgressBar value={share(p.commits)} color={seriesColor(activeProjects.indexOf(p) >= 0 && activeProjects.indexOf(p) < 8 ? activeProjects.indexOf(p) : 0)} label="Share of commits" /></div> },
     { key: 'lastCommitAt', label: 'Last Commit', render: (p) => <span className="text-nowrap">{p.lastCommitAt ? fmt.relative(p.lastCommitAt) : '—'}</span> },
     { key: 'actions', label: '', sortable: false, render: (p) => (p.application.id === '—' ? null : (
       <RowActions label={p.application.name} viewTo={`/applications/${p.application.id}`} editTo={`/applications/${p.application.id}/edit`}
@@ -126,13 +153,12 @@ export default function ProgressReviewPage() {
     )) },
   ];
   const repoColumns = [
-    { key: 'repository', label: 'Repository', sortValue: (r) => r.repository.name, render: (r) => <span className="d-inline-flex align-items-center gap-2"><Github size={15} /><EntityLink entity="repositories" record={r.repository} /></span> },
+    { key: 'repository', label: 'Repository', sortValue: (r) => r.repository.name, render: (r) => <span className="d-inline-flex align-items-center gap-2 text-nowrap"><Github size={15} /><EntityLink entity="repositories" record={r.repository} /></span> },
     { key: 'apps', label: 'Application', sortable: false, render: (r) => r.applications.map((a) => a.name).join(', ') || '—' },
     { key: 'commits', label: 'Commits', align: 'right' },
-    { key: 'branches', label: 'Branches', align: 'right', render: (r) => na(caps.branches, r.branches) },
-    { key: 'prs', label: 'Total PR', align: 'right', render: (r) => na(caps.prs, r.prs) },
-    { key: 'contributors', label: 'Contributors', align: 'right', render: (r) => na(caps.contributors, r.contributors) },
-    { key: 'share', label: 'Share', sortValue: (r) => r.commits, render: (r) => <div style={{ minWidth: 120 }}><ProgressBar value={share(r.commits)} label="Share of commits" /></div> },
+    { key: 'branches', label: 'Branches', align: 'right', render: (r) => r.branches },
+    { key: 'prs', label: 'Total PR', align: 'right', render: (r) => r.prs },
+    { key: 'share', label: 'Share', sortValue: (r) => r.commits, render: (r) => <div style={{ minWidth: 80 }}><ProgressBar value={share(r.commits)} label="Share of commits" /></div> },
     { key: 'lastCommitAt', label: 'Last Commit', render: (r) => fmt.date(r.lastCommitAt) },
   ];
 
@@ -140,9 +166,35 @@ export default function ProgressReviewPage() {
   const NEEDS = { branches: 'branches', prs: 'prs', openPrs: 'prs', mergedPrs: 'prs', contributors: 'contributors' };
   const visibleColumns = (cols) => cols.filter((c) => !NEEDS[c.key] || caps[NEEDS[c.key]]);
 
+  const groupingFilter = (
+    <div className="btn-group btn-group-sm" role="group" aria-label="Commit time grouping">
+      <button
+        type="button"
+        className={`btn ${grouping === 'day' ? 'btn-primary' : 'btn-outline-secondary'}`}
+        onClick={() => setGrouping('day')}
+      >
+        By Day
+      </button>
+      <button
+        type="button"
+        className={`btn ${grouping === 'week' ? 'btn-primary' : 'btn-outline-secondary'}`}
+        onClick={() => setGrouping('week')}
+      >
+        By Week
+      </button>
+      <button
+        type="button"
+        className={`btn ${grouping === 'month' ? 'btn-primary' : 'btn-outline-secondary'}`}
+        onClick={() => setGrouping('month')}
+      >
+        By Month
+      </button>
+    </div>
+  );
+
   const activityCard = (
     <SectionCard icon={BarChart3} title="Commit Activity" subtitle="Number of commits over time." badge={badge}
-      actions={period.groupings.length > 1 && <SelectMenu ariaLabel="Group by" value={grouping} onChange={setGrouping} options={period.groupings.map((g) => ({ value: g, label: `By ${g}` }))} />}>
+      actions={groupingFilter}>
       <LineChart area labels={s.series.map((b) => label(b.date))} tooltipLabels={s.series.map((b) => tip(b.date))}
         series={[{ name: 'Commits', color: 'var(--bh-info)', values: s.series.map((b) => b.value) }]} height={260} maxTicks={10} />
     </SectionCard>
@@ -157,11 +209,11 @@ export default function ProgressReviewPage() {
   );
   const projectTable = (
     <SectionCard icon={Target} title="Project Progress" subtitle="Development progress and Git statistics per project. Share = share of commits in the period." badge={badge} noBody>
-      <DataTable rows={projects} rowKey={(p) => p.application.id} initialSort={{ key: 'commits', dir: 'desc' }} columns={visibleColumns(projectColumns)} noun="projects" footerNote="shared repositories count for each project" />
+      <DataTable compact rows={projects} pageSize={5} rowKey={(p) => p.application.id} initialSort={{ key: 'commits', dir: 'desc' }} columns={visibleColumns(projectColumns)} noun="projects" footerNote="shared repositories count for each project" />
     </SectionCard>
   );
   const summaryCard = (
-    <SectionCard icon={PieChart} title="Development Summary" subtitle={period.label} badge={badge}>
+    <SectionCard icon={PieChart} title="Development Summary" subtitle={period.label} badge={badge} fullHeight={false}>
       <MetricList rows={[
         { icon: Code2, label: 'Commits', value: s.totals.commits, trend: <Trend delta={commitTrend} percent /> },
         { icon: FolderGit2, label: 'Active projects', value: activeProjects.length },
@@ -174,7 +226,7 @@ export default function ProgressReviewPage() {
     </SectionCard>
   );
   const contributorsCard = (
-    <SectionCard icon={Trophy} title="Top Contributors" subtitle={`By number of commits (${period.label.toLowerCase()}).`} badge={badge}>
+    <SectionCard icon={Trophy} title="Top Contributors" subtitle={`By number of commits (${period.label.toLowerCase()}).`} badge={badge} fullHeight={false}>
       {!caps.contributors ? <div className="text-muted small">Commit authors were not included in the recorded snapshot.</div> : (
         <div className="d-flex flex-column gap-2">
           {s.contributors.slice(0, 5).map((c) => (
@@ -289,11 +341,59 @@ export default function ProgressReviewPage() {
 
       {section === 'prs' && (caps.prs ? (
         <div className="row g-4">
-          <div className="col-xl-4"><SectionCard icon={GitPullRequest} title="Pull Request Status" badge={badge}><DonutChart data={prDonut} centerLabel="Pull requests" size={160} thickness={24} /></SectionCard></div>
+          <div className="col-xl-4">
+            <SectionCard icon={GitPullRequest} title="Pull Request Status" badge={badge}>
+              <DonutChart data={prDonut} centerLabel="Pull requests" size={160} thickness={24} />
+              <div className="border-top pt-3 mt-4 d-flex flex-column gap-3">
+                <div>
+                  <div className="d-flex justify-content-between align-items-center small mb-1">
+                    <span className="text-muted fw-semibold">Merge Rate</span>
+                    <strong className="text-success">{prMergeRate}%</strong>
+                  </div>
+                  <ProgressBar value={prMergeRate} color="var(--bh-success)" label="PR merge rate" />
+                </div>
+                <div className="d-flex flex-column gap-2 small">
+                  <div className="d-flex justify-content-between">
+                    <span className="text-muted">Open PRs</span>
+                    <strong>{s.totals.openPrs}</strong>
+                  </div>
+                  <div className="d-flex justify-content-between">
+                    <span className="text-muted">Merged PRs</span>
+                    <strong>{s.totals.mergedPrs}</strong>
+                  </div>
+                  <div className="d-flex justify-content-between">
+                    <span className="text-muted">Closed (Unmerged)</span>
+                    <strong>{s.totals.closedPrs}</strong>
+                  </div>
+                </div>
+                {topPrAuthors.length > 0 && (
+                  <div className="border-top pt-3">
+                    <div className="small text-muted fw-semibold mb-2">Top PR Authors</div>
+                    <div className="d-flex flex-column gap-2">
+                      {topPrAuthors.map(([author, count]) => (
+                        <div key={author} className="d-flex align-items-center gap-2 small">
+                          <Avatar name={author.replace('.', ' ')} size={22} round />
+                          <span className="flex-grow-1 text-truncate mono">{author}</span>
+                          <span className="bh-chip">{count} PR</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </SectionCard>
+          </div>
           <div className="col-xl-8">
-            <SectionCard icon={GitPullRequest} title="Pull Requests" noBody>
-              <DataTable rows={allPrs} rowKey={(p) => p.key} initialSort={{ key: 'createdAt', dir: 'desc' }} noun="pull requests" columns={[
-                { key: 'number', label: 'PR', render: (p) => <span className="mono">#{p.number}</span> },
+            <SectionCard icon={GitPullRequest} title="Pull Requests" subtitle={`${filteredPrs.length} pull requests`} noBody>
+              <FilterBar
+                search={prSearch}
+                onSearch={setPrSearch}
+                placeholder="Search PR #, repository, status or author…"
+                active={!!prSearch}
+                onClear={() => setPrSearch('')}
+              />
+              <DataTable rows={filteredPrs} pageSize={5} rowKey={(p) => p.key} initialSort={{ key: 'createdAt', dir: 'desc' }} noun="pull requests" columns={[
+                { key: 'number', label: 'PR', render: (p) => (p.url ? <a href={p.url} target="_blank" rel="noreferrer" className="mono d-inline-flex align-items-center gap-1" title={p.title || ''}>#{p.number}<ExternalLink size={11} /></a> : <span className="mono" title={p.title || ''}>#{p.number}</span>) },
                 { key: 'repository', label: 'Repository', sortValue: (p) => p.repository.name, render: (p) => <EntityLink entity="repositories" record={p.repository} /> },
                 { key: 'status', label: 'Status', render: (p) => <StatusBadge value={p.status} /> },
                 { key: 'author', label: 'Author', render: (p) => <span className="mono">{p.author}</span> },
@@ -306,10 +406,47 @@ export default function ProgressReviewPage() {
 
       {section === 'branches' && (caps.branches ? (
         <div className="row g-4">
-          <div className="col-xl-4"><SectionCard icon={ListTree} title="Branch Distribution" badge={badge}><DonutChart data={branchDonut} centerLabel="Branches" size={160} thickness={24} /></SectionCard></div>
+          <div className="col-xl-4">
+            <SectionCard icon={ListTree} title="Branch Distribution" badge={badge}>
+              <DonutChart data={branchDonut} centerLabel="Branches" size={160} thickness={24} />
+              <div className="border-top pt-3 mt-4 d-flex flex-column gap-3">
+                <div className="d-flex flex-column gap-2 small">
+                  <div className="d-flex justify-content-between">
+                    <span className="text-muted">Primary & Release</span>
+                    <strong>{branchPrimaryCount} branches</strong>
+                  </div>
+                  <div className="d-flex justify-content-between">
+                    <span className="text-muted">Working (Dev / Feature / Fix)</span>
+                    <strong>{branchDevCount} branches</strong>
+                  </div>
+                </div>
+                {topBranchRepos.length > 0 && (
+                  <div className="border-top pt-3">
+                    <div className="small text-muted fw-semibold mb-2">Most Active Repositories</div>
+                    <div className="d-flex flex-column gap-2">
+                      {topBranchRepos.map((r) => (
+                        <div key={r.repository.id} className="d-flex align-items-center gap-2 small">
+                          <Github size={14} className="text-muted flex-shrink-0" />
+                          <span className="flex-grow-1 text-truncate">{r.repository.name}</span>
+                          <span className="bh-chip">{r.branches} branches</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </SectionCard>
+          </div>
           <div className="col-xl-8">
-            <SectionCard icon={GitBranch} title="Active Branches" noBody>
-              <DataTable rows={allBranches} rowKey={(b) => b.key} initialSort={{ key: 'lastCommitAt', dir: 'desc' }} noun="branches" columns={[
+            <SectionCard icon={GitBranch} title="Active Branches" subtitle={`${filteredBranches.length} active branches`} noBody>
+              <FilterBar
+                search={branchSearch}
+                onSearch={setBranchSearch}
+                placeholder="Search branch name, type or repository…"
+                active={!!branchSearch}
+                onClear={() => setBranchSearch('')}
+              />
+              <DataTable rows={filteredBranches} pageSize={5} rowKey={(b) => b.key} initialSort={{ key: 'lastCommitAt', dir: 'desc' }} noun="branches" columns={[
                 { key: 'name', label: 'Branch', render: (b) => <span className="mono">{b.name}</span> },
                 { key: 'kind', label: 'Type', render: (b) => titleCase(b.kind) },
                 { key: 'repository', label: 'Repository', sortValue: (b) => b.repository.name, render: (b) => <EntityLink entity="repositories" record={b.repository} /> },
