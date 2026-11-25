@@ -98,11 +98,10 @@ export function buildRecordedGit(ds, anchor = new Date()) {
 
     let branches;
     if (Array.isArray(repo.syncedBranches) && repo.syncedBranches.length > 0) {
-      const branchIdx = lastIdx >= 0 ? lastIdx : HISTORY_DAYS - 1;
       branches = repo.syncedBranches.map((b) => ({
         name: b.name,
         kind: b.kind || 'chore',
-        lastIdx: branchIdx,
+        lastIdx: HISTORY_DAYS - 1,
       }));
     } else {
       const branchKinds = ['main', 'develop', 'feature', 'fix', 'release', 'chore'];
