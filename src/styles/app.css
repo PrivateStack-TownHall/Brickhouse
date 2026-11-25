@@ -139,6 +139,8 @@ a { text-decoration: none; }
   border: 1px solid #ebe5da;
   border-radius: var(--bh-radius-lg);
   box-shadow: 0 1px 2px rgba(15, 45, 74, 0.04), 0 6px 18px rgba(15, 45, 74, 0.05);
+  max-width: 100%;
+  min-width: 0;
 }
 [data-bs-theme='dark'] .bh-card { border-color: var(--bh-border); }
 .bh-card-body { padding: 20px 22px; }
@@ -346,7 +348,7 @@ a { text-decoration: none; }
 .bh-review-value { font-size: 14px; color: var(--bh-text); word-break: break-word; }
 
 /* ---------- Tables ---------- */
-.bh-table-wrap { overflow-x: auto; }
+.bh-table-wrap { overflow-x: auto; max-width: 100%; width: 100%; -webkit-overflow-scrolling: touch; }
 .bh-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13.5px; }
 .bh-table th { font-size: 12px; font-weight: 700; color: var(--bh-text-muted); text-transform: uppercase; letter-spacing: 0.04em; padding: 11px 14px; background: var(--bh-surface-muted); border-bottom: 1px solid var(--bh-border); white-space: nowrap; user-select: none; }
 .bh-table th.sortable { cursor: pointer; }
