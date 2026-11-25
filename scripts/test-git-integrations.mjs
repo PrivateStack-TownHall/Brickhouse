@@ -132,3 +132,91 @@ test('sync reports the history limit and rejects configuration changes during a 
   const ds = service.saveIntegration(dataset(), { ...connection, organization: 'another' }).dataset;
   assert.throws(() => service.applyIntegrationSync(ds, connection, sync), /changed during sync/);
 });
+
+test('testGitConnection verifies credentials, handles rate limits and user identity', async () => {
+  // 1. Unauthenticated test (checks rate limit)
+  const unauthed = await service.testGitConnection(connection, '', {
+    fetchImpl: async (url) => {
+      assert.equal(url, 'https://api.github.com/rate_limit');
+      return {
+        ok: true, status: 200,
+        headers: new Map([['x-ratelimit-remaining', '58'], ['x-ratelimit-limit', '60']]),
+        json: async () => ({ rate: { remaining: 58, limit: 60 } }),
+      };
+    },
+  });
+  assert.equal(unauthed.ok, true);
+  assert.equal(unauthed.authenticated, false);
+  assert.equal(unauthed.rateLimitRemaining, 58);
+
+  // 2. Authenticated test (checks user identity)
+  const authed = await service.testGitConnection(connection, 'ghp_validToken', {
+    fetchImpl: async (url, options) => {
+      assert.equal(url, 'https://api.github.com/user');
+      assert.equal(options.headers.Authorization, 'Bearer ghp_validToken');
+      return {
+        ok: true, status: 200,
+        headers: new Map([['x-ratelimit-remaining', '4990'], ['x-ratelimit-limit', '5000']]),
+        json: async () => ({ login: 'octocat', name: 'Mona Lisa' }),
+      };
+    },
+  });
+  assert.equal(authed.ok, true);
+  assert.equal(authed.authenticated, true);
+  assert.equal(authed.user, 'octocat');
+  assert.equal(authed.rateLimitRemaining, 4990);
+
+  // 3. Invalid token (401 error)
+  await assert.rejects(
+    service.testGitConnection(connection, 'bad_token', {
+      fetchImpl: async () => ({ ok: false, status: 401, headers: new Map(), json: async () => ({}) }),
+    }),
+    /Authentication failed/,
+  );
+});
+
+test('fetchIntegrationFullSync and syncSingleGitHubRepo fetch commits, branches, PRs and metadata', async () => {
+  const fetchMock = async (url) => {
+    if (url.includes('/commits')) return response([item()]);
+    if (url.includes('/branches')) return response([{ name: 'main', commit: { sha } }, { name: 'feat/login', commit: { sha } }]);
+    if (url.includes('/pulls')) {
+      return response([
+        { number: 42, title: 'Add login', state: 'closed', merged_at: '2026-11-23T00:00:00Z', user: { login: 'octocat' }, created_at: '2026-11-22T00:00:00Z', html_url: 'https://github.com/team/app/pull/42' },
+        { number: 43, title: 'Fix bug', state: 'open', merged_at: null, user: { login: 'author' }, created_at: '2026-11-24T00:00:00Z', html_url: 'https://github.com/team/app/pull/43' },
+      ]);
+    }
+    return response({ default_branch: 'main', language: 'JavaScript', private: false, description: 'App repo', topics: ['react', 'vite'] });
+  };
+
+  const full = await service.fetchIntegrationFullSync(connection, [repo], 'tok', { fetchImpl: fetchMock });
+  assert.equal(full.successes.length, 1);
+  assert.equal(full.successes[0].branches.length, 2);
+  assert.equal(full.successes[0].branches[1].kind, 'feature');
+  assert.equal(full.successes[0].prs.length, 2);
+  assert.equal(full.successes[0].prs[0].status, 'merged');
+  assert.equal(full.successes[0].prs[1].status, 'open');
+  assert.equal(full.successes[0].metadata.language, 'JavaScript');
+  assert.equal(full.successes[0].metadata.visibility, 'public');
+
+  const applied = service.applyIntegrationSync(dataset(), connection, full);
+  assert.equal(applied.result.branches, 2);
+  assert.equal(applied.result.prs, 2);
+  const updatedRepo = applied.dataset.repositories.find((r) => r.id === repo.id);
+  assert.equal(updatedRepo.accessStatus, 'accessible');
+  assert.equal(updatedRepo.visibility, 'public');
+  assert.equal(updatedRepo.language, 'JavaScript');
+  assert.equal(updatedRepo.syncedBranches.length, 2);
+  assert.equal(updatedRepo.syncedPrs.length, 2);
+
+  const gitAnalytics = buildRecordedGit(applied.dataset);
+  const analyticsRepo = gitAnalytics.repos.find((r) => r.repository.id === repo.id);
+  assert.equal(analyticsRepo.branches.length, 2);
+  assert.equal(analyticsRepo.branches[1].name, 'feat/login');
+  assert.equal(analyticsRepo.prs.length, 2);
+  assert.equal(analyticsRepo.prs[0].url, 'https://github.com/team/app/pull/42');
+
+  const single = await service.syncSingleGitHubRepo(repo, [connection], 'tok', { fetchImpl: fetchMock });
+  const appliedSingle = service.applySingleRepoSync(dataset(), repo, single.sync);
+  assert.equal(appliedSingle.result.branches, 2);
+  assert.equal(appliedSingle.result.prs, 2);
+});

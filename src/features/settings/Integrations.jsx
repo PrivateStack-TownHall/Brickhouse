@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router';
-import { Github, Gitlab, Box, Plus, Pencil, Trash2, RefreshCw } from 'lucide-react';
+import {
+  Github, Gitlab, Box, Plus, Pencil, Trash2, RefreshCw, ExternalLink,
+  Key, CheckCircle2, AlertCircle, Info, ShieldCheck, Check,
+} from 'lucide-react';
 import FormField from '../../components/forms/FormField';
 import FormSelect from '../../components/forms/FormSelect';
 import FormTextarea from '../../components/forms/FormTextarea';
@@ -9,10 +12,36 @@ import ConfirmDialog from '../../components/dialogs/ConfirmDialog';
 import { useRegistry } from '../../hooks/useRegistry';
 import { useToast } from '../../hooks/useToast';
 import { useFormat } from '../../hooks/useFormat';
-import { GIT_PROVIDERS, integrationConnections, matchingRepositories, validateIntegration, saveIntegration, removeIntegration, fetchIntegrationCommits, applyIntegrationSync } from '../../services/git-integrations.service';
+import {
+  GIT_PROVIDERS,
+  integrationConnections,
+  matchingRepositories,
+  validateIntegration,
+  saveIntegration,
+  removeIntegration,
+  fetchIntegrationFullSync,
+  applyIntegrationSync,
+  testGitConnection,
+} from '../../services/git-integrations.service';
 import { resolveLogo } from '../../assets/logos';
 
 const ICONS = { github: Github, gitlab: Gitlab, bitbucket: Box };
+
+function loadSavedTokens() {
+  const result = {};
+  try {
+    for (let i = 0; i < sessionStorage.length; i++) {
+      const key = sessionStorage.key(i);
+      if (key && key.startsWith('bh_token_')) {
+        const id = key.replace('bh_token_', '');
+        result[id] = sessionStorage.getItem(key) || '';
+      }
+    }
+  } catch {
+    // sessionStorage unavailable
+  }
+  return result;
+}
 
 export default function Integrations() {
   const { data, run } = useRegistry();
@@ -22,13 +51,34 @@ export default function Integrations() {
   const [editing, setEditing] = useState(null);
   const [errors, setErrors] = useState({});
   const [removing, setRemoving] = useState(null);
-  const [tokens, setTokens] = useState({});
+  const [tokens, setTokens] = useState(() => loadSavedTokens());
   const [busy, setBusy] = useState(null);
+  const [testing, setTesting] = useState(null);
+  const [testResults, setTestResults] = useState({});
   const [reports, setReports] = useState({});
+  const [showGuide, setShowGuide] = useState(true);
   const controller = useRef(null);
+
   useEffect(() => () => controller.current?.abort(), []);
 
-  const edit = (record) => { setErrors({}); setEditing({ ...record }); };
+  const handleTokenChange = (connectionId, value) => {
+    setTokens((prev) => ({ ...prev, [connectionId]: value }));
+    try {
+      if (value) {
+        sessionStorage.setItem(`bh_token_${connectionId}`, value);
+      } else {
+        sessionStorage.removeItem(`bh_token_${connectionId}`);
+      }
+    } catch {
+      // sessionStorage unavailable
+    }
+  };
+
+  const edit = (record) => {
+    setErrors({});
+    setEditing({ ...record });
+  };
+
   const save = (event) => {
     event.preventDefault();
     const invalid = validateIntegration(editing);
@@ -36,12 +86,40 @@ export default function Integrations() {
     if (Object.keys(invalid).length) return;
     try {
       run(saveIntegration, editing);
-      setTokens((previous) => ({ ...previous, [editing.id]: '' }));
-      setReports((previous) => ({ ...previous, [editing.id]: null }));
       setEditing(null);
       toast('Integration saved.');
-    } catch (e) { toast(e.message, 'error'); }
+    } catch (e) {
+      toast(e.message, 'error');
+    }
   };
+
+  const testConnection = async (connection) => {
+    setTesting(connection.id);
+    setTestResults((prev) => ({ ...prev, [connection.id]: null }));
+    try {
+      const res = await testGitConnection(connection, tokens[connection.id] || '');
+      setTestResults((prev) => ({
+        ...prev,
+        [connection.id]: {
+          ok: true,
+          message: res.authenticated
+            ? `Connected as ${res.user ? `@${res.user}` : 'authenticated user'}`
+            : 'Public API access verified (unauthenticated)',
+          rateLimit: res.rateLimitRemaining !== null ? `${res.rateLimitRemaining} / ${res.rateLimitTotal || 5000} remaining` : null,
+        },
+      }));
+      toast('Connection successful!', 'success');
+    } catch (e) {
+      setTestResults((prev) => ({
+        ...prev,
+        [connection.id]: { ok: false, message: e.message },
+      }));
+      toast(e.message, 'error');
+    } finally {
+      setTesting(null);
+    }
+  };
+
   const sync = async (connection) => {
     if (controller.current) return;
     const request = new AbortController();
@@ -49,75 +127,307 @@ export default function Integrations() {
     setBusy(connection.id);
     setReports((previous) => ({ ...previous, [connection.id]: null }));
     try {
-      const result = await fetchIntegrationCommits(connection, data.repositories, tokens[connection.id] || '', { signal: request.signal });
+      const result = await fetchIntegrationFullSync(connection, data.repositories, tokens[connection.id] || '', { signal: request.signal });
       request.signal.throwIfAborted();
-      const saved = result.successes.length ? run(applyIntegrationSync, connection, result) : { added: 0, repositories: 0 };
+      const saved = (result.successes.length || result.inaccessibleIds?.length)
+        ? (result.successes.length ? run(applyIntegrationSync, connection, result) : { added: 0, repositories: 0, branches: 0, prs: 0 })
+        : { added: 0, repositories: 0, branches: 0, prs: 0 };
       setReports((previous) => ({ ...previous, [connection.id]: { ...result, ...saved } }));
-      toast(`${saved.repositories} repositories synced; ${saved.added} new commits.${result.failures.length ? ` ${result.failures.length} failed — see details.` : ''}`, result.failures.length ? 'error' : 'success');
+      const extraInfo = connection.provider === 'github' ? ` · ${saved.branches || 0} branches · ${saved.prs || 0} PRs` : '';
+      toast(`${saved.repositories} repositories synced; ${saved.added} new commits${extraInfo}.${result.failures.length ? ` ${result.failures.length} failed — see details.` : ''}`, result.failures.length ? 'error' : 'success');
     } catch (e) {
       if (!request.signal.aborted) setReports((previous) => ({ ...previous, [connection.id]: { error: e.message } }));
-    } finally { controller.current = null; setBusy(null); }
+    } finally {
+      controller.current = null;
+      setBusy(null);
+    }
   };
 
   return (
     <div className="d-flex flex-column gap-3">
       <div className="d-flex gap-3 align-items-start justify-content-between flex-wrap">
-        <div><h2 className="bh-card-title">Git integrations</h2><p className="bh-card-sub">Add multiple accounts or organizations from the same provider.</p></div>
-        <button type="button" className="btn btn-primary" disabled={!!busy} onClick={() => edit({ id: crypto.randomUUID(), provider: 'github', name: '', organization: '', apiBaseUrl: GIT_PROVIDERS[0].apiBaseUrl, notes: '' })}><Plus size={16} />Add integration</button>
+        <div>
+          <h2 className="bh-card-title">Git Integrations</h2>
+          <p className="bh-card-sub">Connect your GitHub, GitLab, or Bitbucket accounts to synchronize commit history and graphs.</p>
+        </div>
+        <button
+          type="button"
+          className="btn btn-primary"
+          disabled={!!busy}
+          onClick={() => edit({ id: crypto.randomUUID(), provider: 'github', name: '', organization: '', apiBaseUrl: GIT_PROVIDERS[0].apiBaseUrl, notes: '' })}
+        >
+          <Plus size={16} />Add integration
+        </button>
       </div>
-      <p className="text-muted small mb-0">Sync reads up to 500 latest commits per registered repository’s primary branch. Public repositories work without a token. Tokens stay in memory until you leave this page or reload. <Link to="/repositories">Manage repositories</Link> · <Link to="/progress">View commits</Link></p>
-      {connections.length === 0 && <div className="bh-card bh-card-body text-muted">No integrations yet. Add a GitHub, GitLab or Bitbucket account to start syncing commits.</div>}
+
+      {/* GitHub & Git Connection Guide */}
+      <div className="bh-card" style={{ borderLeft: '4px solid var(--bh-orange)', background: 'var(--bh-surface)' }}>
+        <div className="bh-card-body">
+          <div className="d-flex align-items-center justify-content-between mb-2">
+            <div className="d-flex align-items-center gap-2">
+              <Github size={20} className="text-primary" />
+              <strong style={{ fontSize: 15 }}>Apakah butuh API Key untuk GitHub?</strong>
+            </div>
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm"
+              onClick={() => setShowGuide(!showGuide)}
+            >
+              {showGuide ? 'Hide details' : 'Show details'}
+            </button>
+          </div>
+
+          {showGuide && (
+            <div className="small text-muted d-flex flex-column gap-2 mt-2">
+              <p className="mb-0">
+                GitHub tidak menggunakan sistem <em>API Key</em> konvensional. Sebagai gantinya, koneksi dilakukan melalui <strong>Personal Access Token (PAT)</strong> atau tanpa token:
+              </p>
+              <ul className="mb-1 ps-3" style={{ lineHeight: 1.6 }}>
+                <li>
+                  <strong>Public Repository:</strong> <em>Tidak butuh token / API key</em>. Anda dapat langsung mengklik <strong>Sync commits</strong>. Namun dibatasi rate limit 60 request/jam per IP.
+                </li>
+                <li>
+                  <strong>Private Repository:</strong> <em>Wajib menggunakan Personal Access Token (PAT)</em> dengan izin <code>Contents: Read-only</code> (untuk commits, branches &amp; info repo) dan opsional <code>Pull requests: Read-only</code> (untuk daftar PR real).
+                </li>
+                <li>
+                  <strong>Keuntungan menggunakan Token:</strong> Rate limit kuota GitHub naik drastis dari 60 menjadi <strong>5,000 requests/jam</strong>.
+                </li>
+              </ul>
+              <div className="d-flex gap-2 flex-wrap align-items-center pt-1">
+                <span className="fw-semibold text-dark">Buat token GitHub:</span>
+                <a
+                  href="https://github.com/settings/tokens?type=beta"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn btn-secondary btn-sm d-inline-flex align-items-center gap-1"
+                >
+                  <Key size={13} />
+                  Fine-grained PAT (Recommended)
+                  <ExternalLink size={12} />
+                </a>
+                <a
+                  href="https://github.com/settings/tokens/new?scopes=repo&description=Brickhouse%20Integration"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn btn-ghost btn-sm d-inline-flex align-items-center gap-1"
+                >
+                  Classic PAT (repo scope)
+                  <ExternalLink size={12} />
+                </a>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="d-flex gap-2 align-items-center flex-wrap text-muted small">
+        <span>Quick shortcuts:</span>
+        <Link to="/repositories" className="badge bg-light text-dark border text-decoration-none">Manage Repositories</Link>
+        <Link to="/progress" className="badge bg-light text-dark border text-decoration-none">Progress & Review Graph</Link>
+        <Link to="/" className="badge bg-light text-dark border text-decoration-none">Overview Commit Activity</Link>
+      </div>
+
+      {connections.length === 0 && (
+        <div className="bh-card bh-card-body text-muted">
+          No integrations yet. Add a GitHub, GitLab or Bitbucket account to start syncing commits.
+        </div>
+      )}
+
       {connections.map((connection) => {
         const provider = GIT_PROVIDERS.find((p) => p.key === connection.provider);
         const Icon = ICONS[connection.provider] || Box;
         const logo = resolveLogo(connection.provider);
         const repositories = matchingRepositories(data.repositories, connection);
         const report = reports[connection.id];
+        const testResult = testResults[connection.id];
+
         return (
           <section className="bh-card" key={connection.id} aria-label={connection.name}>
             <div className="bh-card-header flex-wrap">
               <div className="d-flex align-items-center gap-2 min-w-0">
                 {logo ? (
-                  <span className="bh-av bh-av-logo flex-shrink-0" style={{ width: 26, height: 26, minWidth: 26, borderRadius: 6, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#fff', border: '1px solid var(--bh-border)', padding: 3, overflow: 'hidden' }}>
+                  <span className="bh-av bh-av-logo flex-shrink-0" style={{ width: 28, height: 28, minWidth: 28, borderRadius: 6, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#fff', border: '1px solid var(--bh-border)', padding: 3, overflow: 'hidden' }}>
                     <img src={logo} alt={connection.provider} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                   </span>
                 ) : (
                   <Icon size={20} className="flex-shrink-0" />
                 )}
-                <div className="min-w-0"><h3 className="bh-card-title text-break">{connection.name}</h3><p className="bh-card-sub text-break">{provider?.label} · {connection.organization} · {repositories.length} matching repositories</p></div>
+                <div className="min-w-0">
+                  <h3 className="bh-card-title text-break">{connection.name}</h3>
+                  <p className="bh-card-sub text-break">
+                    {provider?.label} · <code>{connection.organization}</code> · {repositories.length} matching repositories
+                  </p>
+                </div>
               </div>
-              <div className="d-flex gap-1 align-items-center"><span className={`bh-badge bh-tone-${connection.lastSyncedAt ? 'success' : 'gray'}`}>{connection.lastSyncedAt ? 'Snapshot synced' : 'Not synced'}</span><button type="button" className="btn btn-ghost btn-icon" aria-label={`Edit ${connection.name}`} disabled={!!busy} onClick={() => edit(connection)}><Pencil size={15} /></button><button type="button" className="btn btn-ghost btn-icon text-danger" aria-label={`Remove ${connection.name}`} disabled={!!busy} onClick={() => setRemoving(connection)}><Trash2 size={15} /></button></div>
+              <div className="d-flex gap-1 align-items-center">
+                <span className={`bh-badge bh-tone-${connection.lastSyncedAt ? 'success' : 'gray'}`}>
+                  {connection.lastSyncedAt ? 'Snapshot synced' : 'Not synced'}
+                </span>
+                <button type="button" className="btn btn-ghost btn-icon" aria-label={`Edit ${connection.name}`} disabled={!!busy} onClick={() => edit(connection)}>
+                  <Pencil size={15} />
+                </button>
+                <button type="button" className="btn btn-ghost btn-icon text-danger" aria-label={`Remove ${connection.name}`} disabled={!!busy} onClick={() => setRemoving(connection)}>
+                  <Trash2 size={15} />
+                </button>
+              </div>
             </div>
+
             <div className="bh-card-body">
-              <p className="text-muted small text-break mb-2">{connection.apiBaseUrl}{connection.lastSyncedAt && <> · Last sync: {fmt.dateTime(connection.lastSyncedAt)}</>}</p>
-              {connection.notes && <p className="small text-break">{connection.notes}</p>}
-              <FormField label={`Access token · ${connection.name}`} type="password" autoComplete="off" spellCheck={false} value={tokens[connection.id] || ''} disabled={!!busy} onChange={(e) => setTokens({ ...tokens, [connection.id]: e.target.value })} placeholder="Optional for public repositories" help={connection.provider === 'github' ? 'GitHub: Contents (read) permission for selected repositories.' : connection.provider === 'gitlab' ? 'GitLab: use a token with read_api access.' : 'Bitbucket Cloud: use a bearer token with repository read access.'} />
-              <div className="d-flex gap-2 align-items-center flex-wrap">
-                <button type="button" className="btn btn-secondary btn-sm" disabled={!!busy || !repositories.length} onClick={() => sync(connection)}><RefreshCw size={14} />{busy === connection.id ? 'Syncing…' : 'Sync commits'}</button>
-                {busy === connection.id && <button type="button" className="btn btn-ghost btn-sm" onClick={() => controller.current?.abort()}>Cancel</button>}
-                {!repositories.length && <span className="text-muted small">Register a repository with a matching provider, host and organization.</span>}
+              <p className="text-muted small text-break mb-2">
+                {connection.apiBaseUrl}
+                {connection.lastSyncedAt && <> · Last sync: {fmt.dateTime(connection.lastSyncedAt)}</>}
+              </p>
+              {connection.notes && <p className="small text-break mb-3">{connection.notes}</p>}
+
+              <div className="mb-3">
+                <FormField
+                  label={`Personal Access Token (PAT) · ${connection.name}`}
+                  type="password"
+                  autoComplete="off"
+                  spellCheck={false}
+                  value={tokens[connection.id] || ''}
+                  disabled={!!busy}
+                  onChange={(e) => handleTokenChange(connection.id, e.target.value)}
+                  placeholder="Optional for public repositories; required for private repositories"
+                  help={
+                    connection.provider === 'github'
+                      ? 'GitHub: Permissions required -> Repository permissions > Contents: Read-only.'
+                      : connection.provider === 'gitlab'
+                        ? 'GitLab: use a Personal Access Token with read_api access.'
+                        : 'Bitbucket Cloud: use an app password or bearer token with repository read access.'
+                  }
+                />
               </div>
-              {report && <div className="mt-3 small" role={report.error || report.failures?.length ? 'alert' : 'status'}>
-                {report.error ? <span className="text-danger">{report.error}</span> : <>
-                  <div>{report.repositories} repositories synced · {report.added} new commits. <Link to="/progress">View commits</Link></div>
-                  {report.successes.some((s) => s.truncated) && <div className="text-muted">Some repositories reached the 500-commit limit; older history is not included in this sync.</div>}
-                  {report.failures.length > 0 && <ul className="text-danger mb-0 mt-2">{report.failures.map((failure) => <li key={failure.repositoryId}>{failure.name}: {failure.message}</li>)}</ul>}
-                </>}
-              </div>}
+
+              <div className="d-flex gap-2 align-items-center flex-wrap">
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1"
+                  disabled={testing === connection.id || busy === connection.id}
+                  onClick={() => testConnection(connection)}
+                >
+                  <ShieldCheck size={14} />
+                  {testing === connection.id ? 'Testing…' : 'Test connection'}
+                </button>
+
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm d-inline-flex align-items-center gap-1"
+                  disabled={!!busy || !repositories.length}
+                  onClick={() => sync(connection)}
+                >
+                  <RefreshCw size={14} className={busy === connection.id ? 'bh-spin' : ''} />
+                  {busy === connection.id ? 'Syncing…' : connection.provider === 'github' ? 'Sync GitHub data' : 'Sync commits'}
+                </button>
+
+                {busy === connection.id && (
+                  <button type="button" className="btn btn-ghost btn-sm" onClick={() => controller.current?.abort()}>
+                    Cancel
+                  </button>
+                )}
+
+                {!repositories.length && (
+                  <span className="text-muted small">
+                    No repositories match organization "<code>{connection.organization}</code>". Register one in <Link to="/repositories">Repositories</Link>.
+                  </span>
+                )}
+              </div>
+
+              {testResult && (
+                <div
+                  className={`mt-2 p-2 rounded small d-flex align-items-center gap-2 ${
+                    testResult.ok ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'
+                  }`}
+                >
+                  {testResult.ok ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
+                  <div>
+                    <span>{testResult.message}</span>
+                    {testResult.rateLimit && <span className="ms-2 text-muted">({testResult.rateLimit})</span>}
+                  </div>
+                </div>
+              )}
+
+              {report && (
+                <div className="mt-3 small" role={report.error || report.failures?.length ? 'alert' : 'status'}>
+                  {report.error ? (
+                    <span className="text-danger">{report.error}</span>
+                  ) : (
+                    <>
+                      <div className="text-success fw-semibold">
+                        ✓ {report.repositories} repositories synced · {report.added} new commits{report.branches ? ` · ${report.branches} branches` : ''}{report.prs ? ` · ${report.prs} PRs` : ''}. <Link to="/progress">View in Progress &amp; Review</Link>
+                      </div>
+                      {report.successes.some((s) => s.truncated) && (
+                        <div className="text-muted mt-1">Some repositories reached the 500-commit limit; older history is omitted.</div>
+                      )}
+                      {report.failures.length > 0 && (
+                        <ul className="text-danger mb-0 mt-2">
+                          {report.failures.map((failure) => (
+                            <li key={failure.repositoryId}>{failure.name}: {failure.message}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
             </div>
           </section>
         );
       })}
-      {editing && <Modal open title={connections.some((c) => c.id === editing.id) ? 'Edit integration' : 'Add integration'} onClose={() => setEditing(null)} footer={<><button type="button" className="btn btn-secondary" onClick={() => setEditing(null)}>Cancel</button><button type="submit" form="integration-form" className="btn btn-primary">Save integration</button></>}>
-        <form id="integration-form" onSubmit={save}>
-          <FormField label="Integration name" required value={editing.name} onChange={(e) => setEditing({ ...editing, name: e.target.value })} error={errors.name} placeholder="e.g. GitHub · Work" />
-          <FormSelect label="Provider" required value={editing.provider} options={GIT_PROVIDERS.map((p) => ({ value: p.key, label: p.label }))} onChange={(provider) => { const selected = GIT_PROVIDERS.find((p) => p.key === provider); if (selected) setEditing({ ...editing, provider, apiBaseUrl: selected.apiBaseUrl }); }} error={errors.provider} />
-          <FormField label="Organization / User / Group" required value={editing.organization} onChange={(e) => setEditing({ ...editing, organization: e.target.value })} error={errors.organization} placeholder="e.g. vsg-group or team/platform" />
-          <FormField label="API Base URL" required type="url" value={editing.apiBaseUrl} onChange={(e) => setEditing({ ...editing, apiBaseUrl: e.target.value })} error={errors.apiBaseUrl} help="For self-hosted providers, use the API URL on the same host as your registered repositories." />
-          <FormTextarea label="Notes" rows={2} value={editing.notes} onChange={(e) => setEditing({ ...editing, notes: e.target.value })} />
-        </form>
-      </Modal>}
-      {removing && <ConfirmDialog open title={`Remove ${removing.name}?`} message="Remove this integration configuration? Recorded commits will remain in the registry." confirmLabel="Remove integration" tone="danger" onCancel={() => setRemoving(null)} onConfirm={() => { run(removeIntegration, removing.id); setTokens((previous) => { const next = { ...previous }; delete next[removing.id]; return next; }); setRemoving(null); toast('Integration removed.'); }} />}
+
+      {editing && (
+        <Modal
+          open
+          title={connections.some((c) => c.id === editing.id) ? 'Edit integration' : 'Add integration'}
+          onClose={() => setEditing(null)}
+          footer={(
+            <>
+              <button type="button" className="btn btn-secondary" onClick={() => setEditing(null)}>Cancel</button>
+              <button type="submit" form="integration-form" className="btn btn-primary">Save integration</button>
+            </>
+          )}
+        >
+          <form id="integration-form" onSubmit={save}>
+            <FormField label="Integration name" required value={editing.name} onChange={(e) => setEditing({ ...editing, name: e.target.value })} error={errors.name} placeholder="e.g. GitHub · MyTeam" />
+            <FormSelect
+              label="Provider"
+              required
+              value={editing.provider}
+              options={GIT_PROVIDERS.map((p) => ({ value: p.key, label: p.label }))}
+              onChange={(provider) => {
+                const selected = GIT_PROVIDERS.find((p) => p.key === provider);
+                if (selected) setEditing({ ...editing, provider, apiBaseUrl: selected.apiBaseUrl });
+              }}
+              error={errors.provider}
+            />
+            <FormField label="Organization / User / Group" required value={editing.organization} onChange={(e) => setEditing({ ...editing, organization: e.target.value })} error={errors.organization} placeholder="e.g. facebook, vsg-group, or your GitHub username" help="Matches registered repositories whose URLs begin with this organization or user name." />
+            <FormField label="API Base URL" required type="url" value={editing.apiBaseUrl} onChange={(e) => setEditing({ ...editing, apiBaseUrl: e.target.value })} error={errors.apiBaseUrl} help="For self-hosted providers, use the API URL on the same host as your registered repositories." />
+            <FormTextarea label="Notes" rows={2} value={editing.notes} onChange={(e) => setEditing({ ...editing, notes: e.target.value })} />
+          </form>
+        </Modal>
+      )}
+
+      {removing && (
+        <ConfirmDialog
+          open
+          title={`Remove ${removing.name}?`}
+          message="Remove this integration configuration? Recorded commits will remain in the registry."
+          confirmLabel="Remove integration"
+          tone="danger"
+          onCancel={() => setRemoving(null)}
+          onConfirm={() => {
+            run(removeIntegration, removing.id);
+            setTokens((previous) => {
+              const next = { ...previous };
+              delete next[removing.id];
+              return next;
+            });
+            try { sessionStorage.removeItem(`bh_token_${removing.id}`); } catch { /* ignore */ }
+            setRemoving(null);
+            toast('Integration removed.');
+          }}
+        />
+      )}
     </div>
   );
 }

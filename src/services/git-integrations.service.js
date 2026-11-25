@@ -151,6 +151,140 @@ export async function fetchIntegrationCommits(connection, repositories, token = 
   return { successes, failures };
 }
 
+function classifyBranch(name = '') {
+  const lower = name.toLowerCase();
+  if (lower === 'main' || lower === 'master') return 'main';
+  if (lower === 'develop' || lower === 'dev' || lower === 'staging') return 'develop';
+  if (lower.startsWith('feat') || lower.includes('/feat')) return 'feature';
+  if (lower.startsWith('fix') || lower.startsWith('bugfix') || lower.startsWith('hotfix') || lower.includes('/fix')) return 'fix';
+  if (lower.startsWith('rel') || lower.startsWith('v')) return 'release';
+  return 'chore';
+}
+
+async function safeGitHubJson(url, headers, { signal, fetchImpl }) {
+  try {
+    const response = await fetchImpl(url, {
+      headers,
+      signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(15000)]) : AbortSignal.timeout(15000),
+      credentials: 'omit',
+      redirect: 'error',
+      referrerPolicy: 'no-referrer',
+    });
+    if (!response.ok) return { ok: false, status: response.status, data: null };
+    const data = await response.json();
+    return { ok: true, status: response.status, data };
+  } catch (e) {
+    if (signal?.aborted) throw e;
+    return { ok: false, status: 0, data: null };
+  }
+}
+
+async function fetchGitHubExtras(base, path, token, { signal, fetchImpl }) {
+  const encodedPath = path.split('/').map(encodeURIComponent).join('/');
+  const headers = { Accept: 'application/vnd.github+json' };
+  if (token?.trim()) headers.Authorization = `Bearer ${token.trim()}`;
+
+  const [repoRes, branchesRes, prsRes] = await Promise.all([
+    safeGitHubJson(`${base}/repos/${encodedPath}`, headers, { signal, fetchImpl }),
+    safeGitHubJson(`${base}/repos/${encodedPath}/branches?per_page=100`, headers, { signal, fetchImpl }),
+    safeGitHubJson(`${base}/repos/${encodedPath}/pulls?state=all&per_page=100`, headers, { signal, fetchImpl }),
+  ]);
+
+  const inaccessible = repoRes.status === 404 || repoRes.status === 403;
+  const metadata = repoRes.ok && repoRes.data ? {
+    mainBranch: repoRes.data.default_branch || '',
+    language: repoRes.data.language || '',
+    visibility: repoRes.data.private ? 'private' : 'public',
+    description: repoRes.data.description || '',
+    topics: Array.isArray(repoRes.data.topics) ? repoRes.data.topics : [],
+    accessStatus: 'accessible',
+  } : null;
+
+  const branches = branchesRes.ok && Array.isArray(branchesRes.data)
+    ? branchesRes.data.map((b) => ({ name: b.name, kind: classifyBranch(b.name), sha: b.commit?.sha || null }))
+    : null;
+
+  const prs = prsRes.ok && Array.isArray(prsRes.data)
+    ? prsRes.data.map((pr) => ({
+      number: pr.number,
+      title: pr.title || '',
+      status: pr.merged_at ? 'merged' : pr.state === 'open' ? 'open' : 'closed',
+      author: pr.user?.login || null,
+      createdAt: pr.created_at || null,
+      url: pr.html_url || null,
+    }))
+    : null;
+
+  return { metadata, branches, prs, inaccessible };
+}
+
+/** Full GitHub sync: commits + repository metadata + branches + pull requests. */
+export async function fetchIntegrationFullSync(connection, repositories, token = '', { signal, fetchImpl = fetch } = {}) {
+  const commitSync = await fetchIntegrationCommits(connection, repositories, token, { signal, fetchImpl });
+  if (connection.provider !== 'github') return { ...commitSync, inaccessibleIds: [] };
+
+  const base = apiBase(connection);
+  const matches = matchingRepositories(repositories, connection);
+  const byId = new Map(matches.map((r) => [r.id, r]));
+  const extrasByRepo = new Map();
+  const inaccessibleIds = [];
+
+  for (const success of commitSync.successes) {
+    signal?.throwIfAborted();
+    const repo = byId.get(success.repositoryId);
+    const path = repo ? repositoryPath(repo, connection) : null;
+    if (path) {
+      const extras = await fetchGitHubExtras(base, path, token, { signal, fetchImpl });
+      extrasByRepo.set(success.repositoryId, extras);
+      if (extras.inaccessible) inaccessibleIds.push(success.repositoryId);
+    }
+  }
+
+  for (const failure of commitSync.failures) {
+    if (failure.message?.includes('not found') || failure.message?.includes('Access denied')) {
+      inaccessibleIds.push(failure.repositoryId);
+    }
+  }
+
+  const successes = commitSync.successes.map((s) => {
+    const extras = extrasByRepo.get(s.repositoryId);
+    return {
+      ...s,
+      metadata: extras?.metadata || null,
+      branches: extras?.branches || null,
+      prs: extras?.prs || null,
+    };
+  });
+
+  return { successes, failures: commitSync.failures, inaccessibleIds };
+}
+
+/** Build temporary connection and sync a single GitHub repository on demand. */
+export async function syncSingleGitHubRepo(repo, connections = [], token = '', { signal, fetchImpl = fetch } = {}) {
+  if (repo?.provider?.toLowerCase() !== 'github' || !repo.url) {
+    throw new Error('Only GitHub repositories with a valid URL can be synced directly.');
+  }
+  let url;
+  try {
+    url = new URL(repo.url);
+  } catch {
+    throw new Error('Invalid repository URL.');
+  }
+  const parts = decodeURIComponent(url.pathname).replace(/^\/+|\/+$/g, '').replace(/\.git$/, '').split('/');
+  if (parts.length < 2) throw new Error('Invalid GitHub repository path.');
+  const owner = parts[0];
+  const matched = connections.find((c) => c.provider === 'github' && c.organization.toLowerCase() === owner.toLowerCase());
+  const connection = matched || {
+    id: 'direct-github-sync',
+    provider: 'github',
+    name: `GitHub · ${owner}`,
+    organization: owner,
+    apiBaseUrl: url.origin === 'https://github.com' ? 'https://api.github.com' : `${url.origin}/api/v3`,
+    notes: '',
+  };
+  return { connection, sync: await fetchIntegrationFullSync(connection, [repo], token, { signal, fetchImpl }) };
+}
+
 export function applyIntegrationSync(ds, connection, sync) {
   const current = integrationConnections(ds.settings.integrations).find((c) => c.id === connection.id);
   if (!current || ['provider', 'organization', 'apiBaseUrl'].some((key) => current[key] !== connection[key])) throw new Error('This integration changed during sync. Please sync again.');
@@ -160,6 +294,8 @@ export function applyIntegrationSync(ds, connection, sync) {
   const tx = transaction(ds);
   const commits = [...(ds.commits || [])];
   let added = 0;
+  let totalBranches = 0;
+  let totalPrs = 0;
   const at = new Date().toISOString();
   tx.set('commits', commits);
   for (const success of successes) {
@@ -168,9 +304,142 @@ export function applyIntegrationSync(ds, connection, sync) {
       if (index >= 0) commits[index] = { ...commits[index], ...commit };
       else { commits.push({ ...commit, id: tx.nextId('GC'), createdAt: at }); added += 1; }
     }
+    if (Array.isArray(success.branches)) totalBranches += success.branches.length;
+    if (Array.isArray(success.prs)) totalPrs += success.prs.length;
   }
+
+  const byRepoSuccess = new Map(successes.map((s) => [s.repositoryId, s]));
+  const inaccessibleSet = new Set(sync.inaccessibleIds || []);
+  const updatedRepos = (ds.repositories || []).map((r) => {
+    const s = byRepoSuccess.get(r.id);
+    if (s) {
+      return {
+        ...r,
+        mainBranch: s.metadata?.mainBranch || r.mainBranch,
+        language: s.metadata?.language || r.language,
+        visibility: s.metadata?.visibility || r.visibility,
+        description: r.description && r.description !== 'Kept in registry' ? r.description : (s.metadata?.description || r.description),
+        topics: s.metadata?.topics?.length ? s.metadata.topics : r.topics,
+        accessStatus: s.metadata?.accessStatus || 'accessible',
+        ...(Array.isArray(s.branches) ? { syncedBranches: s.branches } : {}),
+        ...(Array.isArray(s.prs) ? { syncedPrs: s.prs } : {}),
+        syncedAt: at,
+        updatedAt: at,
+      };
+    }
+    if (inaccessibleSet.has(r.id)) {
+      return { ...r, accessStatus: 'inaccessible' };
+    }
+    return r;
+  });
+  tx.set('repositories', updatedRepos);
+
   const connections = integrationConnections(ds.settings.integrations).map((c) => c.id === connection.id ? { ...c, lastSyncedAt: at, lastRepositoryCount: successes.length } : c);
   tx.set('settings', { ...ds.settings, integrations: { ...ds.settings.integrations, connections } });
-  logActivity(tx, { category: 'system', action: 'Git commits synchronized', resourceType: 'Settings', resourceId: connection.id, description: `${connection.name}: ${added} new commits from ${successes.length} repositories; ${sync.failures.length} failed; ${successes.filter((s) => s.truncated).length} reached the 500-commit limit.` });
-  return { dataset: tx.data, result: { added, repositories: successes.length } };
+  logActivity(tx, { category: 'system', action: 'Git commits synchronized', resourceType: 'Settings', resourceId: connection.id, description: `${connection.name}: ${added} new commits, ${totalBranches} branches, ${totalPrs} PRs from ${successes.length} repositories; ${sync.failures.length} failed; ${successes.filter((s) => s.truncated).length} reached the 500-commit limit.` });
+  return { dataset: tx.data, result: { added, repositories: successes.length, branches: totalBranches, prs: totalPrs } };
+}
+
+/** Apply single repository GitHub sync results (metadata, commits, branches, PRs). */
+export function applySingleRepoSync(ds, repo, sync) {
+  const s = sync.successes.find((x) => x.repositoryId === repo.id);
+  if (!s) {
+    const fail = sync.failures.find((f) => f.repositoryId === repo.id);
+    if (sync.inaccessibleIds?.includes(repo.id)) {
+      const tx = transaction(ds);
+      tx.set('repositories', (ds.repositories || []).map((r) => r.id === repo.id ? { ...r, accessStatus: 'inaccessible' } : r));
+      return { dataset: tx.data, result: { added: 0, inaccessible: true, error: fail?.message } };
+    }
+    throw new Error(fail?.message || 'Repository synchronization failed.');
+  }
+  const tx = transaction(ds);
+  const commits = [...(ds.commits || [])];
+  let added = 0;
+  const at = new Date().toISOString();
+  tx.set('commits', commits);
+  for (const commit of s.commits) {
+    const index = commits.findIndex((c) => c.repositoryId === commit.repositoryId && (c.sha === commit.sha || (c.sha.length >= 7 && (commit.sha.startsWith(c.sha) || c.sha.startsWith(commit.sha)))));
+    if (index >= 0) commits[index] = { ...commits[index], ...commit };
+    else { commits.push({ ...commit, id: tx.nextId('GC'), createdAt: at }); added += 1; }
+  }
+  tx.set('repositories', (ds.repositories || []).map((r) => r.id === repo.id ? {
+    ...r,
+    mainBranch: s.metadata?.mainBranch || r.mainBranch,
+    language: s.metadata?.language || r.language,
+    visibility: s.metadata?.visibility || r.visibility,
+    description: r.description && r.description !== 'Kept in registry' ? r.description : (s.metadata?.description || r.description),
+    topics: s.metadata?.topics?.length ? s.metadata.topics : r.topics,
+    accessStatus: s.metadata?.accessStatus || 'accessible',
+    ...(Array.isArray(s.branches) ? { syncedBranches: s.branches } : {}),
+    ...(Array.isArray(s.prs) ? { syncedPrs: s.prs } : {}),
+    syncedAt: at,
+    updatedAt: at,
+  } : r));
+  logActivity(tx, { category: 'system', action: 'Repository synchronized', resourceType: 'Repository', resourceId: repo.id, description: `Synced ${repo.name} from GitHub: ${added} new commits, ${s.branches?.length ?? 0} branches, ${s.prs?.length ?? 0} PRs.` });
+  return { dataset: tx.data, result: { added, branches: s.branches?.length ?? 0, prs: s.prs?.length ?? 0 } };
+}
+
+/** Test connectivity and token validity against provider API */
+export async function testGitConnection(connection, token = '', { signal, fetchImpl = fetch } = {}) {
+  const errors = validateIntegration(connection);
+  if (Object.keys(errors).length) throw new Error(Object.values(errors)[0]);
+  const base = apiBase(connection);
+  const headers = { Accept: connection.provider === 'github' ? 'application/vnd.github+json' : 'application/json' };
+  if (token?.trim()) {
+    headers[connection.provider === 'gitlab' ? 'PRIVATE-TOKEN' : 'Authorization'] = connection.provider === 'gitlab' ? token.trim() : `Bearer ${token.trim()}`;
+  }
+
+  let endpoint;
+  if (connection.provider === 'github') {
+    endpoint = token?.trim() ? `${base}/user` : `${base}/rate_limit`;
+  } else if (connection.provider === 'gitlab') {
+    endpoint = token?.trim() ? `${base}/user` : `${base}/version`;
+  } else {
+    endpoint = `${base}/user`;
+  }
+
+  let response;
+  try {
+    response = await fetchImpl(endpoint, {
+      headers,
+      signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(15000)]) : AbortSignal.timeout(15000),
+      credentials: 'omit',
+      redirect: 'error',
+      referrerPolicy: 'no-referrer',
+    });
+  } catch (e) {
+    if (signal?.aborted) throw e;
+    throw new Error(e.name === 'TimeoutError' ? 'Connection timed out. Check your network.' : 'Connection failed. Check network or CORS settings.');
+  }
+
+  const rateRemaining = response.headers.get('x-ratelimit-remaining');
+  const rateLimit = response.headers.get('x-ratelimit-limit');
+
+  if (!response.ok) {
+    if (response.status === 401) throw new Error('Authentication failed (401). Token is invalid, expired, or missing required scopes.');
+    if (response.status === 403) throw new Error('Access denied or rate limit reached (403). Enter a GitHub token for 5,000 req/hr.');
+    if (response.status === 404) throw new Error('Resource not found (404). Check API Base URL.');
+    throw new Error(`Provider returned HTTP ${response.status}.`);
+  }
+
+  let data = {};
+  try { data = await response.json(); } catch { data = {}; }
+
+  let user = null;
+  if (connection.provider === 'github') {
+    user = token?.trim() ? (data.login || data.name || null) : null;
+  } else if (connection.provider === 'gitlab') {
+    user = data.username || data.name || null;
+  } else if (connection.provider === 'bitbucket') {
+    user = data.display_name || data.username || null;
+  }
+
+  return {
+    ok: true,
+    user,
+    provider: connection.provider,
+    authenticated: Boolean(token?.trim()),
+    rateLimitRemaining: rateRemaining ? Number(rateRemaining) : (data.rate ? data.rate.remaining : null),
+    rateLimitTotal: rateLimit ? Number(rateLimit) : (data.rate ? data.rate.limit : null),
+  };
 }
