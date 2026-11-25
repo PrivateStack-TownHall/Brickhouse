@@ -126,7 +126,7 @@ export default function ApplicationDetailPage() {
           )}
 
           {tab === 'repositories' && (
-            <RelationshipCard title="Repositories" subtitle="Linked directly or through this application's components" columns={2}
+            <RelationshipCard entity="repositories" icon={GitBranch} title="Repositories" subtitle="Linked directly or through this application's components" columns={2}
               items={repos.map((r) => ({
                 key: r.record.id, entity: 'repositories', record: r.record, meta: `${r.record.provider} · ${r.role || r.record.type} · via ${r.source}`,
                 badge: r.record.accessStatus === 'inaccessible' ? <AccessBadge value="inaccessible" /> : <StatusBadge value={r.record.visibility} />,
@@ -136,13 +136,24 @@ export default function ApplicationDetailPage() {
 
           {tab === 'apis' && (
             <div className="row g-4">
-              <div className="col-lg-6"><RelationshipCard title="Provided" items={apis.filter((a) => a.relation === 'provider').map((a) => ({ entity: 'apis', record: a.record, meta: `${a.record.protocol} · ${a.record.version}`, badge: <StatusBadge value="provider" /> }))} emptyText="This application provides no APIs." /></div>
-              <div className="col-lg-6"><RelationshipCard title="Consumed" items={apis.filter((a) => a.relation === 'consumer').map((a) => ({ entity: 'apis', record: a.record, meta: `${a.record.protocol} · ${a.record.version}`, badge: <StatusBadge value="consumer" /> }))} emptyText="This application consumes no registered APIs." /></div>
+              <div className="col-lg-6"><RelationshipCard entity="apis" icon={Plug} title="Provided" subtitle="APIs and services exposed by this application" items={apis.filter((a) => a.relation === 'provider').map((a) => ({ entity: 'apis', record: a.record, meta: `${a.record.protocol} · ${a.record.version}`, badge: <StatusBadge value="provider" /> }))} emptyText="This application provides no APIs." /></div>
+              <div className="col-lg-6"><RelationshipCard entity="apis" icon={Plug} title="Consumed" subtitle="External or internal APIs consumed by this application" items={apis.filter((a) => a.relation === 'consumer').map((a) => ({ entity: 'apis', record: a.record, meta: `${a.record.protocol} · ${a.record.version}`, badge: <StatusBadge value="consumer" /> }))} emptyText="This application consumes no registered APIs." /></div>
             </div>
           )}
 
           {tab === 'technologies' && (
             <div className="bh-card">
+              <div className="bh-card-header colored">
+                <div className="d-flex align-items-center">
+                  <span className="bh-card-header-icon">
+                    <Cpu size={18} />
+                  </span>
+                  <div>
+                    <h3 className="bh-card-title">Technology Stack <span className="bh-card-count">({techs.length})</span></h3>
+                    <p className="bh-card-sub">Technologies declared on the application and its components</p>
+                  </div>
+                </div>
+              </div>
               <DataTable rowKey={(r) => `${r.record.id}-${r.source}-${r.role}`} rows={techs} pageSize={15} columns={[
                 { key: 'name', label: 'Technology', sortValue: (r) => r.record.name, render: (r) => <div className="d-flex align-items-center gap-2"><Avatar name={r.record.name} seed={r.record.id} size={24} /><EntityLink entity="technologies" record={r.record} /></div> },
                 { key: 'category', label: 'Category', sortValue: (r) => r.record.category, render: (r) => r.record.category },
@@ -154,12 +165,23 @@ export default function ApplicationDetailPage() {
           )}
 
           {tab === 'infrastructure' && (
-            <RelationshipCard title="Infrastructure" subtitle="Declared on the application, its components and its deployments" columns={2}
+            <RelationshipCard entity="infrastructure" icon={Server} title="Infrastructure" subtitle="Declared on the application, its components and its deployments" columns={2}
               items={infra.map((r, i) => ({ key: `${r.record.id}-${i}`, entity: 'infrastructure', record: r.record, meta: `${r.record.provider} · ${r.role || r.record.resourceType} · ${r.source}`, badge: <StatusBadge value={r.record.status} /> }))} />
           )}
 
           {tab === 'deployments' && (
             <div className="bh-card">
+              <div className="bh-card-header colored">
+                <div className="d-flex align-items-center">
+                  <span className="bh-card-header-icon">
+                    <Rocket size={18} />
+                  </span>
+                  <div>
+                    <h3 className="bh-card-title">Deployments <span className="bh-card-count">({deployments.length})</span></h3>
+                    <p className="bh-card-sub">Deployment records across environments for this application</p>
+                  </div>
+                </div>
+              </div>
               <DataTable rows={deployments} columns={[
                 { key: 'id', label: 'ID', render: (d) => <span className="bh-id">{d.id}</span> },
                 { key: 'name', label: 'Deployment', render: (d) => <EntityLink entity="deployments" record={d} /> },

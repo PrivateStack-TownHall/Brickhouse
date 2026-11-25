@@ -1,63 +1,46 @@
 import { motion } from 'framer-motion';
 import { LayoutGrid, List } from 'lucide-react';
 
+const OPTIONS = [
+  { value: 'table', label: 'Table view', icon: List, size: 18 },
+  { value: 'grid', label: 'Grid view', icon: LayoutGrid, size: 17 },
+];
+
 export default function ViewToggle({ value, onChange }) {
   return (
     <div className="bh-viewtoggle" role="group" aria-label="View">
-      <button
-        type="button"
-        className={value === 'table' ? 'active' : ''}
-        aria-pressed={value === 'table'}
-        title="Table view"
-        aria-label="Table view"
-        onClick={() => onChange('table')}
-        style={{ position: 'relative' }}
-      >
-        <span style={{ position: 'relative', zIndex: 1, display: 'inline-flex' }}>
-          <List size={18} />
-        </span>
-        {value === 'table' && (
-          <motion.span
-            layoutId="viewToggleIndicator"
-            style={{
-              position: 'absolute',
-              inset: 0,
-              borderRadius: 6,
-              background: 'var(--bh-surface)',
-              boxShadow: 'var(--bh-shadow-xs)',
-              zIndex: 0,
-            }}
-            transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-          />
-        )}
-      </button>
-      <button
-        type="button"
-        className={value === 'grid' ? 'active' : ''}
-        aria-pressed={value === 'grid'}
-        title="Grid view"
-        aria-label="Grid view"
-        onClick={() => onChange('grid')}
-        style={{ position: 'relative' }}
-      >
-        <span style={{ position: 'relative', zIndex: 1, display: 'inline-flex' }}>
-          <LayoutGrid size={17} />
-        </span>
-        {value === 'grid' && (
-          <motion.span
-            layoutId="viewToggleIndicator"
-            style={{
-              position: 'absolute',
-              inset: 0,
-              borderRadius: 6,
-              background: 'var(--bh-surface)',
-              boxShadow: 'var(--bh-shadow-xs)',
-              zIndex: 0,
-            }}
-            transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-          />
-        )}
-      </button>
+      {OPTIONS.map(({ value: mode, label, icon: Icon, size }) => {
+        const active = value === mode;
+        return (
+          <button
+            key={mode}
+            type="button"
+            className={active ? 'active' : ''}
+            aria-pressed={active}
+            title={label}
+            aria-label={label}
+            onClick={() => onChange(mode)}
+            style={{ position: 'relative' }}
+          >
+            <span style={{ position: 'relative', zIndex: 1, display: 'inline-flex' }}>
+              <Icon size={size} />
+            </span>
+            {active && (
+              <motion.span
+                layoutId="viewToggleIndicator"
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  borderRadius: 7,
+                  background: 'var(--bh-navy)',
+                  zIndex: 0,
+                }}
+                transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+              />
+            )}
+          </button>
+        );
+      })}
     </div>
   );
 }

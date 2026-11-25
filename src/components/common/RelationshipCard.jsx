@@ -6,8 +6,19 @@ import EmptyState from './EmptyState';
 import { routeFor } from '../../services/schema';
 import { resolveLogo } from '../../assets/logos';
 
+const TITLE_ICONS = [
+  [/repositor/i, 'repositories'],
+  [/component|depends on|included/i, 'components'],
+  [/api|provided|consumed/i, 'apis'],
+  [/infrastruct|resource/i, 'infrastructure'],
+  [/deploy/i, 'deployments'],
+  [/tech/i, 'technologies'],
+  [/application/i, 'applications'],
+];
+
 export default function RelationshipCard({ icon: Icon, entity, title, subtitle, items, emptyText = 'No related records.', action, columns = 1 }) {
-  const HeaderIcon = Icon || (entity ? ENTITY_ICONS[entity] : null);
+  const inferredEntity = entity || items?.[0]?.entity || TITLE_ICONS.find(([re]) => re.test(title || ''))?.[1];
+  const HeaderIcon = Icon || (inferredEntity ? ENTITY_ICONS[inferredEntity] : null);
   return (
     <div className="bh-card h-100">
       <div className="bh-card-header colored">
