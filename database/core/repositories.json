@@ -8,13 +8,22 @@
     "url": "https://github.com/PrivateStack-TownHall/vs-portfolio-online",
     "type": "application",
     "mainBranch": "main",
-    "language": "",
-    "visibility": "unknown",
+    "language": "JavaScript",
+    "visibility": "public",
     "accessStatus": "accessible",
     "description": "",
     "topics": [],
     "createdAt": "2026-11-23T14:38:47Z",
-    "updatedAt": "2026-11-23T14:38:47Z"
+    "updatedAt": "2026-11-25T03:43:42Z",
+    "syncedBranches": [
+      {
+        "name": "main",
+        "kind": "main",
+        "sha": "7dae1482cf3125128fd1db7551f997984ef6fc80"
+      }
+    ],
+    "syncedPrs": [],
+    "syncedAt": "2026-11-25T03:43:42Z"
   },
   {
     "id": "REPO-002",
@@ -25,13 +34,22 @@
     "url": "https://github.com/PrivateStack-TownHall/vincent-resume",
     "type": "application",
     "mainBranch": "master",
-    "language": "",
-    "visibility": "unknown",
+    "language": "JavaScript",
+    "visibility": "public",
     "accessStatus": "accessible",
     "description": "",
     "topics": [],
     "createdAt": "2026-11-23T14:38:47Z",
-    "updatedAt": "2026-11-23T14:38:47Z"
+    "updatedAt": "2026-11-25T03:43:42Z",
+    "syncedBranches": [
+      {
+        "name": "master",
+        "kind": "main",
+        "sha": "62412bdcbe7d0c07a361ef36366c76370537e5d3"
+      }
+    ],
+    "syncedPrs": [],
+    "syncedAt": "2026-11-25T03:43:42Z"
   },
   {
     "id": "REPO-003",
@@ -42,13 +60,753 @@
     "url": "https://github.com/PrivateStack-TownHall/orange-lms",
     "type": "application",
     "mainBranch": "master",
-    "language": "",
-    "visibility": "unknown",
+    "language": "JavaScript",
+    "visibility": "public",
     "accessStatus": "accessible",
-    "description": "",
+    "description": "LMS",
     "topics": [],
     "createdAt": "2026-11-23T14:38:47Z",
-    "updatedAt": "2026-11-23T14:38:47Z"
+    "updatedAt": "2026-11-25T03:43:42Z",
+    "syncedBranches": [
+      {
+        "name": "BE-dev",
+        "kind": "chore",
+        "sha": "8ad950f3c4fb939d878387ef2209f125df6b6d43"
+      },
+      {
+        "name": "FE-dev",
+        "kind": "chore",
+        "sha": "1a914f98c9b3bb48134f02a61e2aa57ce5cc2d8d"
+      },
+      {
+        "name": "all-crud-v2",
+        "kind": "chore",
+        "sha": "0d3e2b2d4743401e57ad9c957b2b9c7081010372"
+      },
+      {
+        "name": "back-end",
+        "kind": "chore",
+        "sha": "f687befc8ca9095276ed55b10f504015bcc4bd2d"
+      },
+      {
+        "name": "class-be",
+        "kind": "chore",
+        "sha": "44ebd6de6f154459c5f188a50428ae5af92e7e6f"
+      },
+      {
+        "name": "classes",
+        "kind": "chore",
+        "sha": "cb326059c8c00d3afe7bef33163f5b9a751afe82"
+      },
+      {
+        "name": "classes-v2",
+        "kind": "chore",
+        "sha": "95c1caa9714046f32d1c97c791f7e02b81764c4e"
+      },
+      {
+        "name": "controllers",
+        "kind": "chore",
+        "sha": "3cc860eafce7efbc19fc3d1cbc8561f9be4db184"
+      },
+      {
+        "name": "dashboard",
+        "kind": "chore",
+        "sha": "cb326059c8c00d3afe7bef33163f5b9a751afe82"
+      },
+      {
+        "name": "dashboard-v2",
+        "kind": "chore",
+        "sha": "2b7ab27405bf664281d5cc8862736c7c73b9c36c"
+      },
+      {
+        "name": "development",
+        "kind": "chore",
+        "sha": "921b6899c22f7789eff183f6d9efbb643b9fbe4e"
+      },
+      {
+        "name": "feature-crud-v1",
+        "kind": "feature",
+        "sha": "bc0a8a3318e910499c8a67ca46df129626bd2159"
+      },
+      {
+        "name": "feature-relation-v1",
+        "kind": "feature",
+        "sha": "bc0a8a3318e910499c8a67ca46df129626bd2159"
+      },
+      {
+        "name": "feature-seed-v1",
+        "kind": "feature",
+        "sha": "bc0a8a3318e910499c8a67ca46df129626bd2159"
+      },
+      {
+        "name": "front-end",
+        "kind": "chore",
+        "sha": "944d4d6be99ce072a9de94ddd97abf1765e836ba"
+      },
+      {
+        "name": "junctionpivottable-be",
+        "kind": "chore",
+        "sha": "3f3dc824a42524efde2b51e19d7e3c561f7dff32"
+      },
+      {
+        "name": "main",
+        "kind": "main",
+        "sha": "554d5e57d75ea699066e2ff9592deb68971dfce3"
+      },
+      {
+        "name": "master",
+        "kind": "main",
+        "sha": "33f846532735497edec82b7d6b9ea34bc5388d21"
+      },
+      {
+        "name": "material-be",
+        "kind": "chore",
+        "sha": "118e7b4c9bd22268125d31f95c9e0e0b88a457e4"
+      },
+      {
+        "name": "materials",
+        "kind": "chore",
+        "sha": "cb326059c8c00d3afe7bef33163f5b9a751afe82"
+      },
+      {
+        "name": "materials-v2",
+        "kind": "chore",
+        "sha": "fd4747d5d3f4c1f5ed48a40604a76da41ec76470"
+      },
+      {
+        "name": "meeting-be",
+        "kind": "chore",
+        "sha": "1b063ef5d8d4eda39cd7f459691564d9dc252c89"
+      },
+      {
+        "name": "meetings",
+        "kind": "chore",
+        "sha": "cb326059c8c00d3afe7bef33163f5b9a751afe82"
+      },
+      {
+        "name": "meetings-v2",
+        "kind": "chore",
+        "sha": "0383491d23a35566430433ba05b22607589e716c"
+      },
+      {
+        "name": "note-be",
+        "kind": "chore",
+        "sha": "1b7f476d8c94f8a342e7414bb2721751837e33e4"
+      },
+      {
+        "name": "notes",
+        "kind": "chore",
+        "sha": "cb326059c8c00d3afe7bef33163f5b9a751afe82"
+      },
+      {
+        "name": "notes-v2",
+        "kind": "chore",
+        "sha": "86699d8256def5185b4bde168ea4797efc7e502b"
+      },
+      {
+        "name": "refactor-v3",
+        "kind": "chore",
+        "sha": "7dbf2b5df128a6aa2a9e93c1457d10f3aaaa80b5"
+      },
+      {
+        "name": "services",
+        "kind": "chore",
+        "sha": "36485c23dab11c3d51e15668c514f11e0cbf0082"
+      },
+      {
+        "name": "task-be",
+        "kind": "chore",
+        "sha": "badad10088f18280cc8bb83e8517d17611c600b5"
+      },
+      {
+        "name": "tasks",
+        "kind": "chore",
+        "sha": "cb326059c8c00d3afe7bef33163f5b9a751afe82"
+      },
+      {
+        "name": "tasks-v2",
+        "kind": "chore",
+        "sha": "b13a16bc1d3b0657f6bba8797d94c44698da1886"
+      },
+      {
+        "name": "user-be",
+        "kind": "chore",
+        "sha": "996916fd4a832450a1cb2601c049810451fbf581"
+      },
+      {
+        "name": "users-v2",
+        "kind": "chore",
+        "sha": "575a5d6eb24a16c4fb9f356508626d65d22e9fd9"
+      },
+      {
+        "name": "v2-database",
+        "kind": "release",
+        "sha": "9b4aa2d5091d35158ce6e4b318774aa875714836"
+      },
+      {
+        "name": "v2",
+        "kind": "release",
+        "sha": "2f615f1778dd3498219213958ce830bf5b84edca"
+      },
+      {
+        "name": "v3-client_phase1",
+        "kind": "release",
+        "sha": "a20f36321d1e7cb983307dc6cebad0e39b9bcdfb"
+      },
+      {
+        "name": "v3-client_phase2",
+        "kind": "release",
+        "sha": "e9af810bf1788eb1a893297a13d32f46504d2fac"
+      },
+      {
+        "name": "v3-client",
+        "kind": "release",
+        "sha": "42da0b6b73b7ff59c6ebd9596c1b3fc035ba05ba"
+      },
+      {
+        "name": "v3-new-features",
+        "kind": "release",
+        "sha": "b4a1b1c38d6c666347207da517aae5feec28ed56"
+      },
+      {
+        "name": "v3-new-ui",
+        "kind": "release",
+        "sha": "68bdfdd61fd7c44a18cf60b6a1906536487a5bbb"
+      },
+      {
+        "name": "v3-server_auth",
+        "kind": "release",
+        "sha": "f0d416f6ca3c5f71c7d41c8e972a07acfa695e12"
+      },
+      {
+        "name": "v3-server_phase1",
+        "kind": "release",
+        "sha": "41d23d9074d71c2e6ecbc304c526f428f39c4dab"
+      },
+      {
+        "name": "v3-server_phase2",
+        "kind": "release",
+        "sha": "e0dd52afb36df1caaf4c93380659187a1705353a"
+      },
+      {
+        "name": "v3-server",
+        "kind": "release",
+        "sha": "8ec25f1708e7393fbf724891d728929dfcc3ec3a"
+      },
+      {
+        "name": "v3",
+        "kind": "release",
+        "sha": "1a8bb97c42fd41ebfaa10b03862d20458c507e76"
+      },
+      {
+        "name": "v4-assessment-integrity",
+        "kind": "release",
+        "sha": "0dc24f5fb8f44e3f622adcc5b4d27b77510e7ca6"
+      },
+      {
+        "name": "v4-assessment-results",
+        "kind": "release",
+        "sha": "d3afff5b42f1503845babb882b2e3d6d8b60fbf2"
+      },
+      {
+        "name": "v4-attendance",
+        "kind": "release",
+        "sha": "f567bf6b6e66ad2e6cf1e8510a64f7500dee1fc0"
+      },
+      {
+        "name": "v4-calendar-core",
+        "kind": "release",
+        "sha": "8f5d006d0d9dd2ca6b1a63e9c7eb71a3c579739f"
+      },
+      {
+        "name": "v4-calendar-event",
+        "kind": "release",
+        "sha": "edc1c27fd1ae02fc87194733febf4e117d142e67"
+      },
+      {
+        "name": "v4-certificate-generator",
+        "kind": "release",
+        "sha": "9cd34736a34c3ff53d90f4e3de6585bf5bc6fe7d"
+      },
+      {
+        "name": "v4-documentation",
+        "kind": "release",
+        "sha": "38614072122ead1ca20c9e4753869d1b64a4652c"
+      },
+      {
+        "name": "v4-history-classes",
+        "kind": "release",
+        "sha": "8bff16cc183ddf330ecd6e8e45e3109b0dbed049"
+      },
+      {
+        "name": "v4-notification-core",
+        "kind": "release",
+        "sha": "f9a32a6fc65710aa27241dbbcad3322d342ad8fe"
+      },
+      {
+        "name": "v4-notification-event",
+        "kind": "release",
+        "sha": "4ded4970919be553b422a16dcf54c292281c4c84"
+      },
+      {
+        "name": "v4-server-reliability",
+        "kind": "release",
+        "sha": "4261431fc2d097862f93d1eb507805a3c5a909dc"
+      },
+      {
+        "name": "v4-task-criteria",
+        "kind": "release",
+        "sha": "4c6806fd974887a6d76e1f05ed6d6513016810e0"
+      },
+      {
+        "name": "v4",
+        "kind": "release",
+        "sha": "317242687be18d70056fc113ed16d8ce69a4e203"
+      },
+      {
+        "name": "v5-analytics-core",
+        "kind": "release",
+        "sha": "5e90c97921175c75e5889283787051262c7aaad4"
+      },
+      {
+        "name": "v5-analytics-dashboard",
+        "kind": "release",
+        "sha": "6f5b7c957933cc5c90363d7825d21e262f1e8124"
+      },
+      {
+        "name": "v5-blueprint-batch",
+        "kind": "release",
+        "sha": "5e7362277d8730fa831710687632d09dd6f0bf63"
+      },
+      {
+        "name": "v5-blueprint-core",
+        "kind": "release",
+        "sha": "233ba37bad73182afc69a9e7da57a7f8ca460db1"
+      },
+      {
+        "name": "v5-crud-access-audit",
+        "kind": "release",
+        "sha": "c02e4f9ba28d25d2a88b6f6de9f23bf7836248f7"
+      },
+      {
+        "name": "v5-mentor-substitute",
+        "kind": "release",
+        "sha": "3125df241e1d241e315cfd18396af101e20090df"
+      },
+      {
+        "name": "v5-reviewer-core",
+        "kind": "release",
+        "sha": "5320f4734d09dcd7a45ddd33c27af9a46dd3f441"
+      },
+      {
+        "name": "v5",
+        "kind": "release",
+        "sha": "6f6e2b6992e3f4e80aa316850c3017a59318dc76"
+      }
+    ],
+    "syncedPrs": [
+      {
+        "number": 135,
+        "title": "release(v5): publish academic operations and analytics",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-11-01T16:02:15Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/135"
+      },
+      {
+        "number": 134,
+        "title": "release(v5): prepare analytics and academic operations for release",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-11-01T16:01:30Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/134"
+      },
+      {
+        "number": 133,
+        "title": "release(v5): prepare analytics and academic operations for release",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-11-01T15:57:38Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/133"
+      },
+      {
+        "number": 132,
+        "title": "feat(v5): analytics, course blueprint, batch generation, and mentor substitution",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-11-01T15:56:48Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/132"
+      },
+      {
+        "number": 131,
+        "title": "V5 mentor substitute",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-11-01T15:54:58Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/131"
+      },
+      {
+        "number": 130,
+        "title": "V5 blueprint batch",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-11-01T15:23:34Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/130"
+      },
+      {
+        "number": 129,
+        "title": "V5 blueprint core",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-11-01T15:23:17Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/129"
+      },
+      {
+        "number": 128,
+        "title": "V5",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-11-01T15:23:01Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/128"
+      },
+      {
+        "number": 127,
+        "title": "V5 analytics dashboard",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-11-01T15:09:31Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/127"
+      },
+      {
+        "number": 126,
+        "title": "V5 analytics core",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-11-01T15:09:01Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/126"
+      },
+      {
+        "number": 125,
+        "title": "Development",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-11-01T03:30:09Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/125"
+      },
+      {
+        "number": 124,
+        "title": "fix(access): enforce class-scoped CRUD permissions",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-11-01T03:26:51Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/124"
+      },
+      {
+        "number": 123,
+        "title": "feat(reviewer): add class-scoped reviewer access",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-11-01T03:26:25Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/123"
+      },
+      {
+        "number": 122,
+        "title": "Merge pull request #121 from PrivateStack-TownHall/development",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-10-31T18:07:51Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/122"
+      },
+      {
+        "number": 121,
+        "title": "release(v4): complete Orange LMS core, learning, assessment, calendar, and operations",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-10-31T18:07:15Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/121"
+      },
+      {
+        "number": 120,
+        "title": "release(v4): complete Orange LMS core, learning, assessment, calendar, and operations",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-10-31T18:04:43Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/120"
+      },
+      {
+        "number": 119,
+        "title": "V4",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-10-31T17:41:36Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/119"
+      },
+      {
+        "number": 118,
+        "title": "V4 documentation",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-10-31T17:40:48Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/118"
+      },
+      {
+        "number": 117,
+        "title": "V4 calendar event",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-10-31T17:02:03Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/117"
+      },
+      {
+        "number": 116,
+        "title": "Main",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-10-31T16:54:51Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/116"
+      },
+      {
+        "number": 115,
+        "title": "V4",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-10-31T16:54:18Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/115"
+      },
+      {
+        "number": 114,
+        "title": "V4 notification event",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-10-31T16:53:30Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/114"
+      },
+      {
+        "number": 113,
+        "title": "V4 notification core",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-10-31T16:53:09Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/113"
+      },
+      {
+        "number": 112,
+        "title": "V4 calendar core",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-10-31T16:52:50Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/112"
+      },
+      {
+        "number": 111,
+        "title": "test(server): harden certificate generation",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-10-31T16:52:33Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/111"
+      },
+      {
+        "number": 110,
+        "title": "fix(assessment): enforce ownership and archive progress",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-10-31T16:52:15Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/110"
+      },
+      {
+        "number": 109,
+        "title": "V4",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-10-31T16:26:13Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/109"
+      },
+      {
+        "number": 108,
+        "title": "V4 task criteria",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-10-31T08:58:56Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/108"
+      },
+      {
+        "number": 107,
+        "title": "V4 attendance",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-10-31T08:58:52Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/107"
+      },
+      {
+        "number": 106,
+        "title": "V4 assessment results",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-10-31T08:58:50Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/106"
+      },
+      {
+        "number": 105,
+        "title": "V4 history classes",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-10-31T08:58:49Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/105"
+      },
+      {
+        "number": 104,
+        "title": "V4 certificate generator",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-10-31T08:58:47Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/104"
+      },
+      {
+        "number": 103,
+        "title": "docs: refresh documentation and update compatible dependencies",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-10-31T02:30:04Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/103"
+      },
+      {
+        "number": 102,
+        "title": "docs: refresh documentation and update compatible dependencies",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-10-31T02:29:30Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/102"
+      },
+      {
+        "number": 101,
+        "title": "docs: refresh documentation and update compatible dependencies",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-10-31T02:28:41Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/101"
+      },
+      {
+        "number": 100,
+        "title": "ALL GOOD Version 3 DONE",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-08-26T21:19:26Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/100"
+      },
+      {
+        "number": 99,
+        "title": "V3",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-08-26T21:16:31Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/99"
+      },
+      {
+        "number": 98,
+        "title": "V3",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-08-26T21:15:14Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/98"
+      },
+      {
+        "number": 97,
+        "title": "V3",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-08-26T21:02:51Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/97"
+      },
+      {
+        "number": 96,
+        "title": "V3 new UI",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-08-25T00:40:28Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/96"
+      },
+      {
+        "number": 95,
+        "title": "Main",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-06-15T09:25:43Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/95"
+      },
+      {
+        "number": 94,
+        "title": "V3",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-06-15T09:25:25Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/94"
+      },
+      {
+        "number": 93,
+        "title": "Deployment for Vercel and Render and Supabase",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-06-15T09:04:06Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/93"
+      },
+      {
+        "number": 92,
+        "title": "V3 new features",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-06-15T08:33:07Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/92"
+      },
+      {
+        "number": 91,
+        "title": "Merge pull request #87 from vincent-guizot/refactor-v3",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-06-15T08:32:06Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/91"
+      },
+      {
+        "number": 90,
+        "title": "V3",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-06-13T05:46:21Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/90"
+      },
+      {
+        "number": 89,
+        "title": "Refactor v3",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-06-13T05:44:37Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/89"
+      },
+      {
+        "number": 88,
+        "title": "Main",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-06-13T05:43:26Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/88"
+      },
+      {
+        "number": 87,
+        "title": "Refactor v3",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-06-13T05:42:58Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/87"
+      },
+      {
+        "number": 86,
+        "title": "V3 client",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-06-13T05:41:43Z",
+        "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/86"
+      }
+    ],
+    "syncedAt": "2026-11-25T03:43:42Z"
   },
   {
     "id": "REPO-004",
@@ -59,13 +817,57 @@
     "url": "https://github.com/PrivateStack-TownHall/vica-vercel",
     "type": "frontend",
     "mainBranch": "master",
-    "language": "",
-    "visibility": "unknown",
+    "language": "TypeScript",
+    "visibility": "public",
     "accessStatus": "accessible",
     "description": "",
     "topics": [],
     "createdAt": "2026-11-23T14:38:47Z",
-    "updatedAt": "2026-11-23T14:38:47Z"
+    "updatedAt": "2026-11-25T03:43:42Z",
+    "syncedBranches": [
+      {
+        "name": "connect-github",
+        "kind": "chore",
+        "sha": "80d07df61e6db847434d87c92e3311f543b8dbf1"
+      },
+      {
+        "name": "fetch-mock-data",
+        "kind": "chore",
+        "sha": "0afd2efba4f3c8034884a410d38ea8c887ddb356"
+      },
+      {
+        "name": "master",
+        "kind": "main",
+        "sha": "e26f0066ff243a7c95c016d79b3083227ab2394f"
+      }
+    ],
+    "syncedPrs": [
+      {
+        "number": 3,
+        "title": "Layout Responsive Mobile",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-06-11T19:19:06Z",
+        "url": "https://github.com/PrivateStack-TownHall/vica-vercel/pull/3"
+      },
+      {
+        "number": 2,
+        "title": "feat(vica): complete GitHub-powered learning portal integration",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-06-11T18:09:47Z",
+        "url": "https://github.com/PrivateStack-TownHall/vica-vercel/pull/2"
+      },
+      {
+        "number": 1,
+        "title": "feat(vica): complete MVP learning content architecture (Programs, Modules, Lessons, Assignments, Resources)",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-06-10T17:53:13Z",
+        "url": "https://github.com/PrivateStack-TownHall/vica-vercel/pull/1"
+      }
+    ],
+    "syncedAt": "2026-11-25T03:43:42Z"
   },
   {
     "id": "REPO-005",
@@ -77,12 +879,78 @@
     "type": "content",
     "mainBranch": "master",
     "language": "",
-    "visibility": "unknown",
+    "visibility": "public",
     "accessStatus": "accessible",
     "description": "Content source for VICA",
-    "topics": [],
+    "topics": [
+      "bootstrap",
+      "css",
+      "full",
+      "html",
+      "javascript",
+      "stack",
+      "tailwind"
+    ],
     "createdAt": "2026-11-23T14:38:47Z",
-    "updatedAt": "2026-11-23T14:38:47Z"
+    "updatedAt": "2026-11-25T03:43:42Z",
+    "syncedBranches": [
+      {
+        "name": "master",
+        "kind": "main",
+        "sha": "30c4b07d70b0bf4c490fb06f411e3c67c7e1cf6d"
+      }
+    ],
+    "syncedPrs": [
+      {
+        "number": 6,
+        "title": "Restructuring Modules",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-08-03T05:07:42Z",
+        "url": "https://github.com/PrivateStack-TownHall/Syllabus/pull/6"
+      },
+      {
+        "number": 5,
+        "title": "Refactoring assignments",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-07-17T12:01:34Z",
+        "url": "https://github.com/PrivateStack-TownHall/Syllabus/pull/5"
+      },
+      {
+        "number": 4,
+        "title": "OOP MVC Assignments And Refactoring",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-07-12T19:03:11Z",
+        "url": "https://github.com/PrivateStack-TownHall/Syllabus/pull/4"
+      },
+      {
+        "number": 3,
+        "title": "Refactoring assignments",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-07-07T16:04:23Z",
+        "url": "https://github.com/PrivateStack-TownHall/Syllabus/pull/3"
+      },
+      {
+        "number": 2,
+        "title": "Redesign Folder Structure",
+        "status": "merged",
+        "author": "orange-code-7",
+        "createdAt": "2026-06-16T06:05:31Z",
+        "url": "https://github.com/PrivateStack-TownHall/Syllabus/pull/2"
+      },
+      {
+        "number": 1,
+        "title": "1",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2023-02-18T06:06:42Z",
+        "url": "https://github.com/PrivateStack-TownHall/Syllabus/pull/1"
+      }
+    ],
+    "syncedAt": "2026-11-25T03:43:42Z"
   },
   {
     "id": "REPO-006",
@@ -112,7 +980,7 @@
     "mainBranch": "master",
     "language": "",
     "visibility": "unknown",
-    "accessStatus": "accessible",
+    "accessStatus": "inaccessible",
     "description": "COS = Orange Scrolls, not Magna Opera",
     "topics": [],
     "createdAt": "2026-11-23T14:38:47Z",
@@ -127,13 +995,44 @@
     "url": "https://github.com/PrivateStack-TownHall/sadino-technology",
     "type": "application",
     "mainBranch": "master",
-    "language": "",
-    "visibility": "unknown",
+    "language": "TypeScript",
+    "visibility": "public",
     "accessStatus": "accessible",
     "description": "",
     "topics": [],
     "createdAt": "2026-11-23T14:38:47Z",
-    "updatedAt": "2026-11-23T14:38:47Z"
+    "updatedAt": "2026-11-25T03:43:42Z",
+    "syncedBranches": [
+      {
+        "name": "design-stitch",
+        "kind": "chore",
+        "sha": "3bab1dd56ea021bd9a61f5ce96d8e781ce247c1e"
+      },
+      {
+        "name": "master",
+        "kind": "main",
+        "sha": "1823217e7632652298ab722fb6b11f2b9e692800"
+      }
+    ],
+    "syncedPrs": [
+      {
+        "number": 2,
+        "title": "animations",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-04-13T02:38:19Z",
+        "url": "https://github.com/PrivateStack-TownHall/sadino-technology/pull/2"
+      },
+      {
+        "number": 1,
+        "title": "stitch design",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-04-13T02:35:34Z",
+        "url": "https://github.com/PrivateStack-TownHall/sadino-technology/pull/1"
+      }
+    ],
+    "syncedAt": "2026-11-25T03:43:42Z"
   },
   {
     "id": "REPO-009",
@@ -144,13 +1043,22 @@
     "url": "https://github.com/PrivateStack-TownHall/sekolah-stack",
     "type": "application",
     "mainBranch": "main",
-    "language": "",
-    "visibility": "unknown",
+    "language": "TypeScript",
+    "visibility": "public",
     "accessStatus": "accessible",
-    "description": "",
+    "description": "Sekolah Stack => Online Video Learning IT Course ",
     "topics": [],
     "createdAt": "2026-11-23T14:38:47Z",
-    "updatedAt": "2026-11-23T14:38:47Z"
+    "updatedAt": "2026-11-25T03:43:42Z",
+    "syncedBranches": [
+      {
+        "name": "main",
+        "kind": "main",
+        "sha": "26a7904aa4c45896c307eee49115ff9e274505e7"
+      }
+    ],
+    "syncedPrs": [],
+    "syncedAt": "2026-11-25T03:43:42Z"
   },
   {
     "id": "REPO-010",
@@ -162,12 +1070,27 @@
     "type": "application",
     "mainBranch": "main",
     "language": "",
-    "visibility": "unknown",
+    "visibility": "public",
     "accessStatus": "accessible",
-    "description": "",
-    "topics": [],
+    "description": "E commerce",
+    "topics": [
+      "css",
+      "exercises",
+      "html",
+      "react",
+      "redux"
+    ],
     "createdAt": "2026-11-23T14:38:47Z",
-    "updatedAt": "2026-11-23T14:38:47Z"
+    "updatedAt": "2026-11-25T03:43:42Z",
+    "syncedBranches": [
+      {
+        "name": "main",
+        "kind": "main",
+        "sha": "780d34a320aa105646adea7e60e0074a8dc5e8f0"
+      }
+    ],
+    "syncedPrs": [],
+    "syncedAt": "2026-11-25T03:43:42Z"
   },
   {
     "id": "REPO-011",
@@ -178,13 +1101,33 @@
     "url": "https://github.com/vincent-guizot/wire_n_wagon",
     "type": "application",
     "mainBranch": "main",
-    "language": "",
-    "visibility": "unknown",
+    "language": "JavaScript",
+    "visibility": "public",
     "accessStatus": "accessible",
-    "description": "",
-    "topics": [],
+    "description": "Logistics & Expedition Management System Web Application",
+    "topics": [
+      "expedition",
+      "fares",
+      "logistics",
+      "management",
+      "management-game",
+      "management-system",
+      "tariffs",
+      "web",
+      "web-application",
+      "web-development"
+    ],
     "createdAt": "2026-11-23T14:38:47Z",
-    "updatedAt": "2026-11-23T14:38:47Z"
+    "updatedAt": "2026-11-25T03:43:42Z",
+    "syncedBranches": [
+      {
+        "name": "main",
+        "kind": "main",
+        "sha": "a64fa09a9c444e0334e741a05b1a5a32deb43598"
+      }
+    ],
+    "syncedPrs": [],
+    "syncedAt": "2026-11-25T03:43:42Z"
   },
   {
     "id": "REPO-012",
@@ -195,13 +1138,56 @@
     "url": "https://github.com/vincent-guizot/stok-material-id",
     "type": "application",
     "mainBranch": "main",
-    "language": "",
-    "visibility": "unknown",
+    "language": "JavaScript",
+    "visibility": "public",
     "accessStatus": "accessible",
-    "description": "",
-    "topics": [],
+    "description": "Sistem Kasir (POS) & Manajemen Stok Multi-Satuan Toko Bangunan",
+    "topics": [
+      "expressjs",
+      "nodejs",
+      "postgresql",
+      "reactjs",
+      "sequelize-orm",
+      "tailwindcss"
+    ],
     "createdAt": "2026-11-23T14:38:47Z",
-    "updatedAt": "2026-11-23T14:38:47Z"
+    "updatedAt": "2026-11-25T03:43:42Z",
+    "syncedBranches": [
+      {
+        "name": "feat/frontend-motion-polish",
+        "kind": "feature",
+        "sha": "9ff613458795bac236f2a020de3ee607a2f0571e"
+      },
+      {
+        "name": "fix/api-validation-swagger-frontend",
+        "kind": "fix",
+        "sha": "7a21d6d93d6ea79f8aa93e92283edc9283c61f8e"
+      },
+      {
+        "name": "main",
+        "kind": "main",
+        "sha": "6aa628e1c4ca4862f824faed88776cf0e36848ce"
+      }
+    ],
+    "syncedPrs": [
+      {
+        "number": 2,
+        "title": "Feat/frontend motion polish",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-11-02T08:39:52Z",
+        "url": "https://github.com/vincent-guizot/stok-material-id/pull/2"
+      },
+      {
+        "number": 1,
+        "title": "Fix API validation and stock/payment consistency; add Swagger and frontend checks",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-11-02T04:18:05Z",
+        "url": "https://github.com/vincent-guizot/stok-material-id/pull/1"
+      }
+    ],
+    "syncedAt": "2026-11-25T03:43:42Z"
   },
   {
     "id": "REPO-013",
@@ -212,13 +1198,70 @@
     "url": "https://github.com/vincent-guizot/pixtale",
     "type": "application",
     "mainBranch": "main",
-    "language": "",
-    "visibility": "unknown",
+    "language": "JavaScript",
+    "visibility": "public",
     "accessStatus": "accessible",
-    "description": "",
+    "description": "📸 PixTale — A modern visual storytelling & photo-sharing social platform (Instagram Clone) featuring a sleek Dark-First UI.",
     "topics": [],
     "createdAt": "2026-11-23T14:38:47Z",
-    "updatedAt": "2026-11-23T14:38:47Z"
+    "updatedAt": "2026-11-25T03:43:42Z",
+    "syncedBranches": [
+      {
+        "name": "api",
+        "kind": "chore",
+        "sha": "ccb4346c00b745ff62c4cd46c410adecd237858b"
+      },
+      {
+        "name": "cms",
+        "kind": "chore",
+        "sha": "50ca1d9ad06a5c970568947543417a7b044a27d3"
+      },
+      {
+        "name": "main",
+        "kind": "main",
+        "sha": "9ce360e571264be2171e81d90ae467ef14df979e"
+      },
+      {
+        "name": "next-ui",
+        "kind": "chore",
+        "sha": "c71a9b78b695b08283692a06eeb39edddf897f64"
+      }
+    ],
+    "syncedPrs": [
+      {
+        "number": 4,
+        "title": "CMS Modify",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-10-24T04:56:04Z",
+        "url": "https://github.com/vincent-guizot/pixtale/pull/4"
+      },
+      {
+        "number": 3,
+        "title": "Next UI",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-10-24T04:49:03Z",
+        "url": "https://github.com/vincent-guizot/pixtale/pull/3"
+      },
+      {
+        "number": 2,
+        "title": "Api",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-10-24T04:44:13Z",
+        "url": "https://github.com/vincent-guizot/pixtale/pull/2"
+      },
+      {
+        "number": 1,
+        "title": "full stack ",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2022-11-05T07:41:17Z",
+        "url": "https://github.com/vincent-guizot/pixtale/pull/1"
+      }
+    ],
+    "syncedAt": "2026-11-25T03:43:42Z"
   },
   {
     "id": "REPO-014",
@@ -229,13 +1272,30 @@
     "url": "https://github.com/vincent-guizot/fresh-meadow-dairy",
     "type": "application",
     "mainBranch": "main",
-    "language": "",
-    "visibility": "unknown",
+    "language": "JavaScript",
+    "visibility": "public",
     "accessStatus": "accessible",
-    "description": "",
-    "topics": [],
+    "description": "🌾 Fresh Meadow Dairy — An end-to-end farm-to-table dairy e-commerce storefront & operational CMS platform with cold-chain inventory tracking, built with Next.js 14, React 18, Express.js, and PostgreSQL.",
+    "topics": [
+      "cms",
+      "dairy",
+      "dairy-farm",
+      "dairy-management",
+      "ecommerce",
+      "shop",
+      "shopping-cart"
+    ],
     "createdAt": "2026-11-23T14:38:47Z",
-    "updatedAt": "2026-11-23T14:38:47Z"
+    "updatedAt": "2026-11-25T03:43:42Z",
+    "syncedBranches": [
+      {
+        "name": "main",
+        "kind": "main",
+        "sha": "727476ea323462354fb5ca78661ddcc37309d7c5"
+      }
+    ],
+    "syncedPrs": [],
+    "syncedAt": "2026-11-25T03:43:42Z"
   },
   {
     "id": "REPO-015",
@@ -246,13 +1306,314 @@
     "url": "https://github.com/vincent-guizot/readvibe-core_desk",
     "type": "application",
     "mainBranch": "main",
-    "language": "",
-    "visibility": "unknown",
+    "language": "JavaScript",
+    "visibility": "public",
     "accessStatus": "accessible",
-    "description": "",
-    "topics": [],
+    "description": "Ecosystem untuk platform membaca buku cerdas dengan aplikasi pembaca berbasis Next.js, CMS backoffice berbasis React/Vite, REST API Express, PostgreSQL, rekomendasi mood berbasis Gemini AI, tracking bacaan, wishlist, dan moderasi konten.",
+    "topics": [
+      "analytics",
+      "backoffice",
+      "bootstrap",
+      "gemini-ai",
+      "google-books-api",
+      "jwt-authentication",
+      "redux",
+      "rest-api"
+    ],
     "createdAt": "2026-11-23T14:38:47Z",
-    "updatedAt": "2026-11-23T14:38:47Z"
+    "updatedAt": "2026-11-25T03:43:42Z",
+    "syncedBranches": [
+      {
+        "name": "account-notifications-vibe-card",
+        "kind": "chore",
+        "sha": "e0566cdf129e9fd1d1bec9477be7db52160ae88f"
+      },
+      {
+        "name": "development",
+        "kind": "chore",
+        "sha": "5fb20dc99e3ecc745ad1fb5ac658c29a2c5dc13e"
+      },
+      {
+        "name": "main",
+        "kind": "main",
+        "sha": "fa64a1ed93d7dc912953ef29723a73aa56bd4029"
+      },
+      {
+        "name": "readvibe",
+        "kind": "chore",
+        "sha": "f7c5d7c182ade0c2e5ffc31ede34dfe2fb940053"
+      },
+      {
+        "name": "readvibe-ai-matcher",
+        "kind": "chore",
+        "sha": "fe3fe895bf7d500cd56eb567c10bc32f1ae368ad"
+      },
+      {
+        "name": "readvibe-api-integration",
+        "kind": "chore",
+        "sha": "f22238a0bb52846c16fdac2273861296e8f22507"
+      },
+      {
+        "name": "readvibe-connect-redux",
+        "kind": "chore",
+        "sha": "58b3a86388c212ba52236540f25f9d190c27d648"
+      },
+      {
+        "name": "readvibe-discovery-preview",
+        "kind": "chore",
+        "sha": "c4f8e41dc0415153fdd23e591eb6c7892e28a6c3"
+      },
+      {
+        "name": "readvibe-notifications",
+        "kind": "chore",
+        "sha": "a90e67b5b2414c96a71506b394f9e48189c0cd84"
+      },
+      {
+        "name": "readvibe-reading-experience",
+        "kind": "chore",
+        "sha": "af7819899d32a9d7c8429338d46b62418c7b2d01"
+      },
+      {
+        "name": "readvibe-reading-stats",
+        "kind": "chore",
+        "sha": "a14d3eeb90c27959623beb0de516c71bd7a6f719"
+      },
+      {
+        "name": "readvibe-vibe-card-generator",
+        "kind": "chore",
+        "sha": "99c68520000dbc73bfb3823fac2413f1256a7415"
+      },
+      {
+        "name": "vibecore",
+        "kind": "release",
+        "sha": "a92275c6d2d4d2d585c7a50073dff0361b9e952e"
+      },
+      {
+        "name": "vibecore-e2e-qa",
+        "kind": "release",
+        "sha": "6e6ae406a32c12a23fc9ee6b68898b17ad6c5f5c"
+      },
+      {
+        "name": "vibecore-next",
+        "kind": "release",
+        "sha": "5a13e1dcd7ae16f268c70e8349ef8da6cb505b74"
+      },
+      {
+        "name": "vibedesk",
+        "kind": "release",
+        "sha": "0042081f661e33c25cee1def71f7182c8521f7f6"
+      },
+      {
+        "name": "vibedesk-crud",
+        "kind": "release",
+        "sha": "8694457cff45e9451debb0443a9716c179f49ed5"
+      },
+      {
+        "name": "vibedesk-google-books",
+        "kind": "release",
+        "sha": "126be682bc6f61be88a72254418b2c7f51f185e9"
+      },
+      {
+        "name": "vibedesk-ui-pages",
+        "kind": "release",
+        "sha": "658c335ef41bf81c0162acea84321497c65a5cf1"
+      }
+    ],
+    "syncedPrs": [
+      {
+        "number": 24,
+        "title": "Development",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-11-24T13:26:29Z",
+        "url": "https://github.com/vincent-guizot/readvibe-core_desk/pull/24"
+      },
+      {
+        "number": 23,
+        "title": "Readvibe",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-11-24T13:26:10Z",
+        "url": "https://github.com/vincent-guizot/readvibe-core_desk/pull/23"
+      },
+      {
+        "number": 22,
+        "title": "Repair Discover/Search and book detail Digital Preview flows",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-11-24T07:39:37Z",
+        "url": "https://github.com/vincent-guizot/readvibe-core_desk/pull/22"
+      },
+      {
+        "number": 21,
+        "title": "Integrate Readvibe auth, reader, and notifications",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-11-24T03:25:12Z",
+        "url": "https://github.com/vincent-guizot/readvibe-core_desk/pull/21"
+      },
+      {
+        "number": 20,
+        "title": "Readvibe",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-11-24T03:00:31Z",
+        "url": "https://github.com/vincent-guizot/readvibe-core_desk/pull/20"
+      },
+      {
+        "number": 19,
+        "title": "Readvibe notifications",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-11-24T02:14:37Z",
+        "url": "https://github.com/vincent-guizot/readvibe-core_desk/pull/19"
+      },
+      {
+        "number": 18,
+        "title": "Isolate account notifications and carry reader quotes into Vibe Cards",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-11-24T02:13:14Z",
+        "url": "https://github.com/vincent-guizot/readvibe-core_desk/pull/18"
+      },
+      {
+        "number": 17,
+        "title": "Readvibe api integration",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-11-21T18:46:00Z",
+        "url": "https://github.com/vincent-guizot/readvibe-core_desk/pull/17"
+      },
+      {
+        "number": 16,
+        "title": "Release VibeCore integration and verified ReadVibe CRUD flows",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-11-18T14:08:36Z",
+        "url": "https://github.com/vincent-guizot/readvibe-core_desk/pull/16"
+      },
+      {
+        "number": 15,
+        "title": "Vibecore",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-11-18T14:06:35Z",
+        "url": "https://github.com/vincent-guizot/readvibe-core_desk/pull/15"
+      },
+      {
+        "number": 14,
+        "title": "Vibecore e2e qa",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-11-18T14:05:28Z",
+        "url": "https://github.com/vincent-guizot/readvibe-core_desk/pull/14"
+      },
+      {
+        "number": 13,
+        "title": "Validate CRUD boundaries and verify ReadVibe–VibeDesk integration",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-11-18T14:04:07Z",
+        "url": "https://github.com/vincent-guizot/readvibe-core_desk/pull/13"
+      },
+      {
+        "number": 12,
+        "title": "feat: release VibeDesk CMS and backoffice from development",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-11-17T15:34:26Z",
+        "url": "https://github.com/vincent-guizot/readvibe-core_desk/pull/12"
+      },
+      {
+        "number": 11,
+        "title": "Vibedesk To Development",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-11-17T15:22:47Z",
+        "url": "https://github.com/vincent-guizot/readvibe-core_desk/pull/11"
+      },
+      {
+        "number": 10,
+        "title": "feat(vibedesk): complete routed CMS, backoffice APIs, and asset integration",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-11-17T15:17:06Z",
+        "url": "https://github.com/vincent-guizot/readvibe-core_desk/pull/10"
+      },
+      {
+        "number": 9,
+        "title": "feat(vibedesk): refresh backoffice UI and restructure frontend architecture",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-11-17T09:59:58Z",
+        "url": "https://github.com/vincent-guizot/readvibe-core_desk/pull/9"
+      },
+      {
+        "number": 8,
+        "title": "Vibedesk",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-11-17T09:59:35Z",
+        "url": "https://github.com/vincent-guizot/readvibe-core_desk/pull/8"
+      },
+      {
+        "number": 7,
+        "title": "Vibedesk UI pages",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-11-17T09:59:05Z",
+        "url": "https://github.com/vincent-guizot/readvibe-core_desk/pull/7"
+      },
+      {
+        "number": 6,
+        "title": "Main To Development",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-11-17T08:24:50Z",
+        "url": "https://github.com/vincent-guizot/readvibe-core_desk/pull/6"
+      },
+      {
+        "number": 5,
+        "title": "Readvibe",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-11-17T08:23:38Z",
+        "url": "https://github.com/vincent-guizot/readvibe-core_desk/pull/5"
+      },
+      {
+        "number": 4,
+        "title": "VibeDesk To ReadVibe",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-11-17T08:23:08Z",
+        "url": "https://github.com/vincent-guizot/readvibe-core_desk/pull/4"
+      },
+      {
+        "number": 3,
+        "title": "Readvibe reading experience",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-11-17T08:20:59Z",
+        "url": "https://github.com/vincent-guizot/readvibe-core_desk/pull/3"
+      },
+      {
+        "number": 2,
+        "title": "feat(vibedesk): add reviewed Google Books import flow",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-11-17T02:44:36Z",
+        "url": "https://github.com/vincent-guizot/readvibe-core_desk/pull/2"
+      },
+      {
+        "number": 1,
+        "title": "feat(vibedesk): complete catalog and curation CRUD",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-11-17T02:28:45Z",
+        "url": "https://github.com/vincent-guizot/readvibe-core_desk/pull/1"
+      }
+    ],
+    "syncedAt": "2026-11-25T03:43:42Z"
   },
   {
     "id": "REPO-016",
@@ -263,13 +1624,45 @@
     "url": "https://github.com/vincent-guizot/mouth-journal",
     "type": "mobile",
     "mainBranch": "master",
-    "language": "",
-    "visibility": "unknown",
+    "language": "TypeScript",
+    "visibility": "public",
     "accessStatus": "accessible",
-    "description": "",
-    "topics": [],
+    "description": "MouthJournal is a personal food and drink journaling app built with React Native, Expo, and TypeScript. Capture culinary experiences, save favorite places, explore nearby restaurants and cafés, and discover personalized recommendations through a modular, scalable, and privacy-focused architecture.",
+    "topics": [
+      "expo",
+      "firebase",
+      "firestore",
+      "mobile",
+      "mobile-app",
+      "mobile-development",
+      "react",
+      "react-native"
+    ],
     "createdAt": "2026-11-23T14:38:47Z",
-    "updatedAt": "2026-11-23T14:38:47Z"
+    "updatedAt": "2026-11-25T03:43:42Z",
+    "syncedBranches": [
+      {
+        "name": "feat/culinary-map-share-analytics",
+        "kind": "feature",
+        "sha": "0e37f287672fd982295e4ea6056579516166a9d6"
+      },
+      {
+        "name": "master",
+        "kind": "main",
+        "sha": "ac9a48f88d101f3e4e5796de6e4608610daf61cc"
+      }
+    ],
+    "syncedPrs": [
+      {
+        "number": 1,
+        "title": "feat: add culinary memory map, shareable story card, and monthly spending analytics",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-11-22T03:01:36Z",
+        "url": "https://github.com/vincent-guizot/mouth-journal/pull/1"
+      }
+    ],
+    "syncedAt": "2026-11-25T03:43:42Z"
   },
   {
     "id": "REPO-017",
@@ -282,7 +1675,7 @@
     "mainBranch": "main",
     "language": "",
     "visibility": "unknown",
-    "accessStatus": "accessible",
+    "accessStatus": "inaccessible",
     "description": "ID numbering to confirm if a prior assignment differs",
     "topics": [],
     "createdAt": "2026-11-23T14:38:47Z",
@@ -297,13 +1690,22 @@
     "url": "https://github.com/PrivateStack-TownHall/mock-market",
     "type": "application",
     "mainBranch": "main",
-    "language": "",
-    "visibility": "unknown",
+    "language": "JavaScript",
+    "visibility": "public",
     "accessStatus": "accessible",
     "description": "User confirmed experimental",
     "topics": [],
     "createdAt": "2026-11-23T14:38:47Z",
-    "updatedAt": "2026-11-23T14:38:47Z"
+    "updatedAt": "2026-11-25T03:43:42Z",
+    "syncedBranches": [
+      {
+        "name": "main",
+        "kind": "main",
+        "sha": "3088335b23aa86e8d53387d7d83235397545af68"
+      }
+    ],
+    "syncedPrs": [],
+    "syncedAt": "2026-11-25T03:43:42Z"
   },
   {
     "id": "REPO-019",
@@ -314,13 +1716,22 @@
     "url": "https://github.com/vincent-guizot/codigram-api",
     "type": "backend",
     "mainBranch": "master",
-    "language": "",
-    "visibility": "unknown",
+    "language": "JavaScript",
+    "visibility": "public",
     "accessStatus": "accessible",
     "description": "Codigram API repository; separate from codigram-ui.",
     "topics": [],
     "createdAt": "2026-11-23T14:38:47Z",
-    "updatedAt": "2026-11-23T14:38:47Z"
+    "updatedAt": "2026-11-25T03:43:42Z",
+    "syncedBranches": [
+      {
+        "name": "master",
+        "kind": "main",
+        "sha": "594b39d88d43f5a881748dcad61d75faee7019f5"
+      }
+    ],
+    "syncedPrs": [],
+    "syncedAt": "2026-11-25T03:43:42Z"
   },
   {
     "id": "REPO-020",
@@ -331,13 +1742,81 @@
     "url": "https://github.com/PrivateStack-TownHall/command-centre",
     "type": "application",
     "mainBranch": "main",
-    "language": "",
-    "visibility": "unknown",
+    "language": "TypeScript",
+    "visibility": "public",
     "accessStatus": "accessible",
     "description": "Distinct from Magna Opera",
     "topics": [],
     "createdAt": "2026-11-23T14:38:47Z",
-    "updatedAt": "2026-11-23T14:38:47Z"
+    "updatedAt": "2026-11-25T03:43:42Z",
+    "syncedBranches": [
+      {
+        "name": "bff",
+        "kind": "chore",
+        "sha": "09060a351dc6a88d28bbfab8c5af9b35f16f1b1d"
+      },
+      {
+        "name": "front-end",
+        "kind": "chore",
+        "sha": "148eae9b3ce59e0a2bdab5be0f6f36ad740841cf"
+      },
+      {
+        "name": "main",
+        "kind": "main",
+        "sha": "70294fa3a6677ed9f83fac3fb1d25d58706791b2"
+      }
+    ],
+    "syncedPrs": [
+      {
+        "number": 8,
+        "title": "Merge pull request #5 from PrivateStack-TownHall/main",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-09-19T22:23:06Z",
+        "url": "https://github.com/PrivateStack-TownHall/command-centre/pull/8"
+      },
+      {
+        "number": 7,
+        "title": "Merge pull request #6 from PrivateStack-TownHall/main",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-09-19T22:22:47Z",
+        "url": "https://github.com/PrivateStack-TownHall/command-centre/pull/7"
+      },
+      {
+        "number": 6,
+        "title": "Pull Request and Merge from branch main to branch bff",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-09-19T22:22:08Z",
+        "url": "https://github.com/PrivateStack-TownHall/command-centre/pull/6"
+      },
+      {
+        "number": 5,
+        "title": "Pull Request and Merge from branch main to branch front-end",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-09-19T22:20:58Z",
+        "url": "https://github.com/PrivateStack-TownHall/command-centre/pull/5"
+      },
+      {
+        "number": 2,
+        "title": "Bff: Add Command Centre BFF",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-09-18T10:09:58Z",
+        "url": "https://github.com/PrivateStack-TownHall/command-centre/pull/2"
+      },
+      {
+        "number": 1,
+        "title": "Refactoring and Restructuring Front End : Restructure repository: move the app into front-end/",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-09-18T09:49:36Z",
+        "url": "https://github.com/PrivateStack-TownHall/command-centre/pull/1"
+      }
+    ],
+    "syncedAt": "2026-11-25T03:43:42Z"
   },
   {
     "id": "REPO-021",
@@ -384,7 +1863,7 @@
     "mainBranch": "main",
     "language": "",
     "visibility": "unknown",
-    "accessStatus": "accessible",
+    "accessStatus": "inaccessible",
     "description": "Reusable dashboard toolkit",
     "topics": [],
     "createdAt": "2026-11-23T14:38:47Z",
@@ -399,13 +1878,73 @@
     "url": "https://github.com/PrivateStack-TownHall/api-core_templates",
     "type": "template",
     "mainBranch": "main",
-    "language": "",
-    "visibility": "unknown",
+    "language": "TypeScript",
+    "visibility": "public",
     "accessStatus": "accessible",
     "description": "",
     "topics": [],
     "createdAt": "2026-11-23T14:38:47Z",
-    "updatedAt": "2026-11-23T14:38:47Z"
+    "updatedAt": "2026-11-25T03:43:42Z",
+    "syncedBranches": [
+      {
+        "name": "commerce-core_template",
+        "kind": "chore",
+        "sha": "4a5c74032d932a9b9ddc05c9fa028676856ca508"
+      },
+      {
+        "name": "main",
+        "kind": "main",
+        "sha": "30c7b31bc85cf0eaee9c28f6c2c592f6fd4bb094"
+      },
+      {
+        "name": "operations-core_template",
+        "kind": "chore",
+        "sha": "5a20c22b846c11c738a7761b42e80d19fc23fc72"
+      }
+    ],
+    "syncedPrs": [
+      {
+        "number": 5,
+        "title": "Operations Core Template",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-09-02T01:43:59Z",
+        "url": "https://github.com/PrivateStack-TownHall/api-core_templates/pull/5"
+      },
+      {
+        "number": 4,
+        "title": "Commerce Core Template",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-09-01T15:04:18Z",
+        "url": "https://github.com/PrivateStack-TownHall/api-core_templates/pull/4"
+      },
+      {
+        "number": 3,
+        "title": "feat: implement complete WareTrack backend CRUD modules with inventory management",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-06-27T18:31:43Z",
+        "url": "https://github.com/PrivateStack-TownHall/api-core_templates/pull/3"
+      },
+      {
+        "number": 2,
+        "title": "Waretrack",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-06-27T18:30:50Z",
+        "url": "https://github.com/PrivateStack-TownHall/api-core_templates/pull/2"
+      },
+      {
+        "number": 1,
+        "title": "# feat: multi-application integration, monitoring dashboard, and enterprise data tables",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-06-24T08:19:30Z",
+        "url": "https://github.com/PrivateStack-TownHall/api-core_templates/pull/1"
+      }
+    ],
+    "syncedAt": "2026-11-25T03:43:42Z"
   },
   {
     "id": "REPO-025",
@@ -416,13 +1955,22 @@
     "url": "https://github.com/vincent-guizot/back-end-templates",
     "type": "template",
     "mainBranch": "main",
-    "language": "",
-    "visibility": "unknown",
+    "language": "JavaScript",
+    "visibility": "public",
     "accessStatus": "accessible",
     "description": "",
     "topics": [],
     "createdAt": "2026-11-23T14:38:47Z",
-    "updatedAt": "2026-11-23T14:38:47Z"
+    "updatedAt": "2026-11-25T03:43:42Z",
+    "syncedBranches": [
+      {
+        "name": "main",
+        "kind": "main",
+        "sha": "6bbbc87bef4758ca125eb40f9ae1c41fb4605ccf"
+      }
+    ],
+    "syncedPrs": [],
+    "syncedAt": "2026-11-25T03:43:42Z"
   },
   {
     "id": "REPO-026",
@@ -433,13 +1981,96 @@
     "url": "https://github.com/PrivateStack-TownHall/bootcamp-study-case",
     "type": "learning-resource",
     "mainBranch": "main",
-    "language": "",
-    "visibility": "unknown",
+    "language": "TypeScript",
+    "visibility": "public",
     "accessStatus": "accessible",
-    "description": "",
+    "description": "Study Case Untuk Soal Bootcamp",
     "topics": [],
     "createdAt": "2026-11-23T14:38:47Z",
-    "updatedAt": "2026-11-23T14:38:47Z"
+    "updatedAt": "2026-11-25T03:43:42Z",
+    "syncedBranches": [
+      {
+        "name": "byte-burger",
+        "kind": "chore",
+        "sha": "836741c62807c211ccc1d6130ac6d0624fa1085f"
+      },
+      {
+        "name": "castle-kitchen",
+        "kind": "chore",
+        "sha": "fdcdfbeeecd21eda641903ee9a797cb57a32ce78"
+      },
+      {
+        "name": "kings-brew",
+        "kind": "chore",
+        "sha": "1fcb271635a9f56d3d01bfa537901a5064bf381d"
+      },
+      {
+        "name": "main",
+        "kind": "main",
+        "sha": "0076be353fd558437b9bf1a0d60610fc441e9d2c"
+      },
+      {
+        "name": "quantum-mart",
+        "kind": "chore",
+        "sha": "44db7867cab896f581c5da1585d221f7ddc9e093"
+      },
+      {
+        "name": "trade-hub",
+        "kind": "chore",
+        "sha": "bd8f17fd7ea5062cf408f2ed4bf047412c49d0d8"
+      }
+    ],
+    "syncedPrs": [
+      {
+        "number": 6,
+        "title": "Quantum Mart - Swagger Ready API",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-08-29T16:16:47Z",
+        "url": "https://github.com/PrivateStack-TownHall/bootcamp-study-case/pull/6"
+      },
+      {
+        "number": 5,
+        "title": "Byte Burger - Swagger Ready API",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-08-29T15:58:59Z",
+        "url": "https://github.com/PrivateStack-TownHall/bootcamp-study-case/pull/5"
+      },
+      {
+        "number": 4,
+        "title": "Trade Hub - Swagger Ready API",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-08-29T15:33:15Z",
+        "url": "https://github.com/PrivateStack-TownHall/bootcamp-study-case/pull/4"
+      },
+      {
+        "number": 3,
+        "title": "Castle Kitchen - Swagger Ready API",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-08-29T11:45:42Z",
+        "url": "https://github.com/PrivateStack-TownHall/bootcamp-study-case/pull/3"
+      },
+      {
+        "number": 2,
+        "title": "Kings Brew - Swagger Ready API",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-08-29T10:27:35Z",
+        "url": "https://github.com/PrivateStack-TownHall/bootcamp-study-case/pull/2"
+      },
+      {
+        "number": 1,
+        "title": "Migration repo kingsbrew",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-06-16T22:34:53Z",
+        "url": "https://github.com/PrivateStack-TownHall/bootcamp-study-case/pull/1"
+      }
+    ],
+    "syncedAt": "2026-11-25T03:43:42Z"
   },
   {
     "id": "REPO-027",
@@ -450,13 +2081,22 @@
     "url": "https://github.com/vincent-guizot/github_repositories_explorer",
     "type": "tool",
     "mainBranch": "master",
-    "language": "",
-    "visibility": "unknown",
+    "language": "TypeScript",
+    "visibility": "public",
     "accessStatus": "accessible",
     "description": "",
     "topics": [],
     "createdAt": "2026-11-23T14:38:47Z",
-    "updatedAt": "2026-11-23T14:38:47Z"
+    "updatedAt": "2026-11-25T03:43:42Z",
+    "syncedBranches": [
+      {
+        "name": "master",
+        "kind": "main",
+        "sha": "47a65aa16371bb5e4f91af933ac8e799167f7fba"
+      }
+    ],
+    "syncedPrs": [],
+    "syncedAt": "2026-11-25T03:43:42Z"
   },
   {
     "id": "REPO-028",
@@ -467,13 +2107,22 @@
     "url": "https://github.com/vincent-guizot/codigram-ui",
     "type": "frontend",
     "mainBranch": "master",
-    "language": "",
-    "visibility": "unknown",
+    "language": "TypeScript",
+    "visibility": "public",
     "accessStatus": "accessible",
     "description": "Separate from API-08",
     "topics": [],
     "createdAt": "2026-11-23T14:38:47Z",
-    "updatedAt": "2026-11-23T14:38:47Z"
+    "updatedAt": "2026-11-25T03:43:42Z",
+    "syncedBranches": [
+      {
+        "name": "master",
+        "kind": "main",
+        "sha": "77cdcf0bf850ab86332bacd12ee4dd0287f1ba3b"
+      }
+    ],
+    "syncedPrs": [],
+    "syncedAt": "2026-11-25T03:43:42Z"
   },
   {
     "id": "REPO-029",
@@ -484,13 +2133,22 @@
     "url": "https://github.com/vincent-guizot/hr-application",
     "type": "frontend",
     "mainBranch": "master",
-    "language": "",
-    "visibility": "unknown",
+    "language": "JavaScript",
+    "visibility": "public",
     "accessStatus": "accessible",
     "description": "Separate from API-07",
     "topics": [],
     "createdAt": "2026-11-23T14:38:47Z",
-    "updatedAt": "2026-11-23T14:38:47Z"
+    "updatedAt": "2026-11-25T03:43:42Z",
+    "syncedBranches": [
+      {
+        "name": "master",
+        "kind": "main",
+        "sha": "afdecabd255a9e9c306f1cf9ec2de890aeb9ef3d"
+      }
+    ],
+    "syncedPrs": [],
+    "syncedAt": "2026-11-25T03:43:42Z"
   },
   {
     "id": "REPO-030",
@@ -501,13 +2159,22 @@
     "url": "https://github.com/vincent-guizot/forum-application",
     "type": "frontend",
     "mainBranch": "main",
-    "language": "",
-    "visibility": "unknown",
+    "language": "JavaScript",
+    "visibility": "public",
     "accessStatus": "accessible",
     "description": "Separate from API-06",
     "topics": [],
     "createdAt": "2026-11-23T14:38:47Z",
-    "updatedAt": "2026-11-23T14:38:47Z"
+    "updatedAt": "2026-11-25T03:43:42Z",
+    "syncedBranches": [
+      {
+        "name": "main",
+        "kind": "main",
+        "sha": "fe045707aaadcee4c269a8c0f9588785ef9be9db"
+      }
+    ],
+    "syncedPrs": [],
+    "syncedAt": "2026-11-25T03:43:42Z"
   },
   {
     "id": "REPO-031",
@@ -518,13 +2185,30 @@
     "url": "https://github.com/PrivateStack-TownHall/WareTrack",
     "type": "frontend",
     "mainBranch": "master",
-    "language": "",
-    "visibility": "unknown",
+    "language": "TypeScript",
+    "visibility": "public",
     "accessStatus": "accessible",
     "description": "UI repository; not the API repository",
-    "topics": [],
+    "topics": [
+      "nestjs",
+      "postgresql",
+      "prisma",
+      "render",
+      "supabase",
+      "swagger",
+      "typescript"
+    ],
     "createdAt": "2026-11-23T14:38:47Z",
-    "updatedAt": "2026-11-23T14:38:47Z"
+    "updatedAt": "2026-11-25T03:43:42Z",
+    "syncedBranches": [
+      {
+        "name": "master",
+        "kind": "main",
+        "sha": "109b6d40f8ed2d8c293b494cafd9bee68892216a"
+      }
+    ],
+    "syncedPrs": [],
+    "syncedAt": "2026-11-25T03:43:42Z"
   },
   {
     "id": "REPO-032",
@@ -535,12 +2219,41 @@
     "url": "https://github.com/vincent-guizot/nomad-outdoor-rental",
     "type": "frontend",
     "mainBranch": "main",
-    "language": "",
-    "visibility": "unknown",
+    "language": "TypeScript",
+    "visibility": "public",
     "accessStatus": "accessible",
     "description": "Separate from API-12",
-    "topics": [],
+    "topics": [
+      "app",
+      "application",
+      "application-code",
+      "booking",
+      "booking-platform",
+      "booking-system",
+      "ecommerce",
+      "ecommerce-website",
+      "rental",
+      "rental-platform"
+    ],
     "createdAt": "2026-11-23T14:38:47Z",
-    "updatedAt": "2026-11-23T14:38:47Z"
+    "updatedAt": "2026-11-25T03:43:42Z",
+    "syncedBranches": [
+      {
+        "name": "main",
+        "kind": "main",
+        "sha": "5765e5805fc216c5f72eace58999fcb81d99be08"
+      }
+    ],
+    "syncedPrs": [
+      {
+        "number": 1,
+        "title": "modify README.mg membuat documents/notes.txt modify src/",
+        "status": "merged",
+        "author": "vincent-guizot",
+        "createdAt": "2026-08-12T10:05:22Z",
+        "url": "https://github.com/vincent-guizot/nomad-outdoor-rental/pull/1"
+      }
+    ],
+    "syncedAt": "2026-11-25T03:43:42Z"
   }
 ]
