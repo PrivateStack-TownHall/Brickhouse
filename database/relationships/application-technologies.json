@@ -1,1 +1,30 @@
-[]
+[
+  {
+    "id": "AT-001",
+    "applicationId": "APP-001",
+    "technologyId": "TECH-003",
+    "role": "Programming Language",
+    "version": ""
+  },
+  {
+    "id": "AT-002",
+    "applicationId": "APP-001",
+    "technologyId": "TECH-018",
+    "role": "Frontend Technology",
+    "version": ""
+  },
+  {
+    "id": "AT-003",
+    "applicationId": "APP-001",
+    "technologyId": "TECH-012",
+    "role": "Frontend Technology",
+    "version": ""
+  },
+  {
+    "id": "AT-004",
+    "applicationId": "APP-001",
+    "technologyId": "TECH-001",
+    "role": "Frontend Technology",
+    "version": ""
+  }
+]

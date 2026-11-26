@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import {
   Github, Gitlab, Box, Plus, Pencil, Trash2, RefreshCw, ExternalLink,
-  Key, CheckCircle2, AlertCircle, Info, ShieldCheck, Check,
+  Key, CheckCircle2, AlertCircle, Info, ShieldCheck, Check, Eye, EyeOff, X,
 } from 'lucide-react';
 import FormField from '../../components/forms/FormField';
 import FormSelect from '../../components/forms/FormSelect';
@@ -54,6 +54,7 @@ export default function Integrations() {
   const [errors, setErrors] = useState({});
   const [removing, setRemoving] = useState(null);
   const [tokens, setTokens] = useState(() => loadSavedTokens());
+  const [visibleTokens, setVisibleTokens] = useState({});
   const [busy, setBusy] = useState(null);
   const [testing, setTesting] = useState(null);
   const [testResults, setTestResults] = useState({});
@@ -313,23 +314,62 @@ export default function Integrations() {
               {connection.notes && <p className="small text-break mb-3">{connection.notes}</p>}
 
               <div className="mb-3">
-                <FormField
-                  label={`Personal Access Token (PAT) · ${connection.name}`}
-                  type="password"
-                  autoComplete="off"
-                  spellCheck={false}
-                  value={tokens[connection.id] || ''}
-                  disabled={!!busy}
-                  onChange={(e) => handleTokenChange(connection.id, e.target.value)}
-                  placeholder="Optional for public repositories; required for private repositories"
-                  help={
-                    connection.provider === 'github'
-                      ? 'GitHub: Permissions required -> Repository permissions > Contents: Read-only.'
-                      : connection.provider === 'gitlab'
-                        ? 'GitLab: use a Personal Access Token with read_api access.'
-                        : 'Bitbucket Cloud: use an app password or bearer token with repository read access.'
-                  }
-                />
+                {(() => {
+                  const tokenId = `pat-${connection.id}`;
+                  const tokenVal = tokens[connection.id] || '';
+                  const isVisible = Boolean(visibleTokens[connection.id]);
+                  const providerHelp = connection.provider === 'github'
+                    ? 'GitHub: Permissions required -> Repository permissions > Contents: Read-only.'
+                    : connection.provider === 'gitlab'
+                      ? 'GitLab: use a Personal Access Token with read_api access.'
+                      : 'Bitbucket Cloud: use an app password or bearer token with repository read access.';
+                  return (
+                    <FormField
+                      id={tokenId}
+                      label={`Personal Access Token (PAT) · ${connection.name}`}
+                      help={`${providerHelp} Stored in this browser tab session only — never saved to database/*.json, Local Storage, or backups.`}
+                    >
+                      <div className="input-group">
+                        <input
+                          id={tokenId}
+                          className="form-control"
+                          type={isVisible ? 'text' : 'password'}
+                          autoComplete="off"
+                          spellCheck={false}
+                          value={tokenVal}
+                          disabled={!!busy}
+                          onChange={(e) => handleTokenChange(connection.id, e.target.value)}
+                          placeholder="Optional for public repositories; required for private repositories"
+                        />
+                        <button
+                          type="button"
+                          className="btn btn-outline-secondary d-inline-flex align-items-center"
+                          aria-label={isVisible ? `Hide token for ${connection.name}` : `Show token for ${connection.name}`}
+                          title={isVisible ? 'Hide token' : 'Show token'}
+                          disabled={!!busy}
+                          onClick={() => setVisibleTokens((prev) => ({ ...prev, [connection.id]: !prev[connection.id] }))}
+                        >
+                          {isVisible ? <EyeOff size={16} /> : <Eye size={16} />}
+                        </button>
+                        {tokenVal && (
+                          <button
+                            type="button"
+                            className="btn btn-outline-secondary d-inline-flex align-items-center"
+                            aria-label={`Clear token for ${connection.name}`}
+                            title="Clear token from session"
+                            disabled={!!busy}
+                            onClick={() => {
+                              handleTokenChange(connection.id, '');
+                              setVisibleTokens((prev) => ({ ...prev, [connection.id]: false }));
+                            }}
+                          >
+                            <X size={16} />
+                          </button>
+                        )}
+                      </div>
+                    </FormField>
+                  );
+                })()}
               </div>
 
               <div className="d-flex gap-2 align-items-center flex-wrap">
