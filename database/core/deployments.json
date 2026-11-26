@@ -1,1 +1,24 @@
-[]
+[
+  {
+    "id": "DEP-001",
+    "name": "Vincent Portfolio",
+    "code": "vincent-portfolio",
+    "applicationId": "APP-001",
+    "componentId": null,
+    "repositoryId": "REPO-001",
+    "infrastructureId": "INF-001",
+    "environment": "production",
+    "deploymentType": "Static Site",
+    "platform": "Vercel",
+    "version": "",
+    "status": "active",
+    "deployMethod": "Git integration",
+    "branch": "main",
+    "deploymentUrl": "https://vincent-resume-beta.vercel.app/",
+    "healthCheckUrl": "",
+    "lastDeployedAt": null,
+    "notes": "",
+    "createdAt": "2026-11-26T08:48:22.728Z",
+    "updatedAt": "2026-11-26T08:48:22.728Z"
+  }
+]

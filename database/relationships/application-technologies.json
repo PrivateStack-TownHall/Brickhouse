@@ -26,5 +26,145 @@
     "technologyId": "TECH-001",
     "role": "Frontend Technology",
     "version": ""
+  },
+  {
+    "id": "AT-005",
+    "applicationId": "APP-041",
+    "technologyId": "TECH-003",
+    "role": "Programming Language",
+    "version": ""
+  },
+  {
+    "id": "AT-006",
+    "applicationId": "APP-041",
+    "technologyId": "TECH-024",
+    "role": "Frontend Technology",
+    "version": ""
+  },
+  {
+    "id": "AT-007",
+    "applicationId": "APP-041",
+    "technologyId": "TECH-001",
+    "role": "Frontend Technology",
+    "version": ""
+  },
+  {
+    "id": "AT-008",
+    "applicationId": "APP-041",
+    "technologyId": "TECH-038",
+    "role": "Frontend Technology",
+    "version": ""
+  },
+  {
+    "id": "AT-009",
+    "applicationId": "APP-041",
+    "technologyId": "TECH-018",
+    "role": "Frontend Technology",
+    "version": ""
+  },
+  {
+    "id": "AT-010",
+    "applicationId": "APP-041",
+    "technologyId": "TECH-005",
+    "role": "Backend Technology",
+    "version": ""
+  },
+  {
+    "id": "AT-011",
+    "applicationId": "APP-041",
+    "technologyId": "TECH-004",
+    "role": "Backend Technology",
+    "version": ""
+  },
+  {
+    "id": "AT-012",
+    "applicationId": "APP-041",
+    "technologyId": "TECH-013",
+    "role": "Database",
+    "version": ""
+  },
+  {
+    "id": "AT-013",
+    "applicationId": "APP-041",
+    "technologyId": "TECH-028",
+    "role": "ORM / Data Access",
+    "version": ""
+  },
+  {
+    "id": "AT-014",
+    "applicationId": "APP-041",
+    "technologyId": "TECH-002",
+    "role": "Additional Tools",
+    "version": ""
+  },
+  {
+    "id": "AT-015",
+    "applicationId": "APP-042",
+    "technologyId": "TECH-003",
+    "role": "Programming Language",
+    "version": ""
+  },
+  {
+    "id": "AT-016",
+    "applicationId": "APP-042",
+    "technologyId": "TECH-024",
+    "role": "Frontend Technology",
+    "version": ""
+  },
+  {
+    "id": "AT-017",
+    "applicationId": "APP-042",
+    "technologyId": "TECH-012",
+    "role": "Frontend Technology",
+    "version": ""
+  },
+  {
+    "id": "AT-018",
+    "applicationId": "APP-042",
+    "technologyId": "TECH-001",
+    "role": "Frontend Technology",
+    "version": ""
+  },
+  {
+    "id": "AT-019",
+    "applicationId": "APP-042",
+    "technologyId": "TECH-038",
+    "role": "Frontend Technology",
+    "version": ""
+  },
+  {
+    "id": "AT-020",
+    "applicationId": "APP-042",
+    "technologyId": "TECH-018",
+    "role": "Frontend Technology",
+    "version": ""
+  },
+  {
+    "id": "AT-021",
+    "applicationId": "APP-042",
+    "technologyId": "TECH-005",
+    "role": "Backend Technology",
+    "version": ""
+  },
+  {
+    "id": "AT-022",
+    "applicationId": "APP-042",
+    "technologyId": "TECH-013",
+    "role": "Database",
+    "version": ""
+  },
+  {
+    "id": "AT-023",
+    "applicationId": "APP-042",
+    "technologyId": "TECH-015",
+    "role": "ORM / Data Access",
+    "version": ""
+  },
+  {
+    "id": "AT-024",
+    "applicationId": "APP-042",
+    "technologyId": "TECH-020",
+    "role": "Additional Tools",
+    "version": ""
   }
 ]

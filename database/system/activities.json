@@ -53,5 +53,126 @@
     "resourceId": "8455e2bc-54eb-4d90-b81c-b03cd353c411",
     "applicationId": null,
     "description": "Saved vincent-guizot (github)."
+  },
+  {
+    "id": "ACT-006",
+    "timestamp": "2026-11-26T08:15:13.773Z",
+    "actor": "Registry Owner",
+    "category": "system",
+    "action": "Git commits synchronized",
+    "resourceType": "Settings",
+    "resourceId": "legacy-github",
+    "applicationId": null,
+    "description": "GitHub · PrivateStack-TownHall: 798 new commits, 94 branches, 128 PRs from 15 repositories; 1 failed; 0 reached the 500-commit limit."
+  },
+  {
+    "id": "ACT-007",
+    "timestamp": "2026-11-26T08:15:56.176Z",
+    "actor": "Registry Owner",
+    "category": "system",
+    "action": "Git commits synchronized",
+    "resourceType": "Settings",
+    "resourceId": "8455e2bc-54eb-4d90-b81c-b03cd353c411",
+    "applicationId": null,
+    "description": "vincent-guizot: 274 new commits, 38 branches, 32 PRs from 14 repositories; 2 failed; 0 reached the 500-commit limit."
+  },
+  {
+    "id": "ACT-008",
+    "timestamp": "2026-11-26T08:21:51.819Z",
+    "actor": "Registry Owner",
+    "category": "create",
+    "action": "Application created",
+    "resourceType": "Application",
+    "resourceId": "APP-041",
+    "applicationId": "APP-041",
+    "description": "Created application \"Terra Interface\" with 11 relationships."
+  },
+  {
+    "id": "ACT-009",
+    "timestamp": "2026-11-26T08:22:47.301Z",
+    "actor": "Registry Owner",
+    "category": "create",
+    "action": "Repository created",
+    "resourceType": "Repository",
+    "resourceId": "REPO-033",
+    "applicationId": null,
+    "description": "Created repository \"Terra Interface\" with 1 relationship."
+  },
+  {
+    "id": "ACT-010",
+    "timestamp": "2026-11-26T08:29:11.701Z",
+    "actor": "Registry Owner",
+    "category": "system",
+    "action": "Git commits synchronized",
+    "resourceType": "Settings",
+    "resourceId": "8455e2bc-54eb-4d90-b81c-b03cd353c411",
+    "applicationId": null,
+    "description": "vincent-guizot: 136 new commits, 62 branches, 63 PRs from 15 repositories; 2 failed; 0 reached the 500-commit limit."
+  },
+  {
+    "id": "ACT-011",
+    "timestamp": "2026-11-26T08:39:49.154Z",
+    "actor": "Registry Owner",
+    "category": "system",
+    "action": "Git commits synchronized",
+    "resourceType": "Settings",
+    "resourceId": "legacy-github",
+    "applicationId": null,
+    "description": "GitHub · PrivateStack-TownHall: 0 new commits, 94 branches, 128 PRs from 15 repositories; 1 failed; 0 reached the 500-commit limit."
+  },
+  {
+    "id": "ACT-012",
+    "timestamp": "2026-11-26T08:40:12.049Z",
+    "actor": "Registry Owner",
+    "category": "system",
+    "action": "Git commits synchronized",
+    "resourceType": "Settings",
+    "resourceId": "8455e2bc-54eb-4d90-b81c-b03cd353c411",
+    "applicationId": null,
+    "description": "vincent-guizot: 0 new commits, 62 branches, 63 PRs from 15 repositories; 2 failed; 0 reached the 500-commit limit."
+  },
+  {
+    "id": "ACT-013",
+    "timestamp": "2026-11-26T08:41:44.561Z",
+    "actor": "Registry Owner",
+    "category": "create",
+    "action": "Repository created",
+    "resourceType": "Repository",
+    "resourceId": "REPO-034",
+    "applicationId": null,
+    "description": "Created repository \"berry-fresh-ecosystem\"."
+  },
+  {
+    "id": "ACT-014",
+    "timestamp": "2026-11-26T08:41:53.629Z",
+    "actor": "Registry Owner",
+    "category": "system",
+    "action": "Repository synchronized",
+    "resourceType": "Repository",
+    "resourceId": "REPO-034",
+    "applicationId": null,
+    "description": "Synced berry-fresh-ecosystem from GitHub: 67 new commits, 3 branches, 12 PRs."
+  },
+  {
+    "id": "ACT-015",
+    "timestamp": "2026-11-26T08:43:26.890Z",
+    "actor": "Registry Owner",
+    "category": "create",
+    "action": "Application created",
+    "resourceType": "Application",
+    "resourceId": "APP-042",
+    "applicationId": "APP-042",
+    "description": "Created application \"Berry Fresh Ecosystem\" with 12 relationships."
+  },
+  {
+    "id": "ACT-016",
+    "timestamp": "2026-11-26T08:48:22.729Z",
+    "actor": "Registry Owner",
+    "category": "create",
+    "action": "Deployment created",
+    "resourceType": "Deployment",
+    "resourceId": "DEP-001",
+    "applicationId": "APP-001",
+    "description": "Created deployment \"Vincent Portfolio\"."
   }
 ]

@@ -190,5 +190,17 @@
     "applicationId": "APP-032",
     "repositoryId": "REPO-032",
     "role": "Frontend UI (UI-05, separate repository)"
+  },
+  {
+    "id": "AR-033",
+    "repositoryId": "REPO-033",
+    "applicationId": "APP-041",
+    "role": ""
+  },
+  {
+    "id": "AR-034",
+    "applicationId": "APP-042",
+    "repositoryId": "REPO-034",
+    "role": ""
   }
 ]

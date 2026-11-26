@@ -35,7 +35,9 @@
         "notes": "Repositories also live under vincent-guizot. Not connected: Git data is a recorded snapshot.",
         "id": "legacy-github",
         "provider": "github",
-        "name": "GitHub · PrivateStack-TownHall"
+        "name": "GitHub · PrivateStack-TownHall",
+        "lastSyncedAt": "2026-11-26T08:39:49.079Z",
+        "lastRepositoryCount": 15
       },
       {
         "id": "8455e2bc-54eb-4d90-b81c-b03cd353c411",
@@ -43,7 +45,9 @@
         "name": "vincent-guizot",
         "organization": "vincent-guizot",
         "apiBaseUrl": "https://api.github.com",
-        "notes": ""
+        "notes": "",
+        "lastSyncedAt": "2026-11-26T08:40:12.038Z",
+        "lastRepositoryCount": 15
       }
     ]
   }

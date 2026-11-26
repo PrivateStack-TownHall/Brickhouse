@@ -178,5 +178,17 @@
     "applicationId": "APP-032",
     "infrastructureId": "INF-002",
     "role": "Source control (GitHub)"
+  },
+  {
+    "id": "AI-031",
+    "applicationId": "APP-041",
+    "infrastructureId": "INF-002",
+    "role": ""
+  },
+  {
+    "id": "AI-032",
+    "applicationId": "APP-042",
+    "infrastructureId": "INF-002",
+    "role": ""
   }
 ]
