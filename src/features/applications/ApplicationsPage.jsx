@@ -45,7 +45,7 @@ export default function ApplicationsPage() {
 
   const columns = [
     { key: 'id', label: 'Application ID', render: (a) => <IdChip id={a.id} />, width: 120 },
-    { key: 'name', label: 'Application Name', render: (a) => <div className="d-flex align-items-center gap-2"><Avatar name={a.name} seed={a.id} size={34} /><div><Link to={`/applications/${a.id}`} className="cell-strong">{a.name}</Link><div className="text-subtle" style={{ fontSize: 12 }}>{a.code}</div></div></div> },
+    { key: 'name', label: 'Application Name', render: (a) => <div className="d-flex align-items-center gap-2"><Avatar name={a.name} seed={a.id} src={a.logoUrl} size={34} /><div><Link to={`/applications/${a.id}`} className="cell-strong">{a.name}</Link><div className="text-subtle" style={{ fontSize: 12 }}>{a.code}</div></div></div> },
     { key: 'company', label: 'Company', sortValue: (a) => byId(data, 'companies', a.ownerId)?.name, render: (a) => (byId(data, 'companies', a.ownerId) ? <span className="d-inline-flex align-items-center gap-1"><Building2 size={14} className="text-muted" />{byId(data, 'companies', a.ownerId).name}</span> : <span className="text-danger">Missing</span>) },
     { key: 'category', label: 'Category' },
     { key: 'type', label: 'Type' },
@@ -55,7 +55,7 @@ export default function ApplicationsPage() {
   ];
 
   const card = (a) => ({
-    title: a.name, id: a.id, to: `/applications/${a.id}`, subtitle: a.code, description: a.description, tags: a.tags,
+    title: a.name, id: a.id, to: `/applications/${a.id}`, avatarSrc: a.logoUrl, subtitle: a.code, description: a.description, tags: a.tags,
     status: <StatusBadge value={a.lifecycle} />,
     meta: [{ icon: Building2, text: byId(data, 'companies', a.ownerId)?.name }, { icon: Layers, text: a.type }, { icon: CalendarClock, text: `Updated ${fmt.friendly(a.updatedAt)}` }],
     actions: { viewTo: `/applications/${a.id}`, editTo: `/applications/${a.id}/edit`, onDelete: () => requestDelete('applications', a.id) },

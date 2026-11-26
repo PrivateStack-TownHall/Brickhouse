@@ -135,7 +135,7 @@ export default function ProgressReviewPage() {
   const projectColumns = [
     { key: 'rank', label: '#', sortable: false, width: 32, render: (p, i) => i + 1 },
     { key: 'project', label: 'Project', sortValue: (p) => p.application.name, render: (p) => (
-      <div className="d-flex align-items-center gap-2 min-w-0"><Avatar name={p.application.name} seed={p.application.id} size={26} />
+      <div className="d-flex align-items-center gap-2 min-w-0"><Avatar name={p.application.name} seed={p.application.id} src={p.application.logoUrl} size={26} />
         {p.application.id === '—' ? 'Unassigned' : <EntityLink entity="applications" record={p.application} className="bh-nowrap" />}</div>
     ) },
     { key: 'repository', label: 'Repository', sortable: false, render: (p) => (

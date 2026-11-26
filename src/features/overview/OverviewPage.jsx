@@ -88,7 +88,7 @@ export default function OverviewPage() {
 
   const columns = [
     { key: 'id', label: 'ID', render: (a) => <IdChip id={a.id} /> },
-    { key: 'name', label: 'Application', render: (a) => <div className="d-flex align-items-center gap-2"><Avatar name={a.name} seed={a.id} size={30} /><Link to={`/applications/${a.id}`} className="cell-strong" onClick={(e) => e.stopPropagation()}>{a.name}</Link></div> },
+    { key: 'name', label: 'Application', render: (a) => <div className="d-flex align-items-center gap-2"><Avatar name={a.name} seed={a.id} src={a.logoUrl} size={30} /><Link to={`/applications/${a.id}`} className="cell-strong" onClick={(e) => e.stopPropagation()}>{a.name}</Link></div> },
     { key: 'company', label: 'Company', render: (a) => <span className="d-inline-flex align-items-center gap-1 text-nowrap"><Building2 size={14} className="text-muted" />{companyOf(data, a)?.name || '—'}</span> },
     { key: 'lifecycle', label: 'Lifecycle', render: (a) => <StatusBadge value={a.lifecycle} /> },
     { key: 'updatedAt', label: 'Updated', render: (a) => <span className="text-nowrap">{fmt.friendly(a.updatedAt)}</span> },

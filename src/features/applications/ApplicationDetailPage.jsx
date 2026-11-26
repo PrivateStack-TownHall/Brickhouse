@@ -24,6 +24,7 @@ import {
 import { removeLink } from '../../services/registry.service';
 import NotFoundPage from '../overview/NotFoundPage';
 import AccessBadge from '../../components/badges/AccessBadge';
+import { appLogoSrc } from '../../assets/logos';
 
 export const ExtLink = ({ href }) => (href ? <a href={href} target="_blank" rel="noreferrer" className="d-inline-flex align-items-center gap-1">{href}<ExternalLink size={12} /></a> : null);
 
@@ -62,7 +63,7 @@ export default function ApplicationDetailPage() {
   return (
     <>
       <PageHeader title={app.name}
-        avatar={<Avatar name={app.name} seed={app.id} size={48} />}
+        avatar={<Avatar name={app.name} seed={app.id} src={app.logoUrl} size={48} />}
         meta={<div className="d-flex gap-2 align-items-center flex-wrap"><span className="bh-id">{app.id}</span><StatusBadge value={app.lifecycle} /><span className="bh-chip">{app.code}</span></div>}
         description={app.description}
         actions={(
@@ -116,10 +117,13 @@ export default function ApplicationDetailPage() {
               <div className="col-xl-5 d-flex flex-column gap-4">
                 <RelationshipCard entity="components" icon={Boxes} title="Components" subtitle="Components whose parent is this application"
                   action={<Link to={`/components/new?application=${id}`} className="btn btn-ghost btn-sm"><Plus size={14} />Add</Link>}
-                  items={components.map((c) => ({ entity: 'components', record: c, meta: `${c.layer} · ${c.type}`, badge: <StatusBadge value={c.lifecycle} /> }))} />
+                  items={components.map((c) => ({ entity: 'components', record: c, avatarSrc: appLogoSrc(app), meta: `${c.layer} · ${c.type}`, badge: <StatusBadge value={c.lifecycle} /> }))} />
                 {shared.length > 0 && (
                   <RelationshipCard entity="components" icon={Boxes} title="Shared components used" subtitle="Owned by other applications"
-                    items={shared.map(({ link, record }) => ({ key: link.id, entity: 'components', record, meta: byId(data, 'applications', record.applicationId)?.name, onUnlink: () => unlink('applicationComponents', link.id) }))} />
+                    items={shared.map(({ link, record }) => {
+                      const parentApp = byId(data, 'applications', record.applicationId);
+                      return { key: link.id, entity: 'components', record, avatarSrc: appLogoSrc(parentApp), meta: parentApp?.name, onUnlink: () => unlink('applicationComponents', link.id) };
+                    })} />
                 )}
               </div>
             </div>
@@ -128,7 +132,7 @@ export default function ApplicationDetailPage() {
           {tab === 'repositories' && (
             <RelationshipCard entity="repositories" icon={GitBranch} title="Repositories" subtitle="Linked directly or through this application's components" columns={2}
               items={repos.map((r) => ({
-                key: r.record.id, entity: 'repositories', record: r.record, meta: `${r.record.provider} · ${r.role || r.record.type} · via ${r.source}`,
+                key: r.record.id, entity: 'repositories', record: r.record, avatarSrc: appLogoSrc(app), meta: `${r.record.provider} · ${r.role || r.record.type} · via ${r.source}`,
                 badge: r.record.accessStatus === 'inaccessible' ? <AccessBadge value="inaccessible" /> : <StatusBadge value={r.record.visibility} />,
                 onUnlink: r.linkId ? () => unlink('applicationRepositories', r.linkId) : undefined,
               }))} />
@@ -155,7 +159,7 @@ export default function ApplicationDetailPage() {
                 </div>
               </div>
               <DataTable rowKey={(r) => `${r.record.id}-${r.source}-${r.role}`} rows={techs} pageSize={15} columns={[
-                { key: 'name', label: 'Technology', sortValue: (r) => r.record.name, render: (r) => <div className="d-flex align-items-center gap-2"><Avatar name={r.record.name} seed={r.record.id} size={24} /><EntityLink entity="technologies" record={r.record} /></div> },
+                { key: 'name', label: 'Technology', sortValue: (r) => r.record.name, render: (r) => <div className="d-flex align-items-center gap-2"><Avatar name={r.record.name} seed={r.record.id} src={r.record.logoUrl} size={24} /><EntityLink entity="technologies" record={r.record} /></div> },
                 { key: 'category', label: 'Category', sortValue: (r) => r.record.category, render: (r) => r.record.category },
                 { key: 'role', label: 'Role' },
                 { key: 'version', label: 'Version', render: (r) => r.version || '—' },
