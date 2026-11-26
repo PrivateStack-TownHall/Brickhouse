@@ -1,8 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import {
   Code2, GitBranch, GitPullRequest, GitMerge, Clock3, Users, FlaskConical, BarChart3, FolderGit2, User, ListTree, Info,
-  ExternalLink, Layers, Github, PieChart, Target, Trophy, GitCommitHorizontal, CalendarDays, AppWindow,
+  ExternalLink, Layers, Github, PieChart, Target, Trophy, GitCommitHorizontal, CalendarDays, AppWindow, RefreshCw,
 } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
 import StatCard from '../../components/common/StatCard';
@@ -27,7 +27,16 @@ import GitSourceBadge from '../../components/badges/GitSourceBadge';
 import { seriesColor } from '../../components/charts/palette';
 import { useRegistry } from '../../hooks/useRegistry';
 import { useFormat } from '../../hooks/useFormat';
+import { useToast } from '../../hooks/useToast';
+import { useNotifications } from '../../hooks/useNotifications';
 import { PERIODS, buildGitData, summarizeGit, byApplication, bucketKey } from '../../services/git-analytics.service';
+import {
+  integrationConnections,
+  matchingRepositories,
+  fetchServerTokenStatus,
+  fetchIntegrationFullSync,
+  applyIntegrationSync,
+} from '../../services/git-integrations.service';
 import { applicationsOfRepo } from '../../services/query.service';
 import { applicationOptions } from '../../utils/options';
 import { shortMonth, titleCase } from '../../helpers';
@@ -45,8 +54,10 @@ const PR_COLORS = { open: 'var(--bh-info)', merged: 'var(--bh-success)', closed:
 const BRANCH_KINDS = ['main', 'develop', 'feature', 'fix', 'release', 'chore'];
 
 export default function ProgressReviewPage() {
-  const { data } = useRegistry();
+  const { data, run } = useRegistry();
   const fmt = useFormat();
+  const toast = useToast();
+  const { notify } = useNotifications();
   const [section, setSection] = useState('overview');
   const [periodKey, setPeriodKey] = useState('30d');
   const period = PERIODS.find((p) => p.key === periodKey);
@@ -54,6 +65,77 @@ export default function ProgressReviewPage() {
   const [appId, setAppId] = useState('');
   const [prSearch, setPrSearch] = useState('');
   const [branchSearch, setBranchSearch] = useState('');
+  const [syncing, setSyncing] = useState(false);
+  const syncController = useRef(null);
+
+  useEffect(() => () => syncController.current?.abort(), []);
+
+  const handleSyncAll = async () => {
+    if (syncController.current) return;
+    const allConnections = integrationConnections(data.settings.integrations);
+    const activeConnections = allConnections.filter((c) => matchingRepositories(data.repositories, c).length > 0);
+    if (!activeConnections.length) {
+      toast('No integrations match registered repositories. Configure one in Settings → Integrations.', 'error');
+      return;
+    }
+
+    const request = new AbortController();
+    syncController.current = request;
+    setSyncing(true);
+
+    try {
+      const envStatus = await fetchServerTokenStatus(activeConnections);
+      let totalRepos = 0;
+      let totalAdded = 0;
+      let totalBranches = 0;
+      let totalPrs = 0;
+      let totalFailures = 0;
+      let rateLimited = false;
+
+      for (const conn of activeConnections) {
+        request.signal.throwIfAborted();
+        const useServerToken = Boolean(envStatus.statuses?.[conn.id]?.configured);
+        const result = await fetchIntegrationFullSync(conn, data.repositories, '', { signal: request.signal, useServerToken });
+        request.signal.throwIfAborted();
+        if (result.successes.length) {
+          const saved = run(applyIntegrationSync, conn, result);
+          totalRepos += saved.repositories || 0;
+          totalAdded += saved.added || 0;
+          totalBranches += saved.branches || 0;
+          totalPrs += saved.prs || 0;
+        }
+        totalFailures += result.failures.length;
+        if (result.rateLimited) {
+          rateLimited = true;
+          break;
+        }
+      }
+
+      const failedAll = totalRepos === 0 && totalFailures > 0;
+      const msg = rateLimited
+        ? `Synced ${totalRepos} repositories (${totalAdded} new commits). GitHub rate limit reached — check .env PAT.`
+        : failedAll
+          ? `Sync failed for all ${totalFailures} repositories.`
+          : `Synced ${totalRepos} repositories · ${totalAdded} new commits · ${totalBranches} branches · ${totalPrs} PRs${totalFailures ? ` (${totalFailures} failed)` : ''}.`;
+
+      toast(msg, totalFailures ? 'error' : 'success', { skipNotification: true });
+      notify({
+        kind: 'sync',
+        tone: failedAll ? 'danger' : totalFailures ? 'warning' : 'success',
+        title: failedAll ? 'Git sync failed' : 'Git sync completed',
+        message: msg,
+        to: '/progress',
+      });
+    } catch (e) {
+      if (!request.signal.aborted) {
+        toast(e.message, 'error', { skipNotification: true });
+        notify({ kind: 'sync', tone: 'danger', title: 'Git sync failed', message: e.message, to: '/progress' });
+      }
+    } finally {
+      syncController.current = null;
+      setSyncing(false);
+    }
+  };
 
   const git = useMemo(() => buildGitData(data), [data]);
   const source = git.source;
@@ -259,6 +341,20 @@ export default function ProgressReviewPage() {
     </SectionCard>
   );
 
+  const syncButtons = (
+    <div className="d-flex align-items-center gap-2 flex-shrink-0 ms-auto">
+      <button type="button" className="btn btn-secondary btn-sm d-inline-flex align-items-center gap-1" disabled={syncing} onClick={handleSyncAll}>
+        <RefreshCw size={14} className={syncing ? 'bh-spin' : ''} />
+        {syncing ? 'Syncing…' : 'Sync now'}
+      </button>
+      {syncing && (
+        <button type="button" className="btn btn-ghost btn-sm" onClick={() => syncController.current?.abort()}>
+          Cancel
+        </button>
+      )}
+    </div>
+  );
+
   return (
     <>
       <PageHeader title="Progress & Review" description="Monitor development progress, commit activity, branches, and pull requests across all projects."
@@ -272,14 +368,20 @@ export default function ProgressReviewPage() {
           </>
         )} />
       {source.kind === 'sample' ? (
-        <div className="bh-sample-banner mb-4">
-          <FlaskConical size={18} color="var(--bh-warning)" className="flex-shrink-0 mt-1" />
-          <div><strong>{source.label}.</strong> {source.description} <Link to="/settings?section=integrations">Settings → Integrations</Link></div>
+        <div className="bh-sample-banner mb-4 align-items-center justify-content-between flex-wrap">
+          <div className="d-flex align-items-start gap-2 flex-grow-1 min-w-0">
+            <FlaskConical size={18} color="var(--bh-warning)" className="flex-shrink-0 mt-1" />
+            <div><strong>{source.label}.</strong> {source.description} <Link to="/settings?section=integrations">Settings → Integrations</Link></div>
+          </div>
+          {syncButtons}
         </div>
       ) : (
-        <div className="bh-sample-banner mb-4" style={{ background: 'var(--bh-info-soft)', borderColor: 'rgba(47,111,178,.3)' }}>
-          <Info size={18} color="var(--bh-info)" className="flex-shrink-0 mt-1" />
-          <div><strong>{source.label}.</strong> {source.description} <Link to="/settings?section=integrations">Sync commits in Settings → Integrations</Link>.</div>
+        <div className="bh-sample-banner mb-4 align-items-center justify-content-between flex-wrap" style={{ background: 'var(--bh-info-soft)', borderColor: 'rgba(47,111,178,.3)' }}>
+          <div className="d-flex align-items-start gap-2 flex-grow-1 min-w-0">
+            <Info size={18} color="var(--bh-info)" className="flex-shrink-0 mt-1" />
+            <div><strong>{source.label}.</strong> {source.description} <Link to="/settings?section=integrations">Sync commits in Settings → Integrations</Link>.</div>
+          </div>
+          {syncButtons}
         </div>
       )}
       <div className="mb-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 168px), 1fr))', gap: 14 }}>

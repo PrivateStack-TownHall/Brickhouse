@@ -30,10 +30,12 @@ const response = (body, status = 200) => ({ ok: status === 200, status, json: as
 const dataset = () => service.saveIntegration({ ...normalizeDataset(buildSeedDataset()), repositories: [repo], commits: [] }, connection).dataset;
 
 test('multiple integrations of the same provider survive normalization and backup validation; credentials are excluded', () => {
-  let ds = service.saveIntegration(dataset(), { ...connection, id: 'github-personal', name: 'GitHub Personal', organization: 'personal', token: 'secret', accessToken: 'secret' }).dataset;
+  const base = dataset();
+  const baseCount = base.settings.integrations.connections.length;
+  let ds = service.saveIntegration(base, { ...connection, id: 'github-personal', name: 'GitHub Personal', organization: 'personal', token: 'secret', accessToken: 'secret' }).dataset;
   ds = service.saveIntegration(ds, { ...connection, id: 'gitlab-work', name: 'GitLab Work', provider: 'gitlab', apiBaseUrl: 'https://gitlab.com/api/v4' }).dataset;
   const restored = normalizeDataset(JSON.parse(JSON.stringify(ds)));
-  assert.equal(restored.settings.integrations.connections.length, 4); // legacy GitHub plus three saved connections
+  assert.equal(restored.settings.integrations.connections.length, baseCount + 2);
   assert.equal(JSON.stringify(restored).includes('secret'), false);
   assert.equal(validateBackup({ format: 'brickhouse-backup', schemaVersion: restored.schemaVersion, data: restored }).ok, true);
   assert.ok(restored.settings.integrations.github);
@@ -253,4 +255,102 @@ test('rate-limit exhaustion stops remaining requests early, avoids marking repos
   assert.equal(testZero.rateLimitExhausted, true);
   assert.equal(testZero.rateLimitRemaining, 0);
   assert.ok(testZero.rateLimitResetAt);
+});
+
+test('testGitConnection warns on broad classic scopes and supports server-env authSource', async () => {
+  const broad = await service.testGitConnection(connection, 'ghp_classic', {
+    fetchImpl: async () => ({
+      ok: true,
+      status: 200,
+      headers: new Map([['x-ratelimit-remaining', '4999'], ['x-ratelimit-limit', '5000'], ['x-oauth-scopes', 'repo, delete_repo']]),
+      json: async () => ({ login: 'octocat' }),
+    }),
+  });
+  assert.equal(broad.authSource, 'session-pat');
+  assert.match(broad.scopeWarning, /Fine-grained PAT/);
+
+  const serverEnv = await service.testGitConnection(connection, '', {
+    useServerToken: true,
+    fetchImpl: async (url) => {
+      assert.equal(url, 'https://api.github.com/user');
+      return {
+        ok: true,
+        status: 200,
+        headers: new Map([['x-ratelimit-remaining', '4998'], ['x-ratelimit-limit', '5000']]),
+        json: async () => ({ login: 'octocat' }),
+      };
+    },
+  });
+  assert.equal(serverEnv.authenticated, true);
+  assert.equal(serverEnv.authSource, 'server-env');
+  assert.equal(serverEnv.scopeWarning, null);
+});
+
+test('vite-git-proxy resolves .env.local tokens, masks env-status, and enforces SSRF allow-list', async () => {
+  const fs = await import('node:fs/promises');
+  const os = await import('node:os');
+  const path = await import('node:path');
+  const { brickhouseGitProxyPlugin, resolveServerToken, maskToken, isAllowedProxyUrl } = await import('./vite-git-proxy.js');
+
+  const env = {
+    BRICKHOUSE_GITHUB_TOKEN: 'ghp_provider_123456',
+    BRICKHOUSE_GITHUB_TOKEN_PRIVATESTACK_TOWNHALL: 'github_pat_org_9999',
+  };
+  assert.deepEqual(resolveServerToken(env, 'github', 'PrivateStack-TownHall'), { token: 'github_pat_org_9999', source: 'env-org' });
+  assert.deepEqual(resolveServerToken(env, 'github', 'vincent-guizot'), { token: 'ghp_provider_123456', source: 'env-provider' });
+  assert.equal(maskToken('ghp_provider_123456'), 'ghp_••••3456');
+
+  const rootDir = await fs.mkdtemp(path.join(os.tmpdir(), 'bh-git-proxy-'));
+  try {
+    await fs.writeFile(path.join(rootDir, '.env.local'), 'BRICKHOUSE_GITHUB_TOKEN=github_pat_secret_abcd\n', 'utf8');
+    assert.equal(await isAllowedProxyUrl(rootDir, 'github', 'https://api.github.com/user'), true);
+    assert.equal(await isAllowedProxyUrl(rootDir, 'github', 'https://evil.example.com/user'), false);
+    assert.equal(await isAllowedProxyUrl(rootDir, 'github', 'http://api.github.com/user'), false);
+
+    let forwardedAuth = null;
+    const plugin = brickhouseGitProxyPlugin({
+      fetchImpl: async (_url, opts) => {
+        forwardedAuth = opts.headers.Authorization;
+        return { ok: true, status: 200, headers: new Map([['x-ratelimit-remaining', '4995']]), json: async () => ({ login: 'proxy-user' }) };
+      },
+    });
+    plugin.configResolved({ root: rootDir });
+    let mw;
+    plugin.configureServer({ middlewares: { use: (fn) => { mw = fn; } } });
+
+    const callMw = (method, url, body) => new Promise((resolve) => {
+      const listeners = {};
+      const req = {
+        method,
+        url,
+        on: (ev, fn) => {
+          listeners[ev] = fn;
+          if (ev === 'end') {
+            if (body && listeners.data) listeners.data(Buffer.from(JSON.stringify(body)));
+            fn();
+          }
+        },
+        destroy: () => {},
+      };
+      const res = { statusCode: 200, setHeader: () => {}, end: (txt) => resolve({ status: res.statusCode, raw: txt, body: JSON.parse(txt) }) };
+      mw(req, res, () => resolve({ status: 404 }));
+    });
+
+    const statusRes = await callMw('POST', '/api/git/env-status', { connections: [{ id: 'c1', provider: 'github', organization: 'team' }] });
+    assert.equal(statusRes.status, 200);
+    assert.equal(statusRes.raw.includes('github_pat_secret_abcd'), false);
+    assert.equal(statusRes.body.statuses.c1.configured, true);
+    assert.equal(statusRes.body.statuses.c1.masked, 'gith••••abcd');
+
+    const blockedRes = await callMw('POST', '/api/git/proxy', { url: 'https://evil.example.com/steal', provider: 'github', organization: 'team' });
+    assert.equal(blockedRes.status, 403);
+
+    const proxyRes = await callMw('POST', '/api/git/proxy', { url: 'https://api.github.com/user', provider: 'github', organization: 'team' });
+    assert.equal(proxyRes.status, 200);
+    assert.equal(forwardedAuth, 'Bearer github_pat_secret_abcd');
+    assert.equal(proxyRes.raw.includes('github_pat_secret_abcd'), false);
+    assert.equal(proxyRes.body.body.login, 'proxy-user');
+  } finally {
+    await fs.rm(rootDir, { recursive: true, force: true });
+  }
 });

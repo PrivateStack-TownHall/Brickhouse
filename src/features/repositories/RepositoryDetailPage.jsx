@@ -14,7 +14,7 @@ import { useDeleteRecord } from '../../hooks/useDeleteRecord';
 import { linked, applicationOfComponent, applicationsOfRepo } from '../../services/query.service';
 import { removeLink } from '../../services/registry.service';
 import { buildGitData, summarizeGit } from '../../services/git-analytics.service';
-import { integrationConnections, syncSingleGitHubRepo, applySingleRepoSync } from '../../services/git-integrations.service';
+import { integrationConnections, fetchServerTokenStatus, syncSingleGitHubRepo, applySingleRepoSync } from '../../services/git-integrations.service';
 import GitSourceBadge from '../../components/badges/GitSourceBadge';
 import { ExtLink } from '../applications/ApplicationDetailPage';
 import AccessBadge from '../../components/badges/AccessBadge';
@@ -79,14 +79,11 @@ export default function RepositoryDetailPage() {
     setSyncing(true);
     try {
       const connections = integrationConnections(data.settings.integrations);
-      let token = '';
-      try {
-        const matched = connections.find((c) => c.provider === 'github' && repo.url.toLowerCase().includes(c.organization.toLowerCase()));
-        if (matched) token = sessionStorage.getItem(`bh_token_${matched.id}`) || '';
-      } catch {
-        // sessionStorage unavailable
-      }
-      const { sync } = await syncSingleGitHubRepo(repo, connections, token);
+      const matched = connections.find((c) => c.provider === 'github' && repo.url.toLowerCase().includes(c.organization.toLowerCase()));
+      const probeConn = matched || { id: 'direct-github-sync', provider: 'github', organization: new URL(repo.url).pathname.split('/').filter(Boolean)[0] || '' };
+      const status = await fetchServerTokenStatus([probeConn]);
+      const useServerToken = Boolean(status.statuses?.[probeConn.id]?.configured);
+      const { sync } = await syncSingleGitHubRepo(repo, connections, '', { useServerToken });
       const res = run(applySingleRepoSync, repo, sync);
       if (res.inaccessible) {
         const msg = res.error || 'Repository inaccessible (404/403). Add a GitHub token in Settings -> Integrations.';

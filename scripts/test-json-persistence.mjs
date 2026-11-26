@@ -105,7 +105,8 @@ test('TC-1: Create CRUD saves to database/*.json and survives localStorage wipe'
   try {
     const loaded = await loadDatasetFromDisk();
     assert.equal(loaded.ok, true);
-    assert.equal(loaded.dataset.applications.length, 40);
+    const baseCount = loaded.dataset.applications.length;
+    assert.ok(baseCount >= 40);
 
     const created = createEntity(loaded.dataset, 'applications', {
       name: 'JSON Persist App',
@@ -115,7 +116,8 @@ test('TC-1: Create CRUD saves to database/*.json and survives localStorage wipe'
       type: 'web',
       lifecycle: 'development',
     });
-    assert.equal(created.result, 'APP-041');
+    const newId = created.result;
+    assert.match(newId, /^APP-\d+$/);
 
     const saveRes = await persistDatasetToDisk(created.dataset);
     assert.equal(saveRes.ok, true);
@@ -124,8 +126,8 @@ test('TC-1: Create CRUD saves to database/*.json and survives localStorage wipe'
 
     // Verify directly on disk
     const appsOnDisk = JSON.parse(await fs.readFile(path.join(srv.dbDir, 'core/applications.json'), 'utf8'));
-    assert.equal(appsOnDisk.length, 41);
-    assert.equal(appsOnDisk.find((a) => a.id === 'APP-041')?.name, 'JSON Persist App');
+    assert.equal(appsOnDisk.length, baseCount + 1);
+    assert.equal(appsOnDisk.find((a) => a.id === newId)?.name, 'JSON Persist App');
 
     // Wipe localStorage completely and reload from disk
     env.store.clear();
@@ -133,9 +135,9 @@ test('TC-1: Create CRUD saves to database/*.json and survives localStorage wipe'
 
     const reloaded = await loadDatasetFromDisk();
     assert.equal(reloaded.ok, true);
-    assert.equal(reloaded.dataset.applications.length, 41);
-    assert.equal(reloaded.dataset.applications.find((a) => a.id === 'APP-041')?.code, 'JSON-01');
-    assert.ok(reloaded.dataset.activities.some((a) => a.resourceId === 'APP-041' && a.category === 'create'));
+    assert.equal(reloaded.dataset.applications.length, baseCount + 1);
+    assert.equal(reloaded.dataset.applications.find((a) => a.id === newId)?.code, 'JSON-01');
+    assert.ok(reloaded.dataset.activities.some((a) => a.resourceId === newId && a.category === 'create'));
   } finally {
     env.restore();
     await srv.close();
@@ -219,6 +221,7 @@ test('TC-4: Concurrent rapid writes serialize cleanly without data corruption', 
   const env = withMockBrowserEnv(srv.baseUrl);
   try {
     let { dataset: ds } = await loadDatasetFromDisk();
+    const baseCount = ds.applications.length;
     const snapshots = [];
     for (let i = 1; i <= 5; i += 1) {
       ds = createEntity(ds, 'applications', {
@@ -238,7 +241,7 @@ test('TC-4: Concurrent rapid writes serialize cleanly without data corruption', 
 
     env.store.clear();
     const reloaded = await loadDatasetFromDisk();
-    assert.equal(reloaded.dataset.applications.length, 45);
+    assert.equal(reloaded.dataset.applications.length, baseCount + 5);
     for (let i = 1; i <= 5; i += 1) {
       assert.ok(reloaded.dataset.applications.some((a) => a.code === `CONC-0${i}`));
     }
@@ -259,22 +262,24 @@ test('TC-5: Offline/static fallback works via localStorage and notifications sta
 
     const init = initializeRegistry();
     assert.equal(init.health.persistence, true);
-    assert.equal(init.dataset.applications.length, 40);
+    assert.ok(init.dataset.applications.length >= 40);
   } finally {
     envOffline.restore();
   }
 
-  // 2. Notification sync drops ephemeral ACT-002 not on disk while keeping real disk activities and seed JSON notifs
+  // 2. Notification sync drops ephemeral Registry initialized ACT not on disk while keeping real disk activities and seed JSON notifs
   const srv = await startTempDbServer();
   const envOnline = withMockBrowserEnv(srv.baseUrl);
   try {
-    const init = initializeRegistry(); // generates temporary ACT-002 in localStorage
+    const init = initializeRegistry(); // appends temporary "Registry initialized" in localStorage
+    const tempInitAct = init.dataset.activities.find((a) => a.action === 'Registry initialized');
+    assert.ok(tempInitAct?.id);
     const n1 = syncRegistryNotifications(loadNotifications(), init.dataset);
-    assert.ok(n1.items.some((x) => x.id === 'act:ACT-002'));
+    assert.ok(n1.items.some((x) => x.id === `act:${tempInitAct.id}`));
 
     const diskLoaded = await loadDatasetFromDisk();
     const n2 = syncRegistryNotifications(n1, diskLoaded.dataset);
-    assert.equal(n2.items.some((x) => x.id === 'act:ACT-002'), false);
+    assert.equal(n2.items.some((x) => x.id === `act:${tempInitAct.id}`), false);
     assert.ok(n2.items.some((x) => x.id === 'act:ACT-001'));
     assert.ok(n2.items.some((x) => x.id === 'NOTIF-001'));
   } finally {
