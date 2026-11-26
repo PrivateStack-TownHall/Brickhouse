@@ -10,6 +10,7 @@ import FormTextarea from '../../components/forms/FormTextarea';
 import Modal from '../../components/dialogs/Modal';
 import ConfirmDialog from '../../components/dialogs/ConfirmDialog';
 import { useRegistry } from '../../hooks/useRegistry';
+import { useNotifications } from '../../hooks/useNotifications';
 import { useToast } from '../../hooks/useToast';
 import { useFormat } from '../../hooks/useFormat';
 import {
@@ -46,6 +47,7 @@ function loadSavedTokens() {
 export default function Integrations() {
   const { data, run } = useRegistry();
   const toast = useToast();
+  const { notify } = useNotifications();
   const fmt = useFormat();
   const connections = integrationConnections(data.settings.integrations);
   const [editing, setEditing] = useState(null);
@@ -134,9 +136,27 @@ export default function Integrations() {
         : { added: 0, repositories: 0, branches: 0, prs: 0 };
       setReports((previous) => ({ ...previous, [connection.id]: { ...result, ...saved } }));
       const extraInfo = connection.provider === 'github' ? ` · ${saved.branches || 0} branches · ${saved.prs || 0} PRs` : '';
-      toast(`${saved.repositories} repositories synced; ${saved.added} new commits${extraInfo}.${result.failures.length ? ` ${result.failures.length} failed — see details.` : ''}`, result.failures.length ? 'error' : 'success');
+      const summaryMsg = `${saved.repositories} repositories synced; ${saved.added} new commits${extraInfo}.${result.failures.length ? ` ${result.failures.length} failed — see details.` : ''}`;
+      toast(summaryMsg, result.failures.length ? 'error' : 'success', { skipNotification: true });
+      notify({
+        kind: 'sync',
+        tone: result.failures.length ? 'warning' : 'success',
+        title: `Git sync · ${connection.name}`,
+        message: summaryMsg,
+        to: '/settings',
+      });
     } catch (e) {
-      if (!request.signal.aborted) setReports((previous) => ({ ...previous, [connection.id]: { error: e.message } }));
+      if (!request.signal.aborted) {
+        setReports((previous) => ({ ...previous, [connection.id]: { error: e.message } }));
+        notify({
+          kind: 'sync',
+          tone: 'danger',
+          title: `Git sync failed · ${connection.name}`,
+          message: e.message,
+          to: '/settings',
+        });
+        toast(e.message, 'error', { skipNotification: true });
+      }
     } finally {
       controller.current = null;
       setBusy(null);
