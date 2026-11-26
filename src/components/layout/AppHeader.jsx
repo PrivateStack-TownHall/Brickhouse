@@ -1,11 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Bell, Menu, Database, ShieldCheck, AlertTriangle, Compass, ExternalLink } from 'lucide-react';
+import {
+  Bell, Menu, Database, CheckCheck, AlertTriangle, Compass, ExternalLink,
+  RefreshCw, Rocket, Activity, Settings, X,
+} from 'lucide-react';
 import Breadcrumb from './Breadcrumb';
 import GlobalSearch from './GlobalSearch';
 import { useRegistry } from '../../hooks/useRegistry';
-import { validateDataset } from '../../services/validation.service';
+import { useNotifications } from '../../hooks/useNotifications';
+import { useFormat } from '../../hooks/useFormat';
 
 function useOutside(onClose) {
   const ref = useRef(null);
@@ -17,19 +21,33 @@ function useOutside(onClose) {
   return ref;
 }
 
+const KIND_ICON = {
+  sync: RefreshCw,
+  deployment: Rocket,
+  error: AlertTriangle,
+  activity: Activity,
+};
+
 export default function AppHeader({ onMenu }) {
-  const { data, health } = useRegistry();
+  const { data } = useRegistry();
+  const { notifications, unreadCount, markRead, markAllRead, removeNotification, clearNotifications } = useNotifications();
+  const fmt = useFormat();
+  const navigate = useNavigate();
   const [menu, setMenu] = useState(null);
+  const [tab, setTab] = useState('all');
   const close = () => setMenu(null);
   const notifRef = useOutside(close);
-  const issues = useMemo(() => validateDataset(data), [data]);
-  const notes = [
-    ...(!health.persistence || health.status === 'error' ? [{ key: 'storage', tone: 'danger', text: health.message }] : []),
-    ...issues.filter((i) => i.severity === 'error').slice(0, 5).map((i, n) => ({ key: `i${n}`, tone: 'danger', text: i.message })),
-    ...(() => { const n = data.repositories.filter((r) => r.accessStatus === 'inaccessible').length; return n ? [{ key: 'access', tone: 'warning', text: `${n} repositor${n === 1 ? 'y is' : 'ies are'} inaccessible (404) — see Repositories → Access Issues.` }] : []; })(),
-    ...(!data.meta?.lastBackupAt ? [{ key: 'backup', tone: 'warning', text: 'No backup has been exported yet.' }] : []),
-  ];
+  const visibleNotes = useMemo(
+    () => (tab === 'unread' ? notifications.filter((n) => !n.read) : notifications),
+    [notifications, tab],
+  );
   const lighthouseUrl = data.settings?.general?.lighthouseUrl || 'http://localhost:5174';
+
+  const onOpenNote = (n) => {
+    markRead(n.id);
+    close();
+    if (n.to) navigate(n.to);
+  };
 
   return (
     <header className="bh-header">
@@ -39,25 +57,91 @@ export default function AppHeader({ onMenu }) {
         <GlobalSearch />
       </div>
       <div className="position-relative" ref={notifRef}>
-        <button type="button" className="bh-icon-btn" aria-label={`Notifications (${notes.length})`} onClick={() => setMenu(menu === 'n' ? null : 'n')}>
-          <Bell size={18} />{notes.length > 0 && <span className="bh-dot" />}
+        <button type="button" className="bh-icon-btn" aria-label={`Notifications (${unreadCount} unread)`} onClick={() => setMenu(menu === 'n' ? null : 'n')}>
+          <Bell size={18} />
+          {unreadCount > 0 && <span className="bh-notif-badge">{unreadCount > 9 ? '9+' : unreadCount}</span>}
         </button>
         <AnimatePresence>
           {menu === 'n' && (
             <motion.div
-              className="bh-dropdown"
-              style={{ width: 340 }}
+              className="bh-dropdown bh-notif-menu"
               initial={{ opacity: 0, scale: 0.95, y: -4 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: -4 }}
               transition={{ duration: 0.15, ease: 'easeOut' }}
             >
-              <div className="small-caps px-2 py-1">Registry notifications</div>
-              {notes.length === 0 && <div className="d-flex gap-2 p-2 small"><ShieldCheck size={16} color="var(--bh-success)" />All integrity checks pass.</div>}
-              {notes.map((n) => (
-                <div key={n.key} className="d-flex gap-2 p-2 small"><AlertTriangle size={16} className="flex-shrink-0" color={`var(--bh-${n.tone})`} />{n.text}</div>
-              ))}
-              <Link to="/data" className="bh-dropdown-item mt-1" onClick={close}><Database size={16} />Open Data Management</Link>
+              <div className="bh-notif-head">
+                <div className="d-flex align-items-center gap-2">
+                  <span className="fw-bold" style={{ fontSize: 13.5 }}>Notifications</span>
+                  {unreadCount > 0 && <span className="bh-chip">{unreadCount} unread</span>}
+                </div>
+                <div className="d-flex align-items-center gap-1">
+                  {unreadCount > 0 && (
+                    <button type="button" className="btn btn-ghost btn-sm py-1 px-2" style={{ fontSize: 12 }} onClick={markAllRead}>
+                      <CheckCheck size={13} /> Mark all read
+                    </button>
+                  )}
+                  {notifications.length > 0 && (
+                    <button type="button" className="btn btn-ghost btn-sm py-1 px-2 text-muted" style={{ fontSize: 12 }} onClick={() => clearNotifications('all')}>
+                      Clear
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <div className="bh-notif-tabs">
+                <button type="button" className={`bh-notif-tab ${tab === 'all' ? 'active' : ''}`} onClick={() => setTab('all')}>
+                  All ({notifications.length})
+                </button>
+                <button type="button" className={`bh-notif-tab ${tab === 'unread' ? 'active' : ''}`} onClick={() => setTab('unread')}>
+                  Unread ({unreadCount})
+                </button>
+              </div>
+
+              <div className="bh-notif-list">
+                {visibleNotes.length === 0 ? (
+                  <div className="bh-notif-empty">
+                    <CheckCheck size={20} color="var(--bh-success)" />
+                    <div className="fw-semibold">{tab === 'unread' ? "You're all caught up" : 'No notifications yet'}</div>
+                    <div className="text-subtle">Git syncs, failed deployments, errors, and key registry updates appear here.</div>
+                  </div>
+                ) : (
+                  visibleNotes.map((n) => {
+                    const Icon = KIND_ICON[n.kind] || Activity;
+                    return (
+                      <div key={n.id} className={`bh-notif-item ${!n.read ? 'unread' : ''}`}>
+                        <button type="button" className="bh-notif-btn" onClick={() => onOpenNote(n)}>
+                          <span className={`bh-notif-icon bh-tone-${n.tone || 'info'}`}>
+                            <Icon size={15} />
+                          </span>
+                          <span className="flex-grow-1 min-w-0 text-start">
+                            <span className="d-flex align-items-center justify-content-between gap-2">
+                              <span className="bh-notif-title text-truncate">{n.title}</span>
+                              <span className="text-subtle text-nowrap" style={{ fontSize: 11 }}>{fmt.relative(n.createdAt)}</span>
+                            </span>
+                            {n.message && <span className="bh-notif-msg text-truncate-2">{n.message}</span>}
+                          </span>
+                          {!n.read && <span className="bh-notif-unread-dot" aria-label="Unread" />}
+                        </button>
+                        <button
+                          type="button"
+                          className="bh-notif-remove"
+                          aria-label={`Dismiss ${n.title}`}
+                          title="Dismiss"
+                          onClick={(e) => { e.stopPropagation(); removeNotification(n.id); }}
+                        >
+                          <X size={13} />
+                        </button>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+
+              <div className="bh-notif-foot">
+                <Link to="/notifications" className="bh-dropdown-item justify-content-center" style={{ fontSize: 12.5 }} onClick={close}><Bell size={14} />All Notifications</Link>
+                <Link to="/settings" className="bh-dropdown-item justify-content-center" style={{ fontSize: 12.5 }} onClick={close}><Settings size={14} />Integrations</Link>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
