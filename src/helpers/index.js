@@ -64,3 +64,26 @@ export const formatNumber = (n) => new Intl.NumberFormat('en-US').format(n || 0)
 export function slugify(s) {
   return String(s || '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 }
+
+/** Local YYYY-MM-DD key for a date/ISO string (empty string if missing or invalid). */
+export function localDateKey(value) {
+  if (!value) return '';
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return '';
+  return `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`;
+}
+
+/** Trigger a browser download from a Blob or URL string without leaving orphan DOM nodes. */
+export function triggerDownload(source, filename, { revokeAfterMs = 1000 } = {}) {
+  const isBlob = typeof Blob !== 'undefined' && source instanceof Blob;
+  const href = isBlob ? URL.createObjectURL(source) : source;
+  const a = document.createElement('a');
+  a.href = href;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  if (isBlob && revokeAfterMs >= 0) {
+    setTimeout(() => URL.revokeObjectURL(href), revokeAfterMs);
+  }
+}
