@@ -1,11 +1,12 @@
 import { useMemo, useRef, useState } from 'react';
 import {
-  Database, Download, Upload, RotateCcw, ShieldCheck, ShieldAlert, Files, Boxes, Link2, ListChecks, History, LayoutGrid, CheckCircle2, XCircle, AlertTriangle, FileWarning,
+  Database, Download, Upload, RotateCcw, ShieldCheck, ShieldAlert, Files, Boxes, Link2, ListChecks, History, LayoutGrid, CheckCircle2, XCircle, AlertTriangle, FileWarning, FilterX,
 } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
 import SummaryCards from '../../components/common/SummaryCards';
 import DetailTabs from '../../components/common/DetailTabs';
 import DataTable from '../../components/tables/DataTable';
+import TableFooter from '../../components/tables/TableFooter';
 import ActivityTimeline from '../../components/common/ActivityTimeline';
 import ConfirmDialog from '../../components/dialogs/ConfirmDialog';
 import Modal from '../../components/dialogs/Modal';
@@ -222,8 +223,22 @@ export default function DataManagementPage() {
 
       {section === 'history' && (
         <div className="row g-4">
-          <div className="col-xl-6"><div className="bh-card"><div className="bh-card-header"><h3 className="bh-card-title">Data operations</h3></div><div className="bh-card-body"><ActivityTimeline activities={data.activities.filter((a) => a.category === 'system').slice(-25).reverse()} /></div></div></div>
-          <div className="col-xl-6"><div className="bh-card"><div className="bh-card-header"><h3 className="bh-card-title">Latest record changes</h3></div><div className="bh-card-body"><ActivityTimeline activities={data.activities.filter((a) => a.category !== 'system').slice(-25).reverse()} /></div></div></div>
+          <div className="col-xl-6">
+            <HistoryPanel
+              title="Data operations"
+              subtitle="System backups, restores, migrations, and configuration updates"
+              activities={data.activities.filter((a) => a.category === 'system')}
+              empty="No data operations recorded yet."
+            />
+          </div>
+          <div className="col-xl-6">
+            <HistoryPanel
+              title="Latest record changes"
+              subtitle="Entity creations, updates, deletions, and relationship changes"
+              activities={data.activities.filter((a) => a.category !== 'system')}
+              empty="No record changes recorded yet."
+            />
+          </div>
         </div>
       )}
 
@@ -275,4 +290,96 @@ function ActionRow({ icon: Icon, tone, title, text, children }) {
 
 function InfoRow({ label, value }) {
   return <div className="d-flex justify-content-between gap-3"><span className="text-subtle">{label}</span><span className="text-end">{value}</span></div>;
+}
+
+function toLocalDateKey(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function HistoryPanel({ title, subtitle, activities, empty }) {
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  // Default to latest changes first (descending by timestamp).
+  const ordered = useMemo(
+    () => [...activities].sort((a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0)),
+    [activities],
+  );
+
+  const filtered = useMemo(() => {
+    if (!fromDate && !toDate) return ordered;
+    return ordered.filter((a) => {
+      const d = toLocalDateKey(a.timestamp);
+      if (!d) return false;
+      if (fromDate && d < fromDate) return false;
+      if (toDate && d > toDate) return false;
+      return true;
+    });
+  }, [ordered, fromDate, toDate]);
+
+  const pages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const safePage = Math.min(page, pages);
+  const visible = filtered.slice((safePage - 1) * pageSize, safePage * pageSize);
+
+  return (
+    <div className="bh-card h-100 d-flex flex-column">
+      <div className="bh-card-header">
+        <div>
+          <h3 className="bh-card-title">{title} <span className="bh-card-count">({filtered.length})</span></h3>
+          {subtitle && <p className="bh-card-sub">{subtitle}</p>}
+        </div>
+      </div>
+      <div className="bh-filterbar">
+        <label className="d-flex align-items-center gap-2 m-0 small text-muted">
+          <span>From</span>
+          <input
+            type="date"
+            className="form-control form-control-sm"
+            style={{ width: 'auto', minHeight: 32 }}
+            value={fromDate}
+            onChange={(e) => { setFromDate(e.target.value); setPage(1); }}
+          />
+        </label>
+        <label className="d-flex align-items-center gap-2 m-0 small text-muted">
+          <span>To</span>
+          <input
+            type="date"
+            className="form-control form-control-sm"
+            style={{ width: 'auto', minHeight: 32 }}
+            value={toDate}
+            onChange={(e) => { setToDate(e.target.value); setPage(1); }}
+          />
+        </label>
+        {(fromDate || toDate) && (
+          <button type="button" className="btn btn-ghost btn-sm" onClick={() => { setFromDate(''); setToDate(''); setPage(1); }}>
+            <FilterX size={14} />Reset date
+          </button>
+        )}
+      </div>
+      <div className="bh-card-body flex-grow-1">
+        <ActivityTimeline
+          activities={visible}
+          empty={(fromDate || toDate) ? 'No changes found in the selected date range.' : empty}
+        />
+      </div>
+      <TableFooter
+        page={safePage}
+        pageSize={pageSize}
+        total={filtered.length}
+        pages={pages}
+        onPage={setPage}
+        onPageSize={(s) => { setPageSize(s); setPage(1); }}
+        pageSizeOptions={[5, 10, 25, 50]}
+        noun="changes"
+      />
+    </div>
+  );
 }

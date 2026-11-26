@@ -10,6 +10,7 @@ import FormTextarea from '../../components/forms/FormTextarea';
 import Modal from '../../components/dialogs/Modal';
 import ConfirmDialog from '../../components/dialogs/ConfirmDialog';
 import { useRegistry } from '../../hooks/useRegistry';
+import { useNotifications } from '../../hooks/useNotifications';
 import { useToast } from '../../hooks/useToast';
 import { useFormat } from '../../hooks/useFormat';
 import {
@@ -46,6 +47,7 @@ function loadSavedTokens() {
 export default function Integrations() {
   const { data, run } = useRegistry();
   const toast = useToast();
+  const { notify } = useNotifications();
   const fmt = useFormat();
   const connections = integrationConnections(data.settings.integrations);
   const [editing, setEditing] = useState(null);
@@ -98,17 +100,23 @@ export default function Integrations() {
     setTestResults((prev) => ({ ...prev, [connection.id]: null }));
     try {
       const res = await testGitConnection(connection, tokens[connection.id] || '');
+      const exhausted = Boolean(res.rateLimitExhausted);
+      const resetNote = res.rateLimitResetAt ? ` · resets at ${fmt.dateTime(res.rateLimitResetAt)}` : '';
       setTestResults((prev) => ({
         ...prev,
         [connection.id]: {
-          ok: true,
-          message: res.authenticated
-            ? `Connected as ${res.user ? `@${res.user}` : 'authenticated user'}`
-            : 'Public API access verified (unauthenticated)',
-          rateLimit: res.rateLimitRemaining !== null ? `${res.rateLimitRemaining} / ${res.rateLimitTotal || 5000} remaining` : null,
+          ok: !exhausted,
+          warning: exhausted,
+          message: exhausted
+            ? `Rate limit exhausted (0 / ${res.rateLimitTotal || 60} remaining)${resetNote}. Add a Personal Access Token (PAT) for 5,000 req/hr.`
+            : res.authenticated
+              ? `Connected as ${res.user ? `@${res.user}` : 'authenticated user'}`
+              : 'Public API access verified (unauthenticated)',
+          rateLimit: !exhausted && res.rateLimitRemaining !== null ? `${res.rateLimitRemaining} / ${res.rateLimitTotal || 5000} remaining` : null,
         },
       }));
-      toast('Connection successful!', 'success');
+      if (exhausted) toast('API rate limit exhausted (0 remaining). Add a PAT or wait for reset.', 'error', { skipNotification: true });
+      else toast('Connection successful!', 'success');
     } catch (e) {
       setTestResults((prev) => ({
         ...prev,
@@ -134,9 +142,34 @@ export default function Integrations() {
         : { added: 0, repositories: 0, branches: 0, prs: 0 };
       setReports((previous) => ({ ...previous, [connection.id]: { ...result, ...saved } }));
       const extraInfo = connection.provider === 'github' ? ` · ${saved.branches || 0} branches · ${saved.prs || 0} PRs` : '';
-      toast(`${saved.repositories} repositories synced; ${saved.added} new commits${extraInfo}.${result.failures.length ? ` ${result.failures.length} failed — see details.` : ''}`, result.failures.length ? 'error' : 'success');
+      const failedAll = saved.repositories === 0 && result.failures.length > 0;
+      const summaryMsg = result.rateLimited
+        ? (saved.repositories > 0
+          ? `${saved.repositories} repositories synced; ${saved.added} new commits${extraInfo}. Rate limit reached (${result.skippedCount || 0} skipped).`
+          : `Rate limit reached — 0 repositories synced. Add a GitHub Personal Access Token (PAT) for 5,000 req/hr.`)
+        : failedAll
+          ? `Sync failed for all ${result.failures.length} repositories.`
+          : `${saved.repositories} repositories synced; ${saved.added} new commits${extraInfo}.${result.failures.length ? ` ${result.failures.length} failed — see details.` : ''}`;
+      toast(summaryMsg, result.failures.length ? 'error' : 'success', { skipNotification: true });
+      notify({
+        kind: 'sync',
+        tone: failedAll ? 'danger' : result.failures.length ? 'warning' : 'success',
+        title: failedAll ? `Git sync failed · ${connection.name}` : `Git sync · ${connection.name}`,
+        message: summaryMsg,
+        to: '/settings',
+      });
     } catch (e) {
-      if (!request.signal.aborted) setReports((previous) => ({ ...previous, [connection.id]: { error: e.message } }));
+      if (!request.signal.aborted) {
+        setReports((previous) => ({ ...previous, [connection.id]: { error: e.message } }));
+        notify({
+          kind: 'sync',
+          tone: 'danger',
+          title: `Git sync failed · ${connection.name}`,
+          message: e.message,
+          to: '/settings',
+        });
+        toast(e.message, 'error', { skipNotification: true });
+      }
     } finally {
       controller.current = null;
       setBusy(null);
@@ -336,7 +369,11 @@ export default function Integrations() {
               {testResult && (
                 <div
                   className={`mt-2 p-2 rounded small d-flex align-items-center gap-2 ${
-                    testResult.ok ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'
+                    testResult.ok
+                      ? 'bg-success-subtle text-success'
+                      : testResult.warning
+                        ? 'bg-warning-subtle text-warning-emphasis'
+                        : 'bg-danger-subtle text-danger'
                   }`}
                 >
                   {testResult.ok ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
@@ -353,13 +390,26 @@ export default function Integrations() {
                     <span className="text-danger">{report.error}</span>
                   ) : (
                     <>
-                      <div className="text-success fw-semibold">
-                        ✓ {report.repositories} repositories synced · {report.added} new commits{report.branches ? ` · ${report.branches} branches` : ''}{report.prs ? ` · ${report.prs} PRs` : ''}. <Link to="/progress">View in Progress &amp; Review</Link>
-                      </div>
+                      {report.repositories > 0 ? (
+                        <div className="text-success fw-semibold">
+                          ✓ {report.repositories} repositories synced · {report.added} new commits{report.branches ? ` · ${report.branches} branches` : ''}{report.prs ? ` · ${report.prs} PRs` : ''}. <Link to="/progress">View in Progress &amp; Review</Link>
+                        </div>
+                      ) : (
+                        <div className="text-danger fw-semibold">
+                          ✕ 0 repositories synced · {report.rateLimited ? 'GitHub API rate limit reached.' : 'All repositories failed.'}
+                        </div>
+                      )}
+                      {report.rateLimited && (
+                        <div className="text-warning-emphasis bg-warning-subtle rounded p-2 mt-2">
+                          Rate limit exhausted (0 remaining){report.skippedCount ? ` — stopped early (${report.skippedCount} remaining ${report.skippedCount === 1 ? 'repository' : 'repositories'} skipped)` : ''}.
+                          {report.rateLimitReset ? ` Quota resets at ${fmt.dateTime(report.rateLimitReset)}.` : ''}
+                          {' '}Enter a Personal Access Token (PAT) above for 5,000 requests/hour.
+                        </div>
+                      )}
                       {report.successes.some((s) => s.truncated) && (
                         <div className="text-muted mt-1">Some repositories reached the 500-commit limit; older history is omitted.</div>
                       )}
-                      {report.failures.length > 0 && (
+                      {report.failures.length > 0 && !report.rateLimited && (
                         <ul className="text-danger mb-0 mt-2">
                           {report.failures.map((failure) => (
                             <li key={failure.repositoryId}>{failure.name}: {failure.message}</li>

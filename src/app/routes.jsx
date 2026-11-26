@@ -24,6 +24,7 @@ import ArchitectureMapPage from '../features/architecture/ArchitectureMapPage';
 import ProgressReviewPage from '../features/progress-review/ProgressReviewPage';
 import ActivityLogPage from '../features/activities/ActivityLogPage';
 import DataManagementPage from '../features/data-management/DataManagementPage';
+import NotificationsPage from '../features/notifications/NotificationsPage';
 import SettingsPage from '../features/settings/SettingsPage';
 import NotFoundPage from '../features/overview/NotFoundPage';
 
@@ -66,6 +67,7 @@ export const router = createHashRouter([
       { path: 'architecture', element: <ArchitectureMapPage />, handle: { crumb: 'Architecture Map' } },
       { path: 'progress', element: <ProgressReviewPage />, handle: { crumb: 'Progress & Review' } },
       { path: 'activity', element: <ActivityLogPage />, handle: { crumb: 'Activity Log' } },
+      { path: 'notifications', element: <NotificationsPage />, handle: { crumb: 'Notifications' } },
       { path: 'data', element: <DataManagementPage />, handle: { crumb: 'Data Management' } },
       { path: 'settings', element: <SettingsPage />, handle: { crumb: 'Settings' } },
       { path: '*', element: <NotFoundPage />, handle: { crumb: 'Not found' } },

@@ -9,6 +9,7 @@ import DataTable from '../../components/tables/DataTable';
 import { useRegistry } from '../../hooks/useRegistry';
 import { useFormat } from '../../hooks/useFormat';
 import { useToast } from '../../hooks/useToast';
+import { useNotifications } from '../../hooks/useNotifications';
 import { useDeleteRecord } from '../../hooks/useDeleteRecord';
 import { linked, applicationOfComponent, applicationsOfRepo } from '../../services/query.service';
 import { removeLink } from '../../services/registry.service';
@@ -33,6 +34,7 @@ export default function RepositoryDetailPage() {
   const { data, run } = useRegistry();
   const fmt = useFormat();
   const toast = useToast();
+  const { notify } = useNotifications();
   const navigate = useNavigate();
   const [requestDelete, deleteDialog] = useDeleteRecord();
   const [syncing, setSyncing] = useState(false);
@@ -87,12 +89,17 @@ export default function RepositoryDetailPage() {
       const { sync } = await syncSingleGitHubRepo(repo, connections, token);
       const res = run(applySingleRepoSync, repo, sync);
       if (res.inaccessible) {
-        toast(res.error || 'Repository inaccessible (404/403). Add a GitHub token in Settings -> Integrations.', 'error');
+        const msg = res.error || 'Repository inaccessible (404/403). Add a GitHub token in Settings -> Integrations.';
+        toast(msg, 'error', { skipNotification: true });
+        notify({ kind: 'sync', tone: 'danger', title: `GitHub sync failed · ${repo.name}`, message: msg, to: `/repositories/${repo.id}` });
       } else {
+        const msg = `Synced ${res.added} new commits, ${res.branches} branches, ${res.prs} PRs.`;
         toast(`Synced from GitHub: ${res.added} new commits, ${res.branches} branches, ${res.prs} PRs.`, 'success');
+        notify({ kind: 'sync', tone: 'success', title: `GitHub sync · ${repo.name}`, message: msg, to: `/repositories/${repo.id}` });
       }
     } catch (e) {
-      toast(e.message, 'error');
+      toast(e.message, 'error', { skipNotification: true });
+      notify({ kind: 'sync', tone: 'danger', title: `GitHub sync failed · ${repo.name}`, message: e.message, to: `/repositories/${repo.id}` });
     } finally {
       setSyncing(false);
     }

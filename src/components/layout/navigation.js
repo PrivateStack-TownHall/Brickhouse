@@ -1,5 +1,5 @@
 import {
-  LayoutDashboard, AppWindow, GitBranch, Boxes, Rocket, Plug, Cpu, Server, Network, GitPullRequest, History, Database, Settings,
+  LayoutDashboard, AppWindow, GitBranch, Boxes, Rocket, Plug, Cpu, Server, Network, GitPullRequest, History, Database, Settings, Bell,
 } from 'lucide-react';
 
 export const NAV_GROUPS = [
@@ -27,6 +27,7 @@ export const NAV_GROUPS = [
     items: [
       { to: '/progress', label: 'Progress & Review', icon: GitPullRequest },
       { to: '/activity', label: 'Activity Log', icon: History },
+      { to: '/notifications', label: 'Notifications', icon: Bell },
       { to: '/data', label: 'Data Management', icon: Database },
       { to: '/settings', label: 'Settings', icon: Settings },
     ],

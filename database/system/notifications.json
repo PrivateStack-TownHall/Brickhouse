@@ -1,0 +1,32 @@
+[
+  {
+    "id": "NOTIF-001",
+    "kind": "sync",
+    "tone": "info",
+    "title": "GitHub integration configured",
+    "message": "PrivateStack-TownHall organization is linked for repository sync and commit snapshots.",
+    "to": "/settings",
+    "createdAt": "2026-11-25T03:40:00Z",
+    "read": true
+  },
+  {
+    "id": "NOTIF-002",
+    "kind": "deployment",
+    "tone": "warning",
+    "title": "Deployment alert · Sample Preview",
+    "message": "Example notification: failed deployments and action errors will be highlighted here for quick follow-up.",
+    "to": "/deployments",
+    "createdAt": "2026-11-25T02:00:00Z",
+    "read": false
+  },
+  {
+    "id": "NOTIF-003",
+    "kind": "activity",
+    "tone": "success",
+    "title": "Application registry ready",
+    "message": "Example notification: new applications, deletions, lifecycle updates, and backups appear here.",
+    "to": "/applications",
+    "createdAt": "2026-11-24T09:00:00Z",
+    "read": false
+  }
+]
