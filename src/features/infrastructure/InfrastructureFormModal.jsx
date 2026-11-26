@@ -3,6 +3,7 @@ import Modal from '../../components/dialogs/Modal';
 import FormField from '../../components/forms/FormField';
 import FormSelect from '../../components/forms/FormSelect';
 import FormTextarea from '../../components/forms/FormTextarea';
+import LogoField from '../../components/forms/LogoField';
 import { useRegistry } from '../../hooks/useRegistry';
 import { useToast } from '../../hooks/useToast';
 import { createEntity, updateEntity, ValidationError } from '../../services/registry.service';
@@ -12,12 +13,12 @@ import { INFRASTRUCTURE_STATUSES } from '../../services/schema';
 export default function InfrastructureFormModal({ resource, onClose, onCreated }) {
   const { data, run } = useRegistry();
   const toast = useToast();
-  const [v, setV] = useState(() => resource ? { ...resource } : { name: '', provider: '', category: '', resourceType: '', region: '', dashboardUrl: '', description: '', status: 'active' });
+  const [v, setV] = useState(() => resource ? { logoUrl: '', ...resource } : { name: '', provider: '', category: '', resourceType: '', region: '', dashboardUrl: '', logoUrl: '', description: '', status: 'active' });
   const [errors, setErrors] = useState({});
   const set = (k, val) => { setV((s) => ({ ...s, [k]: val })); setErrors((e) => ({ ...e, [k]: undefined })); };
   const providers = [...new Set(data.infrastructure.map((i) => i.provider))].sort();
   const save = () => {
-    const values = { name: v.name, provider: v.provider, category: v.category, resourceType: v.resourceType, region: v.region, dashboardUrl: v.dashboardUrl, description: v.description, status: v.status };
+    const values = { name: v.name, provider: v.provider, category: v.category, resourceType: v.resourceType, region: v.region, dashboardUrl: v.dashboardUrl, logoUrl: v.logoUrl, description: v.description, status: v.status };
     try {
       if (resource) { run(updateEntity, 'infrastructure', resource.id, values); toast(`Infrastructure ${resource.id} updated.`); onClose(); } else { const id = run(createEntity, 'infrastructure', values); toast(`Infrastructure ${id} registered.`); onClose(); onCreated?.(id); }
     } catch (e) {
@@ -36,6 +37,7 @@ export default function InfrastructureFormModal({ resource, onClose, onCreated }
         <div className="col-md-4"><FormField label="Region" value={v.region} onChange={(e) => set('region', e.target.value)} placeholder="e.g. ap-southeast-1" /></div>
         <div className="col-md-8"><FormField label="Dashboard URL" type="url" value={v.dashboardUrl} onChange={(e) => set('dashboardUrl', e.target.value)} error={errors.dashboardUrl} placeholder="https://…" /></div>
         <div className="col-md-4"><FormSelect label="Status" required options={INFRASTRUCTURE_STATUSES} value={v.status} onChange={(x) => set('status', x)} error={errors.status} /></div>
+        <div className="col-12"><LogoField label="Logo" value={v.logoUrl} onChange={(val) => set('logoUrl', val)} name={v.name} seed={resource?.id} hint={v.provider} error={errors.logoUrl} /></div>
         <div className="col-12"><FormTextarea label="Description" rows={2} value={v.description} onChange={(e) => set('description', e.target.value)} /></div>
       </div>
     </Modal>

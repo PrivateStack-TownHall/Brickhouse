@@ -5,6 +5,8 @@ import PageHeader from '../../components/common/PageHeader';
 import StatusBadge from '../../components/badges/StatusBadge';
 import ReviewSummary from '../../components/common/ReviewSummary';
 import RelationshipCard from '../../components/common/RelationshipCard';
+import Avatar from '../../components/common/Avatar';
+import { resolveLogo } from '../../assets/logos';
 import { useRegistry } from '../../hooks/useRegistry';
 import { useFormat } from '../../hooks/useFormat';
 import { useDeleteRecord } from '../../hooks/useDeleteRecord';
@@ -27,6 +29,7 @@ export default function InfrastructureDetailPage() {
   return (
     <>
       <PageHeader title={inf.name}
+        avatar={<Avatar name={inf.name} seed={inf.id} src={inf.logoUrl || resolveLogo(inf.provider)} size={48} />}
         meta={<div className="d-flex gap-2 align-items-center"><span className="bh-id">{inf.id}</span><StatusBadge value={inf.status} /><span className="bh-chip">{inf.provider}</span><span className="bh-chip">{inf.category}</span></div>}
         description={inf.description}
         actions={(

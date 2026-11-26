@@ -18,6 +18,7 @@ import { useDeleteRecord } from '../../hooks/useDeleteRecord';
 import { infrastructureUsage, matchesSearch } from '../../services/query.service';
 import { INFRASTRUCTURE_STATUSES } from '../../services/schema';
 import { applicationOptions } from '../../utils/options';
+import { resolveLogo } from '../../assets/logos';
 import InfrastructureFormModal from './InfrastructureFormModal';
 
 const GROUPS = {
@@ -52,7 +53,7 @@ export default function InfrastructurePage() {
   const usedBy = (i) => usage[i.id].components.length + usage[i.id].deployments.length + usage[i.id].apis.length;
   const columns = [
     { key: 'id', label: 'Infrastructure ID', render: (i) => <IdChip id={i.id} /> },
-    { key: 'name', label: 'Infrastructure Name', render: (i) => <div className="d-flex align-items-center gap-2"><Avatar name={i.name} seed={i.id} size={32} /><Link to={`/infrastructure/${i.id}`} className="cell-strong">{i.name}</Link></div> },
+    { key: 'name', label: 'Infrastructure Name', render: (i) => <div className="d-flex align-items-center gap-2"><Avatar name={i.name} seed={i.id} src={i.logoUrl || resolveLogo(i.provider)} size={32} /><Link to={`/infrastructure/${i.id}`} className="cell-strong">{i.name}</Link></div> },
     { key: 'provider', label: 'Provider' },
     { key: 'category', label: 'Category' },
     { key: 'resourceType', label: 'Resource Type', render: (i) => i.resourceType || '—' },
@@ -63,7 +64,7 @@ export default function InfrastructurePage() {
     { key: 'actions', label: '', sortable: false, render: (i) => <RowActions label={i.name} viewTo={`/infrastructure/${i.id}`} onEdit={() => setModal(i)} onDelete={() => requestDelete('infrastructure', i.id)} /> },
   ];
   const card = (i) => ({
-    title: i.name, id: i.id, to: `/infrastructure/${i.id}`, subtitle: i.provider, description: i.description, status: <StatusBadge value={i.status} />,
+    title: i.name, id: i.id, to: `/infrastructure/${i.id}`, avatarSrc: i.logoUrl || resolveLogo(i.provider), subtitle: i.provider, description: i.description, status: <StatusBadge value={i.status} />,
     meta: [{ icon: Layers, text: `${i.category} · ${i.resourceType}` }, { icon: MapPin, text: i.region }, { icon: AppWindow, text: `${usage[i.id].applications.length} apps` }],
     actions: { viewTo: `/infrastructure/${i.id}`, onEdit: () => setModal(i), onDelete: () => requestDelete('infrastructure', i.id) },
   });
