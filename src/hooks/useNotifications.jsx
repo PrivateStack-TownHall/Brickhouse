@@ -8,8 +8,7 @@ import {
   markAllNotificationsRead,
   removeNotification,
   clearNotifications,
-  syncFailedDeployments,
-  notificationsFromActivities,
+  syncRegistryNotifications,
 } from '../services/notifications.service';
 
 const noop = () => {};
@@ -25,8 +24,7 @@ const NotificationsContext = createContext({
 
 export function NotificationsProvider({ children }) {
   const { data, health } = useRegistry();
-  const [state, setState] = useState(() => syncFailedDeployments(loadNotifications(), data.deployments));
-  const seenActivityIds = useRef(new Set((data.activities || []).map((a) => a.id)));
+  const [state, setState] = useState(() => syncRegistryNotifications(loadNotifications(), data));
   const lastStorageError = useRef(null);
 
   // Persist changes to localStorage whenever state updates.
@@ -34,21 +32,10 @@ export function NotificationsProvider({ children }) {
     saveNotifications(state);
   }, [state]);
 
-  // Keep failed deployment alerts in sync with dataset changes.
+  // Keep notifications synchronized with registry deployments, repositories, commits, and activities.
   useEffect(() => {
-    setState((prev) => syncFailedDeployments(prev, data.deployments));
-  }, [data.deployments]);
-
-  // Capture newly appended important activities (Create, Delete, Lifecycle, Backup/Restore/Reset)
-  // while keeping historical seed activities out of the initial unread feed.
-  useEffect(() => {
-    const incoming = (data.activities || []).filter((a) => a?.id && !seenActivityIds.current.has(a.id));
-    if (!incoming.length) return;
-    for (const a of incoming) seenActivityIds.current.add(a.id);
-    const items = notificationsFromActivities(incoming);
-    if (!items.length) return;
-    setState((prev) => items.reduce((acc, item) => addNotification(acc, item), prev));
-  }, [data.activities]);
+    setState((prev) => syncRegistryNotifications(prev, data));
+  }, [data.deployments, data.repositories, data.commits, data.activities]);
 
   // Surface active storage write errors as actionable notifications.
   useEffect(() => {
