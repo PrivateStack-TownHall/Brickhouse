@@ -50,7 +50,7 @@ export default function TechnologiesPage() {
   ];
   const columns = [
     { key: 'id', label: 'Technology ID', render: (t) => <IdChip id={t.id} /> },
-    { key: 'name', label: 'Technology Name', render: (t) => <div className="d-flex align-items-center gap-2"><Avatar name={t.name} seed={t.id} size={32} /><Link to={`/technologies/${t.id}`} className="cell-strong">{t.name}</Link></div> },
+    { key: 'name', label: 'Technology Name', render: (t) => <div className="d-flex align-items-center gap-2"><Avatar name={t.name} seed={t.id} src={t.logoUrl} size={32} /><Link to={`/technologies/${t.id}`} className="cell-strong">{t.name}</Link></div> },
     { key: 'category', label: 'Category' },
     { key: 'websiteUrl', label: 'Website', render: (t) => (t.websiteUrl ? <a href={t.websiteUrl} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}>{t.websiteUrl.replace(/^https?:\/\/(www\.)?/, '').split('/')[0]}</a> : '—') },
     { key: 'usedBy', label: 'Used By', sortValue: (t) => usage[t.id].components.length, render: (t) => (usage[t.id].components.length || usage[t.id].applications.length
@@ -60,7 +60,7 @@ export default function TechnologiesPage() {
     { key: 'actions', label: '', sortable: false, render: (t) => <RowActions label={t.name} viewTo={`/technologies/${t.id}`} onEdit={() => setModal(t)} onDelete={() => requestDelete('technologies', t.id)} /> },
   ];
   const card = (t) => ({
-    title: t.name, id: t.id, to: `/technologies/${t.id}`, subtitle: t.category, description: t.description, status: <StatusBadge value={t.status} />,
+    title: t.name, id: t.id, to: `/technologies/${t.id}`, avatarSrc: t.logoUrl, subtitle: t.category, description: t.description, status: <StatusBadge value={t.status} />,
     meta: [{ icon: Globe, text: t.websiteUrl && t.websiteUrl.replace(/^https?:\/\/(www\.)?/, '').split('/')[0] }, { icon: AppWindow, text: `${usage[t.id].applications.length} apps · ${usage[t.id].components.length} components` }],
     actions: { viewTo: `/technologies/${t.id}`, onEdit: () => setModal(t), onDelete: () => requestDelete('technologies', t.id) },
   });

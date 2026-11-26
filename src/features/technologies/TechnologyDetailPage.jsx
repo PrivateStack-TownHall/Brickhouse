@@ -34,7 +34,7 @@ export default function TechnologyDetailPage() {
   return (
     <>
       <PageHeader title={t.name}
-        avatar={<Avatar name={t.name} seed={t.id} size={48} />}
+        avatar={<Avatar name={t.name} seed={t.id} src={t.logoUrl} size={48} />}
         meta={<div className="d-flex gap-2 align-items-center"><span className="bh-id">{t.id}</span><StatusBadge value={t.status} /><span className="bh-chip">{t.category}</span></div>}
         description={t.description}
         actions={(

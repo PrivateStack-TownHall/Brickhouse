@@ -3,6 +3,7 @@ import Modal from '../../components/dialogs/Modal';
 import FormField from '../../components/forms/FormField';
 import FormSelect from '../../components/forms/FormSelect';
 import FormTextarea from '../../components/forms/FormTextarea';
+import LogoField from '../../components/forms/LogoField';
 import { useRegistry } from '../../hooks/useRegistry';
 import { useToast } from '../../hooks/useToast';
 import { createEntity, updateEntity, ValidationError } from '../../services/registry.service';
@@ -12,11 +13,11 @@ import { TECHNOLOGY_STATUSES } from '../../services/schema';
 export default function TechnologyFormModal({ technology, onClose, onCreated }) {
   const { data, run } = useRegistry();
   const toast = useToast();
-  const [v, setV] = useState(() => technology ? { ...technology } : { name: '', category: '', websiteUrl: '', description: '', status: 'active' });
+  const [v, setV] = useState(() => technology ? { logoUrl: '', ...technology } : { name: '', category: '', websiteUrl: '', logoUrl: '', description: '', status: 'active' });
   const [errors, setErrors] = useState({});
   const set = (k, val) => { setV((s) => ({ ...s, [k]: val })); setErrors((e) => ({ ...e, [k]: undefined })); };
   const save = () => {
-    const values = { name: v.name, category: v.category, websiteUrl: v.websiteUrl, description: v.description, status: v.status };
+    const values = { name: v.name, category: v.category, websiteUrl: v.websiteUrl, logoUrl: v.logoUrl, description: v.description, status: v.status };
     try {
       if (technology) { run(updateEntity, 'technologies', technology.id, values); toast(`Technology ${technology.id} updated.`); onClose(); } else { const id = run(createEntity, 'technologies', values); toast(`Technology ${id} added to the catalog.`); onClose(); onCreated?.(id); }
     } catch (e) {
@@ -32,6 +33,7 @@ export default function TechnologyFormModal({ technology, onClose, onCreated }) 
         <div className="col-sm-5"><FormSelect label="Status" required options={TECHNOLOGY_STATUSES} value={v.status} onChange={(x) => set('status', x)} error={errors.status} /></div>
       </div>
       <FormField label="Website" type="url" value={v.websiteUrl} onChange={(e) => set('websiteUrl', e.target.value)} error={errors.websiteUrl} placeholder="https://…" />
+      <LogoField label="Logo" value={v.logoUrl} onChange={(val) => set('logoUrl', val)} name={v.name} seed={technology?.id} error={errors.logoUrl} />
       <FormTextarea label="Description" rows={2} value={v.description} onChange={(e) => set('description', e.target.value)} help="Versions are recorded per usage (on the component or application relationship)." />
     </Modal>
   );
