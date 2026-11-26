@@ -4,7 +4,9 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { AlertTriangle } from 'lucide-react';
 import AppSidebar from './AppSidebar';
 import AppHeader from './AppHeader';
+import AlertBanner from '../common/AlertBanner';
 import { useRegistry } from '../../hooks/useRegistry';
+import { PAGE_TRANSITION } from '../../constants/ui';
 
 function useTheme(mode) {
   useEffect(() => {
@@ -32,18 +34,14 @@ export default function AppShell() {
         <AppHeader onMenu={() => setOpen(true)} />
         <main className="bh-content">
           {(!health.persistence || health.status === 'error') && (
-            <div className="bh-sample-banner mb-3" style={{ background: 'var(--bh-danger-soft)', borderColor: 'rgba(225,85,84,.35)' }} role="alert">
-              <AlertTriangle size={18} color="var(--bh-danger)" className="flex-shrink-0" />
-              <div><strong>Changes are not being saved.</strong> {health.message}</div>
-            </div>
+            <AlertBanner tone="danger" icon={AlertTriangle} className="mb-3" role="alert">
+              <strong>Changes are not being saved.</strong> {health.message}
+            </AlertBanner>
           )}
           <AnimatePresence mode="wait">
             <motion.div
               key={pathname}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.18, ease: 'easeOut' }}
+              {...PAGE_TRANSITION}
             >
               <Outlet />
             </motion.div>
