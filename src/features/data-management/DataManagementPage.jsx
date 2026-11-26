@@ -1,11 +1,14 @@
 import { useMemo, useRef, useState } from 'react';
 import {
-  Database, Download, Upload, RotateCcw, ShieldCheck, ShieldAlert, Files, Boxes, Link2, ListChecks, History, LayoutGrid, CheckCircle2, XCircle, AlertTriangle, FileWarning, FilterX,
+  Database, Download, Upload, RotateCcw, ShieldCheck, ShieldAlert, Files, Boxes, Link2, ListChecks, History, LayoutGrid, CheckCircle2, XCircle, AlertTriangle, FileWarning,
 } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
 import SummaryCards from '../../components/common/SummaryCards';
 import DetailTabs from '../../components/common/DetailTabs';
+import SectionCard from '../../components/common/SectionCard';
+import AlertBanner from '../../components/common/AlertBanner';
 import DataTable from '../../components/tables/DataTable';
+import FilterBar from '../../components/tables/FilterBar';
 import TableFooter from '../../components/tables/TableFooter';
 import ActivityTimeline from '../../components/common/ActivityTimeline';
 import ConfirmDialog from '../../components/dialogs/ConfirmDialog';
@@ -14,8 +17,9 @@ import StatusBadge from '../../components/badges/StatusBadge';
 import { useRegistry } from '../../hooks/useRegistry';
 import { useFormat } from '../../hooks/useFormat';
 import { useToast } from '../../hooks/useToast';
+import { usePagination } from '../../hooks/usePagination';
 import {
-  ENTITIES, RELATIONS, OBJECT_COLLECTIONS, ENTITY_KEYS, RELATION_KEYS, SCHEMA_VERSION, STORAGE_KEY,
+  ENTITIES, RELATIONS, OBJECT_COLLECTIONS, ENTITY_KEYS, RELATION_KEYS, SCHEMA_VERSION, STORAGE_KEY, LOCKED_ID_PREFIXES,
 } from '../../services/schema';
 import { validateDataset, QUALITY_CHECKS } from '../../services/validation.service';
 import { buildBackup, backupFileName, downloadJson } from '../../services/export.service';
@@ -23,8 +27,7 @@ import { readBackupFile, finalizeRestore } from '../../services/import.service';
 import { resetToSeed, storageUsage, readRecoveryCopy } from '../../services/storage.service';
 import { recordBackup } from '../../services/registry.service';
 import { formatId, nextIdNumber } from '../../services/id-generator.service';
-import { LOCKED_ID_PREFIXES } from '../../services/schema';
-import { formatBytes } from '../../helpers';
+import { formatBytes, localDateKey, triggerDownload } from '../../helpers';
 
 const SECTIONS = [
   { key: 'overview', label: 'Data Overview', icon: LayoutGrid },
@@ -78,11 +81,7 @@ export default function DataManagementPage() {
   const downloadRecovery = () => {
     const raw = readRecoveryCopy();
     if (!raw) return;
-    const blob = new Blob([raw], { type: 'application/json' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'brickhouse-unreadable-local-storage.json';
-    a.click();
+    triggerDownload(new Blob([raw], { type: 'application/json' }), 'brickhouse-unreadable-local-storage.json');
   };
 
   const summary = [
@@ -110,42 +109,40 @@ export default function DataManagementPage() {
       {section === 'overview' && (
         <div className="row g-4">
           <div className="col-xl-7">
-            <div className="bh-card h-100">
-              <div className="bh-card-header"><div><h3 className="bh-card-title">Backup & Restore</h3><p className="bh-card-sub">Backups include all entities, relationship collections, catalog options, settings, activity log, ID sequences and schema version.</p></div></div>
-              <div className="bh-card-body d-flex flex-column gap-3">
-                <ActionRow icon={Download} tone="success" title="Full JSON Backup" text="Download the complete runtime dataset as one JSON file.">
-                  <button type="button" className="btn btn-primary" onClick={backup}><Download size={16} />Download Backup</button>
-                </ActionRow>
-                <ActionRow icon={Upload} tone="info" title="JSON Restore" text="Validated before anything is replaced. You will see a preview and must confirm.">
-                  <input ref={fileRef} type="file" accept="application/json,.json" className="d-none" onChange={onFile} />
-                  <button type="button" className="btn btn-secondary" onClick={() => fileRef.current?.click()}><Upload size={16} />Choose Backup File</button>
-                </ActionRow>
-                <ActionRow icon={RotateCcw} tone="danger" title="Reset to Seed Data" text="Replaces all runtime data with the original seed JSON. Requires typed confirmation.">
-                  <button type="button" className="btn btn-outline-danger" onClick={() => setConfirmReset(true)}><RotateCcw size={16} />Reset…</button>
-                </ActionRow>
-              </div>
-            </div>
+            <SectionCard
+              flush={false}
+              title="Backup & Restore"
+              subtitle="Backups include all entities, relationship collections, catalog options, settings, activity log, ID sequences and schema version."
+              bodyClassName="d-flex flex-column gap-3"
+            >
+              <ActionRow icon={Download} tone="success" title="Full JSON Backup" text="Download the complete runtime dataset as one JSON file.">
+                <button type="button" className="btn btn-primary" onClick={backup}><Download size={16} />Download Backup</button>
+              </ActionRow>
+              <ActionRow icon={Upload} tone="info" title="JSON Restore" text="Validated before anything is replaced. You will see a preview and must confirm.">
+                <input ref={fileRef} type="file" accept="application/json,.json" className="d-none" onChange={onFile} />
+                <button type="button" className="btn btn-secondary" onClick={() => fileRef.current?.click()}><Upload size={16} />Choose Backup File</button>
+              </ActionRow>
+              <ActionRow icon={RotateCcw} tone="danger" title="Reset to Seed Data" text="Replaces all runtime data with the original seed JSON. Requires typed confirmation.">
+                <button type="button" className="btn btn-outline-danger" onClick={() => setConfirmReset(true)}><RotateCcw size={16} />Reset…</button>
+              </ActionRow>
+            </SectionCard>
           </div>
           <div className="col-xl-5">
-            <div className="bh-card h-100">
-              <div className="bh-card-header"><h3 className="bh-card-title">Storage</h3></div>
-              <div className="bh-card-body d-flex flex-column gap-2 small">
-                <InfoRow label="Storage mode" value={health.storageMode === 'json-files' ? 'Local JSON Files (database/) + Local Storage' : 'Browser Local Storage'} />
-                <InfoRow label="Storage key" value={<span className="mono">{STORAGE_KEY}</span>} />
-                <InfoRow label="Status" value={<StatusBadge value={health.persistence && health.status !== 'error' ? 'ok' : 'error'} label={health.persistence && health.status !== 'error' ? 'Persisting' : 'Not persisting'} />} />
-                <InfoRow label="Message" value={health.message} />
-                <InfoRow label="Size" value={formatBytes(usage.bytes)} />
-                <InfoRow label="Initial data source" value={data.meta?.source?.startsWith('backup:') ? `Restored from ${data.meta.source.slice(7)}` : data.meta?.source === 'database' ? 'Local JSON Files (database/)' : 'Seed JSON (database/)'} />
-                <InfoRow label="Initialized" value={fmt.dateTime(data.meta?.initializedAt)} />
-                <InfoRow label="Last restore" value={data.meta?.lastRestoreAt ? fmt.dateTime(data.meta.lastRestoreAt) : '—'} />
-                {usage.hasRecovery && (
-                  <div className="bh-sample-banner mt-2">
-                    <FileWarning size={18} className="flex-shrink-0" />
-                    <div>A copy of previously unreadable stored data was preserved. <button type="button" className="btn btn-link p-0 align-baseline" onClick={downloadRecovery}>Download it</button> for inspection.</div>
-                  </div>
-                )}
-              </div>
-            </div>
+            <SectionCard flush={false} title="Storage" bodyClassName="d-flex flex-column gap-2 small">
+              <InfoRow label="Storage mode" value={health.storageMode === 'json-files' ? 'Local JSON Files (database/) + Local Storage' : 'Browser Local Storage'} />
+              <InfoRow label="Storage key" value={<span className="mono">{STORAGE_KEY}</span>} />
+              <InfoRow label="Status" value={<StatusBadge value={health.persistence && health.status !== 'error' ? 'ok' : 'error'} label={health.persistence && health.status !== 'error' ? 'Persisting' : 'Not persisting'} />} />
+              <InfoRow label="Message" value={health.message} />
+              <InfoRow label="Size" value={formatBytes(usage.bytes)} />
+              <InfoRow label="Initial data source" value={data.meta?.source?.startsWith('backup:') ? `Restored from ${data.meta.source.slice(7)}` : data.meta?.source === 'database' ? 'Local JSON Files (database/)' : 'Seed JSON (database/)'} />
+              <InfoRow label="Initialized" value={fmt.dateTime(data.meta?.initializedAt)} />
+              <InfoRow label="Last restore" value={data.meta?.lastRestoreAt ? fmt.dateTime(data.meta.lastRestoreAt) : '—'} />
+              {usage.hasRecovery && (
+                <AlertBanner tone="warning" icon={FileWarning} className="mt-2">
+                  A copy of previously unreadable stored data was preserved. <button type="button" className="btn btn-link p-0 align-baseline" onClick={downloadRecovery}>Download it</button> for inspection.
+                </AlertBanner>
+              )}
+            </SectionCard>
           </div>
         </div>
       )}
@@ -190,21 +187,18 @@ export default function DataManagementPage() {
       {section === 'quality' && (
         <div className="row g-4">
           <div className="col-xl-4">
-            <div className="bh-card">
-              <div className="bh-card-header"><h3 className="bh-card-title">Checks</h3></div>
-              <div className="bh-card-body d-flex flex-column gap-2">
-                {QUALITY_CHECKS.map((c) => {
-                  const n = issues.filter((i) => i.type === c.type).length;
-                  return (
-                    <div key={c.type} className="d-flex justify-content-between align-items-center">
-                      <span className="d-flex gap-2 align-items-center">{n ? <XCircle size={16} color="var(--bh-danger)" /> : <CheckCircle2 size={16} color="var(--bh-success)" />}{c.label}</span>
-                      <span className={n ? 'fw-bold text-danger' : 'text-subtle'}>{n}</span>
-                    </div>
-                  );
-                })}
-                <div className="d-flex justify-content-between align-items-center"><span className="d-flex gap-2 align-items-center"><AlertTriangle size={16} color="var(--bh-warning)" />Other warnings</span><span className="text-subtle">{issues.filter((i) => !QUALITY_CHECKS.some((c) => c.type === i.type)).length}</span></div>
-              </div>
-            </div>
+            <SectionCard flush={false} fullHeight={false} title="Checks" bodyClassName="d-flex flex-column gap-2">
+              {QUALITY_CHECKS.map((c) => {
+                const n = issues.filter((i) => i.type === c.type).length;
+                return (
+                  <div key={c.type} className="d-flex justify-content-between align-items-center">
+                    <span className="d-flex gap-2 align-items-center">{n ? <XCircle size={16} color="var(--bh-danger)" /> : <CheckCircle2 size={16} color="var(--bh-success)" />}{c.label}</span>
+                    <span className={n ? 'fw-bold text-danger' : 'text-subtle'}>{n}</span>
+                  </div>
+                );
+              })}
+              <div className="d-flex justify-content-between align-items-center"><span className="d-flex gap-2 align-items-center"><AlertTriangle size={16} color="var(--bh-warning)" />Other warnings</span><span className="text-subtle">{issues.filter((i) => !QUALITY_CHECKS.some((c) => c.type === i.type)).length}</span></div>
+            </SectionCard>
           </div>
           <div className="col-xl-8">
             <div className="bh-card">
@@ -246,10 +240,9 @@ export default function DataManagementPage() {
         <Modal open size="lg" title="Restore preview" onClose={() => setRestore(null)}
           footer={<><button type="button" className="btn btn-secondary" onClick={() => setRestore(null)}>Cancel</button><button type="button" className="btn btn-primary" disabled={!restore.ok} onClick={() => setConfirmRestore(true)}>Continue…</button></>}>
           {!restore.ok ? (
-            <div className="bh-sample-banner" style={{ background: 'var(--bh-danger-soft)', borderColor: 'rgba(225,85,84,.35)' }}>
-              <XCircle size={18} color="var(--bh-danger)" className="flex-shrink-0 mt-1" />
-              <div><strong>This file cannot be restored.</strong> Current data was not changed.<ul className="mb-0 mt-2 ps-3">{restore.errors.slice(0, 12).map((e) => <li key={e}>{e}</li>)}</ul>{restore.errors.length > 12 && <div>…and {restore.errors.length - 12} more.</div>}</div>
-            </div>
+            <AlertBanner tone="danger" icon={XCircle}>
+              <strong>This file cannot be restored.</strong> Current data was not changed.<ul className="mb-0 mt-2 ps-3">{restore.errors.slice(0, 12).map((e) => <li key={e}>{e}</li>)}</ul>{restore.errors.length > 12 && <div>…and {restore.errors.length - 12} more.</div>}
+            </AlertBanner>
           ) : (
             <>
               <p><strong>{restore.fileName}</strong>{restore.exportedAt && <> · exported {fmt.dateTime(restore.exportedAt)}</>} — structure and referential integrity validated.</p>
@@ -259,7 +252,7 @@ export default function DataManagementPage() {
                 ))}
                 <div><div className="bh-review-label">Relationships</div><div className="bh-review-value">{RELATION_KEYS.reduce((n, k) => n + restore.counts[k], 0)}</div></div>
               </div>
-              {restore.warnings.length > 0 && <div className="bh-sample-banner"><AlertTriangle size={18} className="flex-shrink-0" /><div>{restore.warnings.length} warning(s), e.g. {restore.warnings[0]}</div></div>}
+              {restore.warnings.length > 0 && <AlertBanner tone="warning" icon={AlertTriangle}>{restore.warnings.length} warning(s), e.g. {restore.warnings[0]}</AlertBanner>}
             </>
           )}
         </Modal>
@@ -292,21 +285,9 @@ function InfoRow({ label, value }) {
   return <div className="d-flex justify-content-between gap-3"><span className="text-subtle">{label}</span><span className="text-end">{value}</span></div>;
 }
 
-function toLocalDateKey(iso) {
-  if (!iso) return '';
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return '';
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${day}`;
-}
-
 function HistoryPanel({ title, subtitle, activities, empty }) {
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
 
   // Default to latest changes first (descending by timestamp).
   const ordered = useMemo(
@@ -317,7 +298,7 @@ function HistoryPanel({ title, subtitle, activities, empty }) {
   const filtered = useMemo(() => {
     if (!fromDate && !toDate) return ordered;
     return ordered.filter((a) => {
-      const d = toLocalDateKey(a.timestamp);
+      const d = localDateKey(a.timestamp);
       if (!d) return false;
       if (fromDate && d < fromDate) return false;
       if (toDate && d > toDate) return false;
@@ -325,19 +306,15 @@ function HistoryPanel({ title, subtitle, activities, empty }) {
     });
   }, [ordered, fromDate, toDate]);
 
-  const pages = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const safePage = Math.min(page, pages);
-  const visible = filtered.slice((safePage - 1) * pageSize, safePage * pageSize);
+  const { page: safePage, pageSize, setPage, setPageSize, pages, visible } = usePagination(filtered, 10);
 
   return (
-    <div className="bh-card h-100 d-flex flex-column">
-      <div className="bh-card-header">
-        <div>
-          <h3 className="bh-card-title">{title} <span className="bh-card-count">({filtered.length})</span></h3>
-          {subtitle && <p className="bh-card-sub">{subtitle}</p>}
-        </div>
-      </div>
-      <div className="bh-filterbar">
+    <SectionCard flush={false} noBody title={title} count={filtered.length} subtitle={subtitle}>
+      <FilterBar
+        active={Boolean(fromDate || toDate)}
+        clearLabel="Reset date"
+        onClear={() => { setFromDate(''); setToDate(''); setPage(1); }}
+      >
         <label className="d-flex align-items-center gap-2 m-0 small text-muted">
           <span>From</span>
           <input
@@ -358,12 +335,7 @@ function HistoryPanel({ title, subtitle, activities, empty }) {
             onChange={(e) => { setToDate(e.target.value); setPage(1); }}
           />
         </label>
-        {(fromDate || toDate) && (
-          <button type="button" className="btn btn-ghost btn-sm" onClick={() => { setFromDate(''); setToDate(''); setPage(1); }}>
-            <FilterX size={14} />Reset date
-          </button>
-        )}
-      </div>
+      </FilterBar>
       <div className="bh-card-body flex-grow-1">
         <ActivityTimeline
           activities={visible}
@@ -376,10 +348,10 @@ function HistoryPanel({ title, subtitle, activities, empty }) {
         total={filtered.length}
         pages={pages}
         onPage={setPage}
-        onPageSize={(s) => { setPageSize(s); setPage(1); }}
+        onPageSize={setPageSize}
         pageSizeOptions={[5, 10, 25, 50]}
         noun="changes"
       />
-    </div>
+    </SectionCard>
   );
 }

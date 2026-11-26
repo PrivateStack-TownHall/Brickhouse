@@ -4,6 +4,7 @@ import {
   SlidersHorizontal, MonitorCog, Building2, ListTree, PlugZap, DatabaseBackup, Info, Plus, X, Save, Lock, ArrowRight,
 } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
+import SectionCard from '../../components/common/SectionCard';
 import FormField from '../../components/forms/FormField';
 import FormSelect from '../../components/forms/FormSelect';
 import FormTextarea from '../../components/forms/FormTextarea';
@@ -17,6 +18,7 @@ import { useFormat } from '../../hooks/useFormat';
 import { useToast } from '../../hooks/useToast';
 import { updateSettings, updateEntity, updateCategories, ValidationError } from '../../services/registry.service';
 import { APP_VERSION, SCHEMA_VERSION, STORAGE_KEY } from '../../services/schema';
+import { DEFAULT_LIGHTHOUSE_URL } from '../../constants/registry';
 import { DATE_FORMATS, TIME_FORMATS, formatDate, formatTime, cx } from '../../helpers';
 import fullLogo from '../../assets/logos/brickhouse-logo-full.png';
 import Integrations from './Integrations';
@@ -62,11 +64,9 @@ export default function SettingsPage() {
 
 function Section({ title, description, children, footer }) {
   return (
-    <div className="bh-card">
-      <div className="bh-card-header"><div><h3 className="bh-card-title">{title}</h3>{description && <p className="bh-card-sub">{description}</p>}</div></div>
-      <div className="bh-card-body">{children}</div>
-      {footer && <div className="bh-wizard-footer justify-content-end">{footer}</div>}
-    </div>
+    <SectionCard flush={false} fullHeight={false} title={title} subtitle={description} footer={footer} footerClassName="justify-content-end">
+      {children}
+    </SectionCard>
   );
 }
 
@@ -84,7 +84,7 @@ function General() {
         <div className="col-md-6"><FormField label="Organization" value={v.organization} onChange={(e) => setV({ ...v, organization: e.target.value })} /></div>
         <div className="col-12"><FormTextarea label="Description" rows={2} value={v.description} onChange={(e) => setV({ ...v, description: e.target.value })} /></div>
         <div className="col-md-6"><FormField label="Registry owner (activity actor)" value={v.ownerName} onChange={(e) => setV({ ...v, ownerName: e.target.value })} help="Shown as the actor in the Activity Log. Not an account — v1.0 has no authentication." /></div>
-        <div className="col-md-6"><FormField label="Lighthouse URL" value={v.lighthouseUrl || ''} onChange={(e) => setV({ ...v, lighthouseUrl: e.target.value })} placeholder="http://localhost:5174" help="Target URL for the TopBar Lighthouse navigation button." /></div>
+        <div className="col-md-6"><FormField label="Lighthouse URL" value={v.lighthouseUrl || ''} onChange={(e) => setV({ ...v, lighthouseUrl: e.target.value })} placeholder={DEFAULT_LIGHTHOUSE_URL} help="Target URL for the TopBar Lighthouse navigation button." /></div>
         <div className="col-md-6"><FormField label="Theme" value={v.theme} disabled help="The canonical Brickhouse design system. Light/dark mode is under System Preferences." /></div>
         <div className="col-12">
           <label className="form-label">Logo</label>

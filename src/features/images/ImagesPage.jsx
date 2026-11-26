@@ -1,18 +1,20 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import {
-  Image as ImageIcon, Upload, Package, ImageOff, Search, FilterX, ExternalLink, Download, Pencil, Maximize2,
+  Image as ImageIcon, Upload, Package, ImageOff, ExternalLink, Download, Pencil, Maximize2,
 } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
 import SummaryCards from '../../components/common/SummaryCards';
+import FilterBar from '../../components/tables/FilterBar';
 import TableFooter from '../../components/tables/TableFooter';
 import EmptyState from '../../components/common/EmptyState';
 import Modal from '../../components/dialogs/Modal';
 import IdChip from '../../components/common/IdChip';
 import StatusBadge from '../../components/badges/StatusBadge';
 import { useRegistry } from '../../hooks/useRegistry';
+import { usePagination } from '../../hooks/usePagination';
 import { appLogoSrc } from '../../assets/logos';
-import { formatBytes } from '../../helpers';
+import { formatBytes, triggerDownload } from '../../helpers';
 
 function imageMeta(app) {
   const src = appLogoSrc(app);
@@ -44,8 +46,6 @@ export default function ImagesPage() {
   const [sourceFilter, setSourceFilter] = useState('with-image'); // with-image | custom | bundled | missing
   const [formatFilter, setFormatFilter] = useState('all');
   const [sortBy, setSortBy] = useState('id'); // id | name | updated | size
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(12);
   const [preview, setPreview] = useState(null);
   const [brokenIds, setBrokenIds] = useState(() => new Set());
 
@@ -87,9 +87,8 @@ export default function ImagesPage() {
     });
   }, [items, search, sourceFilter, formatFilter, sortBy]);
 
-  const pages = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const safePage = Math.min(page, pages);
-  const visible = filtered.slice((safePage - 1) * pageSize, safePage * pageSize);
+  const paging = usePagination(filtered, 12);
+  const { page: safePage, pageSize, setPage, setPageSize, pages, visible } = paging;
   const filtersActive = Boolean(search.trim() || sourceFilter !== 'with-image' || formatFilter !== 'all' || sortBy !== 'id');
 
   const clearFilters = () => {
@@ -130,12 +129,7 @@ export default function ImagesPage() {
     if (!item?.src) return;
     const ext = item.format && item.format !== 'URL' && item.format !== '—' ? item.format.toLowerCase() : 'png';
     const slug = String(item.app.code || item.app.name || item.app.id).toLowerCase().replace(/[^a-z0-9]+/g, '-');
-    const a = document.createElement('a');
-    a.href = item.src;
-    a.download = `${slug}.${ext}`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+    triggerDownload(item.src, `${slug}.${ext}`, { revokeAfterMs: -1 });
   };
 
   return (
@@ -148,16 +142,14 @@ export default function ImagesPage() {
       <SummaryCards items={summary} min={170} />
 
       <div className="bh-card">
-        <div className="bh-filterbar">
-          <div className="bh-search">
-            <Search size={15} />
-            <input
-              className="form-control form-control-sm"
-              placeholder="Search application name, ID, code…"
-              value={search}
-              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            />
-          </div>
+        <FilterBar
+          search={search}
+          onSearch={(val) => { setSearch(val); setPage(1); }}
+          searchSize="sm"
+          placeholder="Search application name, ID, code…"
+          active={filtersActive}
+          onClear={clearFilters}
+        >
           {sourceFilter !== 'missing' && formatOptions.length > 1 && (
             <select
               className="form-select form-select-sm"
@@ -182,12 +174,7 @@ export default function ImagesPage() {
             <option value="updated">Sort: Recently updated</option>
             <option value="size">Sort: Largest file</option>
           </select>
-          {filtersActive && (
-            <button type="button" className="btn btn-ghost btn-sm" onClick={clearFilters}>
-              <FilterX size={15} />Clear filters
-            </button>
-          )}
-        </div>
+        </FilterBar>
 
         {visible.length === 0 ? (
           <EmptyState
@@ -292,7 +279,7 @@ export default function ImagesPage() {
           total={filtered.length}
           pages={pages}
           onPage={setPage}
-          onPageSize={(s) => { setPageSize(s); setPage(1); }}
+          onPageSize={setPageSize}
           pageSizeOptions={[12, 24, 48]}
           noun="applications"
         />
