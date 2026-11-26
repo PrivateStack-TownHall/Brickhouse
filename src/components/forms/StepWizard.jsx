@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, X, FileText, Cpu, Link2, ClipboardCheck, Layers } from 'lucide-react';
 import { cx } from '../../helpers';
 import ConfirmDialog from '../dialogs/ConfirmDialog';
+import SectionCard from '../common/SectionCard';
 import { ValidationError } from '../../services/registry.service';
 
 const STEP_ICONS = {
@@ -81,35 +82,32 @@ export default function StepWizard({ steps, errors, setErrors, dirty, onSubmit, 
           </li>
         ))}
       </ol>
-      <div className="bh-card">
-        <div className="bh-card-header colored">
-          <div className="d-flex align-items-center">
-            <span className="bh-card-header-icon">
-              <StepIcon size={18} />
-            </span>
-            <div>
-              <h3 className="bh-card-title">{step.title}</h3>
-              {step.description && <p className="bh-card-sub">{step.description}</p>}
-            </div>
-          </div>
+      <SectionCard
+        variant="colored"
+        fullHeight={false}
+        icon={StepIcon}
+        title={step.title}
+        subtitle={step.description}
+        actions={(
           <span className="bh-card-count small fw-semibold">
             Step {String(index + 1).padStart(2, '0')} of {String(steps.length).padStart(2, '0')}
           </span>
-        </div>
-        <div className="bh-card-body">
-          {formError && <div className="alert alert-danger py-2 small">{formError}</div>}
-          {Object.keys(errors).length > 0 && !formError && <div className="alert alert-warning py-2 small mb-3">Please complete the required fields highlighted below.</div>}
-          {step.render()}
-        </div>
-        <div className="bh-wizard-footer">
-          <button type="button" className="btn btn-ghost" onClick={() => (dirty ? setConfirmCancel(true) : onCancel())}><X size={16} />Cancel</button>
-          <div className="d-flex gap-2">
-            {index > 0 && <button type="button" className="btn btn-secondary" onClick={() => { setErrors({}); setIndex(index - 1); }}><ArrowLeft size={16} />Back</button>}
-            {!last && <button type="button" className="btn btn-primary" onClick={next}>Next<ArrowRight size={16} /></button>}
-            {last && <button type="button" className="btn btn-primary" onClick={submit} disabled={saving}><Check size={16} />{submitLabel}</button>}
-          </div>
-        </div>
-      </div>
+        )}
+        footer={(
+          <>
+            <button type="button" className="btn btn-ghost" onClick={() => (dirty ? setConfirmCancel(true) : onCancel())}><X size={16} />Cancel</button>
+            <div className="d-flex gap-2">
+              {index > 0 && <button type="button" className="btn btn-secondary" onClick={() => { setErrors({}); setIndex(index - 1); }}><ArrowLeft size={16} />Back</button>}
+              {!last && <button type="button" className="btn btn-primary" onClick={next}>Next<ArrowRight size={16} /></button>}
+              {last && <button type="button" className="btn btn-primary" onClick={submit} disabled={saving}><Check size={16} />{submitLabel}</button>}
+            </div>
+          </>
+        )}
+      >
+        {formError && <div className="alert alert-danger py-2 small">{formError}</div>}
+        {Object.keys(errors).length > 0 && !formError && <div className="alert alert-warning py-2 small mb-3">Please complete the required fields highlighted below.</div>}
+        {step.render()}
+      </SectionCard>
       <ConfirmDialog open={confirmCancel} title="Discard changes?" message="You have entered data in this form. Leaving now will discard it."
         confirmLabel="Discard" tone="danger" onConfirm={onCancel} onCancel={() => setConfirmCancel(false)} />
     </div>

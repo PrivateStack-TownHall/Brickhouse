@@ -3,6 +3,7 @@ import { Unlink } from 'lucide-react';
 import EntityIcon, { ENTITY_ICONS } from './EntityIcon';
 import Avatar from './Avatar';
 import EmptyState from './EmptyState';
+import SectionCard from './SectionCard';
 import { routeFor } from '../../services/schema';
 import { resolveLogo } from '../../assets/logos';
 
@@ -20,29 +21,13 @@ export default function RelationshipCard({ icon: Icon, entity, title, subtitle, 
   const inferredEntity = entity || items?.[0]?.entity || TITLE_ICONS.find(([re]) => re.test(title || ''))?.[1];
   const HeaderIcon = Icon || (inferredEntity ? ENTITY_ICONS[inferredEntity] : null);
   return (
-    <div className="bh-card h-100">
-      <div className="bh-card-header colored">
-        <div className="d-flex align-items-center">
-          {HeaderIcon && (
-            <span className="bh-card-header-icon">
-              <HeaderIcon size={18} />
-            </span>
-          )}
-          <div>
-            <h3 className="bh-card-title">{title} <span className="bh-card-count">({items.length})</span></h3>
-            {subtitle && <p className="bh-card-sub">{subtitle}</p>}
-          </div>
+    <SectionCard variant="colored" icon={HeaderIcon} title={title} subtitle={subtitle} count={items.length} actions={action}>
+      {items.length === 0 ? <EmptyState title={emptyText} /> : (
+        <div style={{ display: 'grid', gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`, gap: 10 }}>
+          {items.map((it) => <RelationshipRow key={it.key || it.record.id} {...it} />)}
         </div>
-        {action}
-      </div>
-      <div className="bh-card-body">
-        {items.length === 0 ? <EmptyState title={emptyText} /> : (
-          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`, gap: 10 }}>
-            {items.map((it) => <RelationshipRow key={it.key || it.record.id} {...it} />)}
-          </div>
-        )}
-      </div>
-    </div>
+      )}
+    </SectionCard>
   );
 }
 
