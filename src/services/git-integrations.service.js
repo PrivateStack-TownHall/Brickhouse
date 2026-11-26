@@ -111,8 +111,72 @@ function rateLimitResetIso(response, fallbackEpoch = null) {
   return Number.isFinite(epoch) && epoch > 0 ? new Date(epoch * 1000).toISOString() : null;
 }
 
+export async function fetchServerTokenStatus(connections = []) {
+  try {
+    if (typeof window === 'undefined' || window.location?.protocol === 'file:') {
+      return { available: false, statuses: {}, providers: {} };
+    }
+    const res = await fetch('/api/git/env-status', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      cache: 'no-store',
+      body: JSON.stringify({
+        connections: (connections || []).map((c) => ({ id: c.id, provider: c.provider, organization: c.organization })),
+      }),
+    });
+    if (!res.ok) return { available: false, statuses: {}, providers: {} };
+    const ct = res.headers.get('content-type') || '';
+    if (!ct.includes('application/json')) return { available: false, statuses: {}, providers: {} };
+    const body = await res.json();
+    if (!body?.ok) return { available: false, statuses: {}, providers: {} };
+    return { available: true, statuses: body.statuses || {}, providers: body.providers || {} };
+  } catch {
+    return { available: false, statuses: {}, providers: {} };
+  }
+}
+
+export function createProxyFetch(connection) {
+  return async (url, options = {}) => {
+    const res = await fetch('/api/git/proxy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      signal: options.signal,
+      body: JSON.stringify({
+        url,
+        provider: connection.provider,
+        organization: connection.organization,
+        accept: options.headers?.Accept,
+      }),
+    });
+    if (!res.ok) {
+      let msg = `Git proxy failed (HTTP ${res.status}).`;
+      try {
+        const errBody = await res.json();
+        if (errBody?.error) msg = errBody.error;
+      } catch { /* ignore */ }
+      throw new Error(msg);
+    }
+    const payload = await res.json();
+    return {
+      ok: Boolean(payload.ok),
+      status: Number(payload.status || 500),
+      headers: new Headers(payload.headers || {}),
+      json: async () => payload.body,
+    };
+  };
+}
+
+function resolveFetchImpl(connection, token, { fetchImpl, useServerToken } = {}) {
+  if (fetchImpl) return fetchImpl;
+  if (!token?.trim() && useServerToken && typeof window !== 'undefined' && window.location?.protocol !== 'file:') {
+    return createProxyFetch(connection);
+  }
+  return fetch;
+}
+
 /** Up to 500 latest primary-branch commits per registered repository, with explicit partial failures. */
-export async function fetchIntegrationCommits(connection, repositories, token = '', { signal, fetchImpl = fetch } = {}) {
+export async function fetchIntegrationCommits(connection, repositories, token = '', { signal, fetchImpl, useServerToken = false } = {}) {
+  const activeFetch = resolveFetchImpl(connection, token, { fetchImpl, useServerToken });
   const errors = validateIntegration(connection);
   if (Object.keys(errors).length) throw new Error(Object.values(errors)[0]);
   const matches = matchingRepositories(repositories, connection);
@@ -146,7 +210,7 @@ export async function fetchIntegrationCommits(connection, repositories, token = 
         if (url.origin !== new URL(endpoint).origin || url.pathname !== new URL(endpoint).pathname || url.username || url.password) throw new Error('The provider returned an unsafe pagination URL.');
         let response;
         try {
-          response = await fetchImpl(url.href, { headers, signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(20000)]) : AbortSignal.timeout(20000), credentials: 'omit', redirect: 'error', referrerPolicy: 'no-referrer' });
+          response = await activeFetch(url.href, { headers, signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(20000)]) : AbortSignal.timeout(20000), credentials: 'omit', redirect: 'error', referrerPolicy: 'no-referrer' });
         } catch (e) {
           if (signal?.aborted) throw e;
           throw new Error(e.name === 'TimeoutError' ? 'Request timed out. Try syncing again.' : 'Request failed. Check your connection and the provider’s browser (CORS) access.');
@@ -253,8 +317,9 @@ async function fetchGitHubExtras(base, path, token, { signal, fetchImpl }) {
 }
 
 /** Full GitHub sync: commits + repository metadata + branches + pull requests. */
-export async function fetchIntegrationFullSync(connection, repositories, token = '', { signal, fetchImpl = fetch } = {}) {
-  const commitSync = await fetchIntegrationCommits(connection, repositories, token, { signal, fetchImpl });
+export async function fetchIntegrationFullSync(connection, repositories, token = '', { signal, fetchImpl, useServerToken = false } = {}) {
+  const activeFetch = resolveFetchImpl(connection, token, { fetchImpl, useServerToken });
+  const commitSync = await fetchIntegrationCommits(connection, repositories, token, { signal, fetchImpl: activeFetch });
   if (connection.provider !== 'github') return { ...commitSync, inaccessibleIds: [] };
 
   const base = apiBase(connection);
@@ -268,7 +333,7 @@ export async function fetchIntegrationFullSync(connection, repositories, token =
     const repo = byId.get(success.repositoryId);
     const path = repo ? repositoryPath(repo, connection) : null;
     if (path) {
-      const extras = await fetchGitHubExtras(base, path, token, { signal, fetchImpl });
+      const extras = await fetchGitHubExtras(base, path, token, { signal, fetchImpl: activeFetch });
       extrasByRepo.set(success.repositoryId, extras);
       if (extras.inaccessible) inaccessibleIds.push(success.repositoryId);
     }
@@ -301,7 +366,7 @@ export async function fetchIntegrationFullSync(connection, repositories, token =
 }
 
 /** Build temporary connection and sync a single GitHub repository on demand. */
-export async function syncSingleGitHubRepo(repo, connections = [], token = '', { signal, fetchImpl = fetch } = {}) {
+export async function syncSingleGitHubRepo(repo, connections = [], token = '', { signal, fetchImpl, useServerToken = false } = {}) {
   if (repo?.provider?.toLowerCase() !== 'github' || !repo.url) {
     throw new Error('Only GitHub repositories with a valid URL can be synced directly.');
   }
@@ -323,7 +388,7 @@ export async function syncSingleGitHubRepo(repo, connections = [], token = '', {
     apiBaseUrl: url.origin === 'https://github.com' ? 'https://api.github.com' : `${url.origin}/api/v3`,
     notes: '',
   };
-  return { connection, sync: await fetchIntegrationFullSync(connection, [repo], token, { signal, fetchImpl }) };
+  return { connection, sync: await fetchIntegrationFullSync(connection, [repo], token, { signal, fetchImpl, useServerToken }) };
 }
 
 export function applyIntegrationSync(ds, connection, sync) {
@@ -420,10 +485,14 @@ export function applySingleRepoSync(ds, repo, sync) {
   return { dataset: tx.data, result: { added, branches: s.branches?.length ?? 0, prs: s.prs?.length ?? 0 } };
 }
 
+const BROAD_CLASSIC_SCOPES = new Set(['repo', 'delete_repo', 'admin:org', 'write:org', 'workflow', 'admin:repo_hook']);
+
 /** Test connectivity and token validity against provider API */
-export async function testGitConnection(connection, token = '', { signal, fetchImpl = fetch } = {}) {
+export async function testGitConnection(connection, token = '', { signal, fetchImpl, useServerToken = false } = {}) {
   const errors = validateIntegration(connection);
   if (Object.keys(errors).length) throw new Error(Object.values(errors)[0]);
+  const activeFetch = resolveFetchImpl(connection, token, { fetchImpl, useServerToken });
+  const hasAuth = Boolean(token?.trim() || useServerToken);
   const base = apiBase(connection);
   const headers = { Accept: connection.provider === 'github' ? 'application/vnd.github+json' : 'application/json' };
   if (token?.trim()) {
@@ -432,16 +501,16 @@ export async function testGitConnection(connection, token = '', { signal, fetchI
 
   let endpoint;
   if (connection.provider === 'github') {
-    endpoint = token?.trim() ? `${base}/user` : `${base}/rate_limit`;
+    endpoint = hasAuth ? `${base}/user` : `${base}/rate_limit`;
   } else if (connection.provider === 'gitlab') {
-    endpoint = token?.trim() ? `${base}/user` : `${base}/version`;
+    endpoint = hasAuth ? `${base}/user` : `${base}/version`;
   } else {
     endpoint = `${base}/user`;
   }
 
   let response;
   try {
-    response = await fetchImpl(endpoint, {
+    response = await activeFetch(endpoint, {
       headers,
       signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(15000)]) : AbortSignal.timeout(15000),
       credentials: 'omit',
@@ -455,6 +524,11 @@ export async function testGitConnection(connection, token = '', { signal, fetchI
 
   const rateRemaining = response.headers.get('x-ratelimit-remaining');
   const rateLimit = response.headers.get('x-ratelimit-limit');
+  const oauthScopesRaw = response.headers.get('x-oauth-scopes') || '';
+  const scopes = oauthScopesRaw.split(',').map((s) => s.trim()).filter(Boolean);
+  const scopeWarning = connection.provider === 'github' && scopes.some((s) => BROAD_CLASSIC_SCOPES.has(s))
+    ? `Token carries broad classic scopes (${scopes.join(', ')}). A read-only Fine-grained PAT (Contents: Read-only) is safer.`
+    : null;
 
   if (!response.ok) {
     if (response.status === 401) throw new Error('Authentication failed (401). Token is invalid, expired, or missing required scopes.');
@@ -468,7 +542,7 @@ export async function testGitConnection(connection, token = '', { signal, fetchI
 
   let user = null;
   if (connection.provider === 'github') {
-    user = token?.trim() ? (data.login || data.name || null) : null;
+    user = hasAuth ? (data.login || data.name || null) : null;
   } else if (connection.provider === 'gitlab') {
     user = data.username || data.name || null;
   } else if (connection.provider === 'bitbucket') {
@@ -482,7 +556,10 @@ export async function testGitConnection(connection, token = '', { signal, fetchI
     ok: true,
     user,
     provider: connection.provider,
-    authenticated: Boolean(token?.trim()),
+    authenticated: hasAuth,
+    authSource: token?.trim() ? 'session-pat' : (useServerToken ? 'server-env' : 'none'),
+    scopes,
+    scopeWarning,
     rateLimitRemaining: remaining,
     rateLimitTotal: total,
     rateLimitExhausted: remaining === 0,

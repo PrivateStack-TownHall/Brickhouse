@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { viteSingleFile } from 'vite-plugin-singlefile';
 import { brickhouseDatabasePlugin } from './scripts/vite-db-plugin.js';
+import { brickhouseGitProxyPlugin } from './scripts/vite-git-proxy.js';
 
 // `npm run build` produces a normal static build in dist/.
 // `npm run build:single` produces one self-contained dist-single/index.html
@@ -10,7 +11,7 @@ export default defineConfig(({ mode }) => ({
   base: './',
   plugins: mode === 'single'
     ? [react(), viteSingleFile()]
-    : [react(), brickhouseDatabasePlugin()],
+    : [react(), brickhouseDatabasePlugin(), brickhouseGitProxyPlugin()],
   build: mode === 'single'
     ? { outDir: 'dist-single', assetsInlineLimit: 100000000, chunkSizeWarningLimit: 2000 }
     : { outDir: 'dist', chunkSizeWarningLimit: 900 },
