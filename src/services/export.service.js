@@ -1,6 +1,7 @@
 // Full JSON backup: all entities, relationship collections, catalog, settings,
 // activity log, ID sequences and schema version.
-import { APP_VERSION, SCHEMA_VERSION, ENTITY_KEYS, RELATION_KEYS } from './schema';
+import { APP_VERSION, SCHEMA_VERSION, ENTITY_KEYS, RELATION_KEYS } from './schema.js';
+import { triggerDownload } from '../helpers/index.js';
 
 export function buildBackup(ds) {
   const data = { schemaVersion: SCHEMA_VERSION };
@@ -28,12 +29,5 @@ export function backupFileName(date = new Date()) {
 
 export function downloadJson(obj, filename) {
   const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  triggerDownload(blob, filename, { revokeAfterMs: 1000 });
 }

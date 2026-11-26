@@ -6,7 +6,9 @@
 //    reported as "not recorded" when the records do not contain them.
 //  - SAMPLE: when no commits are recorded, a deterministic, clearly-labelled sample is
 //    generated from the registered repositories so the dashboards can be reviewed.
-import { applicationsOfRepo } from './query.service';
+import { applicationsOfRepo } from './query.service.js';
+import { DAY_MS, BRANCH_KINDS } from '../constants/registry.js';
+import { localDateKey } from '../helpers/index.js';
 
 export const GIT_DATA_SOURCE = {
   kind: 'sample', label: 'Sample data',
@@ -26,7 +28,6 @@ const HISTORY_DAYS = 365;
 const CONTRIBUTORS = ['dev.alpha', 'dev.bravo', 'dev.charlie', 'dev.delta', 'dev.echo', 'dev.foxtrot', 'dev.golf', 'dev.hotel', 'dev.india'];
 const LEVEL = { planning: 0.35, development: 4.2, testing: 3.1, active: 2.3, maintenance: 0.9, archived: 0.6 };
 const RANK = ['archived', 'planning', 'maintenance', 'active', 'testing', 'development'];
-const DAY = 86400000;
 
 function hash(str) {
   let h = 2166136261;
@@ -42,10 +43,20 @@ function mulberry32(a) {
   };
 }
 const startOfDay = (d) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; };
-export const dayKey = (d) => {
-  const x = new Date(d);
-  return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`;
-};
+export const dayKey = (d) => localDateKey(d);
+
+function createHistoryWindow(anchor) {
+  const end = startOfDay(anchor);
+  const start = end.getTime() - (HISTORY_DAYS - 1) * DAY_MS;
+  const days = Array.from({ length: HISTORY_DAYS }, (_, i) => new Date(start + i * DAY_MS));
+  return { end, start, days };
+}
+
+function resolveRepoLifecycle(ds, repo, fallback) {
+  const apps = applicationsOfRepo(ds, repo.id).map((x) => x.record);
+  const lifecycle = apps.length ? apps.map((a) => a.lifecycle).sort((a, b) => RANK.indexOf(b) - RANK.indexOf(a))[0] : fallback;
+  return { apps, lifecycle };
+}
 
 const cache = new Map();
 
@@ -58,17 +69,14 @@ const recordedCache = new WeakMap();
 
 /** Aggregate recorded commits into the same shape as the sample. */
 export function buildRecordedGit(ds, anchor = new Date()) {
-  const end = startOfDay(anchor);
+  const { end, start, days } = createHistoryWindow(anchor);
   const key = dayKey(end);
   const cached = recordedCache.get(ds);
   if (cached?.key === key) return cached.result;
-  const start = end.getTime() - (HISTORY_DAYS - 1) * DAY;
-  const days = Array.from({ length: HISTORY_DAYS }, (_, i) => new Date(start + i * DAY));
   const byRepo = new Map((ds.repositories || []).map((r) => [r.id, []]));
   ds.commits.forEach((c) => byRepo.get(c.repositoryId)?.push(c));
   const repos = (ds.repositories || []).map((repo) => {
-    const apps = applicationsOfRepo(ds, repo.id).map((x) => x.record);
-    const lifecycle = apps.length ? apps.map((a) => a.lifecycle).sort((a, b) => RANK.indexOf(b) - RANK.indexOf(a))[0] : 'active';
+    const { apps, lifecycle } = resolveRepoLifecycle(ds, repo, 'active');
     const level = LEVEL[lifecycle] ?? 1.5;
     const rand = mulberry32(hash(repo.id + repo.name));
     const list = byRepo.get(repo.id) || [];
@@ -77,7 +85,7 @@ export function buildRecordedGit(ds, anchor = new Date()) {
     let last = null;
 
     for (const c of list) {
-      const idx = Math.round((startOfDay(c.committedAt).getTime() - start) / DAY);
+      const idx = Math.round((startOfDay(c.committedAt).getTime() - start) / DAY_MS);
       if (idx >= 0 && idx < HISTORY_DAYS) {
         daily[idx] += 1;
         const author = c.author?.trim() || CONTRIBUTORS[Math.abs(hash(repo.name + (c.sha || ''))) % CONTRIBUTORS.length];
@@ -104,14 +112,13 @@ export function buildRecordedGit(ds, anchor = new Date()) {
         lastIdx: HISTORY_DAYS - 1,
       }));
     } else {
-      const branchKinds = ['main', 'develop', 'feature', 'fix', 'release', 'chore'];
       branches = [{ name: repo.mainBranch || 'main', kind: 'main', lastIdx: Math.max(lastIdx, 0) }];
       if (level > 0.8) {
         branches.push({ name: 'develop', kind: 'develop', lastIdx: Math.max(lastIdx, 0) });
       }
       const nBranches = Math.max(2, Math.round(level * 2 + (list.length > 0 ? 2 : 0)));
       for (let b = 0; b < nBranches; b += 1) {
-        const kind = branchKinds[(b + 2) % branchKinds.length];
+        const kind = BRANCH_KINDS[(b + 2) % BRANCH_KINDS.length];
         branches.push({ name: `${kind}/${repo.code || 'task'}-${100 + b * 17}`, kind, lastIdx: pick() });
       }
     }
@@ -121,7 +128,7 @@ export function buildRecordedGit(ds, anchor = new Date()) {
     let prs;
     if (Array.isArray(repo.syncedPrs)) {
       prs = repo.syncedPrs.map((pr) => {
-        const rawIdx = pr.createdAt ? Math.round((startOfDay(pr.createdAt).getTime() - start) / DAY) : HISTORY_DAYS - 1;
+        const rawIdx = pr.createdAt ? Math.round((startOfDay(pr.createdAt).getTime() - start) / DAY_MS) : HISTORY_DAYS - 1;
         const idx = Math.max(0, Math.min(HISTORY_DAYS - 1, rawIdx));
         return {
           number: pr.number,
@@ -180,14 +187,12 @@ export function buildRecordedGit(ds, anchor = new Date()) {
 
 /** Deterministic sample history (365 days) for every registered repository. */
 export function buildGitSample(ds, anchor = new Date()) {
-  const end = startOfDay(anchor);
+  const { end, days } = createHistoryWindow(anchor);
   const cacheKey = `${dayKey(end)}|${(ds.repositories || []).map((r) => r.id).join(',')}|${(ds.applications || []).map((a) => a.id + a.lifecycle).join(',')}|${(ds.applicationRepositories || []).length}|${(ds.componentRepositories || []).length}`;
   if (cache.has(cacheKey)) return cache.get(cacheKey);
-  const days = Array.from({ length: HISTORY_DAYS }, (_, i) => new Date(end.getTime() - (HISTORY_DAYS - 1 - i) * DAY));
 
   const repos = (ds.repositories || []).map((repo) => {
-    const apps = applicationsOfRepo(ds, repo.id).map((x) => x.record);
-    const lifecycle = apps.length ? apps.map((a) => a.lifecycle).sort((a, b) => RANK.indexOf(b) - RANK.indexOf(a))[0] : 'maintenance';
+    const { apps, lifecycle } = resolveRepoLifecycle(ds, repo, 'maintenance');
     const level = LEVEL[lifecycle] ?? 1;
     const rand = mulberry32(hash(repo.id + repo.name));
     const team = [...CONTRIBUTORS].sort(() => rand() - 0.5).slice(0, 2 + Math.floor(rand() * 3));

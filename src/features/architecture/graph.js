@@ -54,6 +54,13 @@ function collector() {
   return { nodes, edges, node, edge };
 }
 
+function linkDeploymentWithInfra(ds, g, parentNode, dep) {
+  const dn = g.node('deployment', dep);
+  g.edge(parentNode, dn, 'has deployment');
+  if (dep.infrastructureId) g.edge(dn, g.node('infrastructure', byId(ds, 'infrastructure', dep.infrastructureId)), 'runs on');
+  return dn;
+}
+
 function addApplication(ds, g, app, { deep = true } = {}) {
   const a = g.node('application', app);
   g.edge(g.node('company', byId(ds, 'companies', app.ownerId)), a, 'owns');
@@ -65,9 +72,7 @@ function addApplication(ds, g, app, { deep = true } = {}) {
   for (const { record } of linked(ds, 'apiConsumers', 'to', app.id)) g.edge(g.node('api', record), a, 'consumed by');
   for (const { record } of linked(ds, 'applicationInfrastructure', 'from', app.id)) g.edge(a, g.node('infrastructure', record), 'uses');
   for (const d of (ds.deployments || []).filter((x) => x.applicationId === app.id && !x.componentId)) {
-    const dn = g.node('deployment', d);
-    g.edge(a, dn, 'has deployment');
-    if (d.infrastructureId) g.edge(dn, g.node('infrastructure', byId(ds, 'infrastructure', d.infrastructureId)), 'runs on');
+    linkDeploymentWithInfra(ds, g, a, d);
   }
   return a;
 }
@@ -80,9 +85,7 @@ function addComponent(ds, g, c, appNode) {
   for (const { record } of linked(ds, 'componentInfrastructure', 'from', c.id)) g.edge(n, g.node('infrastructure', record), 'uses');
   for (const { link, record } of linked(ds, 'componentApis', 'from', c.id)) g.edge(n, g.node('api', record), link.role === 'provider' ? 'provides' : 'consumes');
   for (const d of ds.deployments.filter((x) => x.componentId === c.id)) {
-    const dn = g.node('deployment', d);
-    g.edge(n, dn, 'has deployment');
-    if (d.infrastructureId) g.edge(dn, g.node('infrastructure', byId(ds, 'infrastructure', d.infrastructureId)), 'runs on');
+    linkDeploymentWithInfra(ds, g, n, d);
   }
   return n;
 }

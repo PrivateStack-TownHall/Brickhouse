@@ -1,12 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { readDatabaseFromDisk } from './vite-db-plugin.js';
-
-const DEFAULT_ALLOWED_ORIGINS = {
-  github: ['https://api.github.com'],
-  gitlab: ['https://gitlab.com'],
-  bitbucket: ['https://api.bitbucket.org'],
-};
+import { DEFAULT_ALLOWED_GIT_ORIGINS, normalizeOrgEnvSuffix, providerEnvVarName } from '../src/constants/git.js';
 
 const MAX_BODY_BYTES = 1024 * 1024; // 1 MB
 
@@ -45,14 +40,12 @@ export async function loadServerEnv(rootDir) {
   return merged;
 }
 
-export function normalizeOrgEnvSuffix(org = '') {
-  return String(org || '').trim().replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_+|_+$/g, '').toUpperCase();
-}
+export { normalizeOrgEnvSuffix };
 
 export function resolveServerToken(env, provider, organization = '') {
   const p = String(provider || '').toLowerCase();
   if (!['github', 'gitlab', 'bitbucket'].includes(p)) return { token: '', source: null };
-  const prefix = `BRICKHOUSE_${p.toUpperCase()}_TOKEN`;
+  const prefix = providerEnvVarName(p);
   const suffix = normalizeOrgEnvSuffix(organization);
   if (suffix) {
     const orgKey = `${prefix}_${suffix}`;
@@ -74,7 +67,7 @@ export function maskToken(token = '') {
 }
 
 async function allowedApiPrefixes(rootDir, provider) {
-  const defaults = DEFAULT_ALLOWED_ORIGINS[provider] || [];
+  const defaults = DEFAULT_ALLOWED_GIT_ORIGINS[provider] || [];
   const prefixes = [...defaults];
   try {
     const ds = await readDatabaseFromDisk(path.join(rootDir, 'database'));
