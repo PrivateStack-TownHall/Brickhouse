@@ -319,12 +319,22 @@ export function syncRegistryNotifications(state, data = {}) {
   const { additions: repoNotes, activeInaccId } = buildRepositoryNotifications(data.repositories, data.commits, next.items);
 
   let changed = next !== state;
-  // Drop stale inaccessible-repo notices if the set of inaccessible repos changed or resolved.
+  const activeActivityIds = Array.isArray(data.activities)
+    ? new Set(data.activities.map((a) => `act:${a?.id}`).filter(Boolean))
+    : null;
+  // Drop stale inaccessible-repo notices and activity notices not in the active dataset.
   let keptItems = (next.items || []).filter((item) => {
-    if (!String(item?.id || '').startsWith('repo-inacc:')) return true;
-    if (item.id === activeInaccId) return true;
-    changed = true;
-    return false;
+    const id = String(item?.id || '');
+    if (id.startsWith('repo-inacc:')) {
+      if (id === activeInaccId) return true;
+      changed = true;
+      return false;
+    }
+    if (activeActivityIds && id.startsWith('act:') && !activeActivityIds.has(id)) {
+      changed = true;
+      return false;
+    }
+    return true;
   });
 
   const existingIds = new Set(keptItems.map((x) => x.id));
