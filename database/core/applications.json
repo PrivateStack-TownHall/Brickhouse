@@ -5,21 +5,24 @@
     "code": "MAIN-01",
     "description": "",
     "purpose": "",
-    "ownerId": "COMP-001",
+    "ownerId": "COMP-006",
     "category": "Main Applications",
     "type": "Web Application",
-    "lifecycle": "development",
+    "lifecycle": "active",
     "websiteUrl": "",
     "documentationUrl": "",
     "tags": [
       "owner-to-confirm"
     ],
-    "architecture": "",
+    "architecture": "SPA",
     "platform": "Web",
     "hosting": "",
-    "environments": [],
+    "environments": [
+      "production"
+    ],
     "createdAt": "2026-11-23T14:38:47Z",
-    "updatedAt": "2026-11-23T14:38:47Z"
+    "updatedAt": "2026-11-26T07:47:25.346Z",
+    "logoUrl": ""
   },
   {
     "id": "APP-002",

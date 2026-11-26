@@ -9,5 +9,49 @@
     "resourceId": null,
     "applicationId": null,
     "description": "Imported source.xlsx: 40 applications, 32 repositories, 12 APIs, 6 components, 23 recorded commits."
+  },
+  {
+    "id": "ACT-002",
+    "timestamp": "2026-11-26T07:47:25.346Z",
+    "actor": "Registry Owner",
+    "category": "lifecycle",
+    "action": "Lifecycle changed",
+    "resourceType": "Application",
+    "resourceId": "APP-001",
+    "applicationId": "APP-001",
+    "description": "\"Vincent Portfolio\" lifecycle changed from development to active."
+  },
+  {
+    "id": "ACT-003",
+    "timestamp": "2026-11-26T07:47:25.346Z",
+    "actor": "Registry Owner",
+    "category": "update",
+    "action": "Application updated",
+    "resourceType": "Application",
+    "resourceId": "APP-001",
+    "applicationId": "APP-001",
+    "description": "Updated \"Vincent Portfolio\": ownerId, logoUrl, architecture, environments."
+  },
+  {
+    "id": "ACT-004",
+    "timestamp": "2026-11-26T07:47:25.346Z",
+    "actor": "Registry Owner",
+    "category": "relationship",
+    "action": "Relationships updated",
+    "resourceType": "Application",
+    "resourceId": "APP-001",
+    "applicationId": "APP-001",
+    "description": "Application → Technology: 4 added."
+  },
+  {
+    "id": "ACT-005",
+    "timestamp": "2026-11-26T07:48:16.546Z",
+    "actor": "Registry Owner",
+    "category": "system",
+    "action": "Integration saved",
+    "resourceType": "Settings",
+    "resourceId": "8455e2bc-54eb-4d90-b81c-b03cd353c411",
+    "applicationId": null,
+    "description": "Saved vincent-guizot (github)."
   }
 ]

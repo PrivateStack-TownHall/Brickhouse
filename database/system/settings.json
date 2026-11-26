@@ -4,7 +4,8 @@
     "description": "Application Registry & Ecosystem Inventory for VSG Group",
     "organization": "VSG Group",
     "ownerName": "Registry Owner",
-    "theme": "Brickhouse (default)"
+    "theme": "Brickhouse (default)",
+    "lighthouseUrl": "http://localhost:5174"
   },
   "preferences": {
     "themeMode": "light",
@@ -26,6 +27,24 @@
       "organization": "",
       "apiBaseUrl": "https://api.bitbucket.org/2.0",
       "notes": ""
-    }
+    },
+    "connections": [
+      {
+        "organization": "PrivateStack-TownHall",
+        "apiBaseUrl": "https://api.github.com",
+        "notes": "Repositories also live under vincent-guizot. Not connected: Git data is a recorded snapshot.",
+        "id": "legacy-github",
+        "provider": "github",
+        "name": "GitHub · PrivateStack-TownHall"
+      },
+      {
+        "id": "8455e2bc-54eb-4d90-b81c-b03cd353c411",
+        "provider": "github",
+        "name": "vincent-guizot",
+        "organization": "vincent-guizot",
+        "apiBaseUrl": "https://api.github.com",
+        "notes": ""
+      }
+    ]
   }
 }

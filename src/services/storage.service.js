@@ -8,6 +8,15 @@ import { reconcileSequences, formatId, parseIdNumber } from './id-generator.serv
 import { integrationConnections } from './git-integrations.service';
 
 const RECOVERY_KEY = `${STORAGE_KEY}.recovery`;
+const DB_API_ENDPOINT = '/api/db/registry';
+
+function canUseDiskApi() {
+  try {
+    return typeof window !== 'undefined' && typeof fetch === 'function' && window.location.protocol !== 'file:';
+  } catch {
+    return false;
+  }
+}
 
 function storage() {
   try {
@@ -128,6 +137,56 @@ export function persistDataset(ds) {
     return { ok: true, bytes: raw.length };
   } catch (e) {
     return { ok: false, error: e?.name === 'QuotaExceededError' ? 'Local Storage is full.' : String(e?.message || e) };
+  }
+}
+
+export async function loadDatasetFromDisk() {
+  if (!canUseDiskApi()) return { ok: false, available: false };
+  try {
+    const res = await fetch(DB_API_ENDPOINT, { cache: 'no-store' });
+    if (!res.ok) return { ok: false, available: false };
+    const ct = res.headers.get('content-type') || '';
+    if (!ct.includes('application/json')) return { ok: false, available: false };
+    const body = await res.json();
+    const rawDataset = body?.dataset;
+    if (!body?.ok || !rawDataset || typeof rawDataset !== 'object' || !Array.isArray(rawDataset.applications)) {
+      return { ok: false, available: false };
+    }
+    const seed = buildSeedDataset();
+    const { dataset: migrated, applied } = migrateDataset(rawDataset);
+    let ds = normalizeDataset({ ...migrated, meta: { source: 'database', initializedAt: new Date().toISOString(), ...(migrated.meta || {}) } }, seed);
+    if (applied.length) {
+      ds = appendSystemActivity(ds, 'Schema migrated', `Dataset migrated ${applied.join(', ')}; user data preserved.`);
+    }
+    persistDataset(ds);
+    return { ok: true, available: true, migrated: applied.length > 0, dataset: ds };
+  } catch {
+    return { ok: false, available: false };
+  }
+}
+
+export async function persistDatasetToDisk(ds) {
+  if (!canUseDiskApi()) return { ok: false, unavailable: true };
+  try {
+    // Do not set `keepalive: true`: browsers enforce a 64 KiB body limit on keepalive requests,
+    // which rejects payloads like Brickhouse's ~255 KB+ registry JSON with NetworkError.
+    const res = await fetch(DB_API_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dataset: ds }),
+    });
+    if (!res.ok) {
+      let msg = `Failed to save database JSON files (HTTP ${res.status}).`;
+      try {
+        const errBody = await res.json();
+        if (errBody?.error) msg = errBody.error;
+      } catch { /* ignore */ }
+      return { ok: false, error: msg };
+    }
+    const body = await res.json();
+    return { ok: true, written: body.written || [], unchanged: body.unchanged || [] };
+  } catch (e) {
+    return { ok: false, unavailable: true, error: String(e?.message || e) };
   }
 }
 

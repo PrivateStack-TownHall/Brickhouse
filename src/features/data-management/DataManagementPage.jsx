@@ -130,12 +130,12 @@ export default function DataManagementPage() {
             <div className="bh-card h-100">
               <div className="bh-card-header"><h3 className="bh-card-title">Storage</h3></div>
               <div className="bh-card-body d-flex flex-column gap-2 small">
-                <InfoRow label="Storage mode" value="Browser Local Storage" />
+                <InfoRow label="Storage mode" value={health.storageMode === 'json-files' ? 'Local JSON Files (database/) + Local Storage' : 'Browser Local Storage'} />
                 <InfoRow label="Storage key" value={<span className="mono">{STORAGE_KEY}</span>} />
                 <InfoRow label="Status" value={<StatusBadge value={health.persistence && health.status !== 'error' ? 'ok' : 'error'} label={health.persistence && health.status !== 'error' ? 'Persisting' : 'Not persisting'} />} />
                 <InfoRow label="Message" value={health.message} />
                 <InfoRow label="Size" value={formatBytes(usage.bytes)} />
-                <InfoRow label="Initial data source" value={data.meta?.source?.startsWith('backup:') ? `Restored from ${data.meta.source.slice(7)}` : 'Seed JSON (database/)'} />
+                <InfoRow label="Initial data source" value={data.meta?.source?.startsWith('backup:') ? `Restored from ${data.meta.source.slice(7)}` : data.meta?.source === 'database' ? 'Local JSON Files (database/)' : 'Seed JSON (database/)'} />
                 <InfoRow label="Initialized" value={fmt.dateTime(data.meta?.initializedAt)} />
                 <InfoRow label="Last restore" value={data.meta?.lastRestoreAt ? fmt.dateTime(data.meta.lastRestoreAt) : '—'} />
                 {usage.hasRecovery && (
@@ -158,7 +158,7 @@ export default function DataManagementPage() {
             { key: 'kind', label: 'Kind' },
             { key: 'records', label: 'Records', align: 'right' },
             { key: 'issues', label: 'Issues', align: 'right', sortValue: (r) => issueCount(r.key), render: (r) => (issueCount(r.key) ? <span className="text-danger fw-semibold">{issueCount(r.key)}</span> : <CheckCircle2 size={15} color="var(--bh-success)" />) },
-          ]} footerNote="seed files are read-only at runtime" />
+          ]} footerNote={health.storageMode === 'json-files' ? 'CRUD changes are saved automatically to database/*.json' : 'seed files are read-only in static mode'} />
         </div>
       )}
 
