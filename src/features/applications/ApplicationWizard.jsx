@@ -1,12 +1,14 @@
 import { useNavigate, useParams } from 'react-router';
-import { Cpu } from 'lucide-react';
+import { Cpu, Link2 } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
 import StepWizard from '../../components/forms/StepWizard';
 import FormField from '../../components/forms/FormField';
 import FormSelect from '../../components/forms/FormSelect';
 import FormTextarea from '../../components/forms/FormTextarea';
 import TagInput from '../../components/forms/TagInput';
+import LogoField from '../../components/forms/LogoField';
 import MultiSelect from '../../components/forms/MultiSelect';
+import Avatar from '../../components/common/Avatar';
 import ReviewSummary from '../../components/common/ReviewSummary';
 import StatusBadge from '../../components/badges/StatusBadge';
 import EmptyState from '../../components/common/EmptyState';
@@ -21,26 +23,26 @@ import {
 } from '../../utils/options';
 import NotFoundPage from '../overview/NotFoundPage';
 
-const FIELDS = ['name', 'code', 'ownerId', 'category', 'type', 'lifecycle', 'description', 'purpose', 'websiteUrl', 'documentationUrl', 'tags', 'architecture', 'platform', 'hosting', 'environments'];
+const FIELDS = ['name', 'code', 'ownerId', 'category', 'type', 'lifecycle', 'description', 'purpose', 'websiteUrl', 'documentationUrl', 'logoUrl', 'tags', 'architecture', 'platform', 'hosting', 'environments'];
 
 const sortAsc = (arr, labelOf = (x) => x.label) => [...arr].sort((a, b) => String(labelOf(a)).localeCompare(String(labelOf(b)), undefined, { sensitivity: 'base' }));
 
 const ENV_GUIDE = {
-  development: 'Lingkungan kerja developer untuk coding, eksperimen, dan debugging awal sebelum digabung.',
-  preview: 'Lingkungan pratinjau sementara (biasanya per branch / PR) untuk mengecek hasil build sebelum staging.',
-  staging: 'Lingkungan uji coba pra-rilis yang menyerupai production untuk QA dan UAT sebelum live.',
-  production: 'Lingkungan live utama yang diakses langsung oleh pengguna akhir dengan data nyata.',
+  development: 'Lingkungan lokal developer untuk coding, eksperimen, dan debugging awal.',
+  preview: 'Lingkungan pratinjau sementara (per branch / PR) untuk mengecek hasil build.',
+  staging: 'Lingkungan uji coba pra-rilis mirip production untuk QA dan UAT.',
+  production: 'Lingkungan live utama yang diakses langsung oleh pengguna akhir.',
 };
 
 // Step 02 technology roles → catalog categories offered for each (disjoint so each tech appears in one card).
 const TECH_ROLES = [
   { key: 'techLanguage', role: 'Programming Language', label: 'Programming Language', categories: ['Programming Language'] },
-  { key: 'techFrontend', role: 'Frontend Technology', label: 'Frontend Technology', categories: ['Frontend Framework', 'Styling'] },
+  { key: 'techFrontend', role: 'Frontend Technology', label: 'Frontend Technology', categories: ['Frontend Framework', 'Styling', 'Library'] },
   { key: 'techBackend', role: 'Backend Technology', label: 'Backend Technology', categories: ['Backend Framework', 'Runtime'] },
   { key: 'techDatabase', role: 'Database', label: 'Database', categories: ['Database'] },
   { key: 'techOrm', role: 'ORM / Data Access', label: 'ORM / Data Access', categories: ['ORM'] },
   { key: 'techTesting', role: 'Testings', label: 'Testings', categories: ['Testing'] },
-  { key: 'techTools', role: 'Additional Tools', label: 'Additional Tools', categories: ['DevOps', 'Library', 'Other'] },
+  { key: 'techTools', role: 'Additional Tools', label: 'Additional Tools', categories: ['DevOps', 'Other'] },
 ];
 
 function initialValues(ds, app) {
@@ -102,7 +104,7 @@ function WizardBody({ app }) {
   const steps = [
     {
       key: 'basic', title: 'Basic Information', description: 'Identity, ownership & lifecycle',
-      fields: ['name', 'code', 'ownerId', 'category', 'type', 'lifecycle', 'websiteUrl', 'documentationUrl'],
+      fields: ['name', 'code', 'ownerId', 'category', 'type', 'lifecycle', 'websiteUrl', 'documentationUrl', 'logoUrl'],
       validate: () => requireFields(v, [['name', 'Application name'], ['code', 'Application code'], ['ownerId', 'Company ownership'], ['category', 'Category'], ['type', 'Application type'], ['lifecycle', 'Lifecycle']]),
       render: () => (
         <div className="row">
@@ -116,6 +118,7 @@ function WizardBody({ app }) {
           <div className="col-12"><FormTextarea label="Description" placeholder="Short description of the application" {...bind('description')} /></div>
           <div className="col-md-6"><FormField label="Website URL" type="url" placeholder="https://…" {...bind('websiteUrl')} /></div>
           <div className="col-md-6"><FormField label="Documentation URL" type="url" placeholder="https://…" {...bind('documentationUrl')} /></div>
+          <div className="col-12"><LogoField label="Application Logo" value={v.logoUrl} onChange={(val) => set('logoUrl', val)} name={v.name} seed={app?.id || v.code} error={form.errors.logoUrl} help="Optional custom logo (inherited by its Components, Repositories, and Deployments)." /></div>
           <div className="col-12"><TagInput label="Tags" value={v.tags} onChange={(t) => set('tags', t)} /></div>
         </div>
       ),
@@ -134,25 +137,27 @@ function WizardBody({ app }) {
                 extraFields={[{ key: 'version', label: 'Version' }]} emptyText="No catalog entries in this category yet. Add them in Technology Stack." />
             </div>
           ))}
-          <div className="col-md-6"><FormTextarea label="Hosting Information" rows={2} placeholder="Where and how it is hosted" {...bind('hosting')} /></div>
-          <div className="col-md-6">
-            <label className="form-label">Environment</label>
-            <div className="d-flex flex-wrap gap-3 pt-1">
-              {sortAsc(cat.environments, (x) => x).map((e) => (
-                <label key={e} className="form-check d-flex align-items-center gap-2 m-0">
-                  <input type="checkbox" className="form-check-input m-0" checked={v.environments.includes(e)}
-                    onChange={() => set('environments', v.environments.includes(e) ? v.environments.filter((x) => x !== e) : [...v.environments, e])} />
-                  <span className="text-capitalize">{e}</span>
-                </label>
-              ))}
-            </div>
-            <div className="mt-2 p-2 rounded border bg-body-tertiary small d-flex flex-column gap-1">
-              {sortAsc(cat.environments, (x) => x).map((e) => (
-                <div key={e} className="d-flex align-items-baseline gap-2">
-                  <span className="badge text-bg-light border text-capitalize" style={{ minWidth: 86 }}>{e}</span>
-                  <span className="text-muted">{ENV_GUIDE[e] || 'Environment deployment aplikasi.'}</span>
-                </div>
-              ))}
+          <div className="col-md-6 col-lg-8 d-flex flex-column">
+            <FormTextarea label="Hosting Information" rows={2} placeholder="Where and how it is hosted" {...bind('hosting')} />
+            <div className="mb-3 flex-grow-1 d-flex flex-column">
+              <label className="form-label">Environment</label>
+              <div className="d-flex flex-wrap gap-3 pt-1 pb-2">
+                {sortAsc(cat.environments, (x) => x).map((e) => (
+                  <label key={e} className="form-check d-flex align-items-center gap-2 m-0">
+                    <input type="checkbox" className="form-check-input m-0" checked={v.environments.includes(e)}
+                      onChange={() => set('environments', v.environments.includes(e) ? v.environments.filter((x) => x !== e) : [...v.environments, e])} />
+                    <span className="text-capitalize">{e}</span>
+                  </label>
+                ))}
+              </div>
+              <div className="p-3 rounded border bg-body-tertiary small d-flex flex-column justify-content-center gap-2 flex-grow-1">
+                {sortAsc(cat.environments, (x) => x).map((e) => (
+                  <div key={e} className="d-flex align-items-center gap-2">
+                    <span className="badge text-bg-light border text-capitalize flex-shrink-0" style={{ minWidth: 92 }}>{e}</span>
+                    <span className="text-muted">{ENV_GUIDE[e] || 'Environment deployment aplikasi.'}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -163,21 +168,63 @@ function WizardBody({ app }) {
       fields: ['ownerId'],
       render: () => (
         <div className="row">
-          <div className="col-md-6"><FormSelect label="Company Ownership" required options={companyOptions(data)} {...bindSelect('ownerId')} /></div>
-          <div className="col-12" />
-          <div className="col-lg-6"><MultiSelect label="Repositories" options={repositoryOptions(data)} value={v.repositories} onChange={(x) => set('repositories', x)} extraFields={[{ key: 'role', label: 'Role', options: ['Frontend', 'Backend', 'Full Stack', 'Mobile', 'Monorepo', 'Shared Library', 'Infrastructure', 'Documentation', 'Website'] }]} /></div>
-          <div className="col-lg-6">
-            <MultiSelect label="Components (shared, owned by other applications)" options={componentOptions(data, (c) => !ownComponentIds.has(c.id))} value={v.sharedComponents} onChange={(x) => set('sharedComponents', x)}
+          <div className="col-md-6"><FormSelect label="Company Ownership" required options={sortAsc(companyOptions(data))} {...bindSelect('ownerId')} /></div>
+          <div className="col-12 mt-1 mb-2"><div className="bh-section-title"><Link2 size={15} className="bh-section-icon" /><span>Linked Repositories, Components, APIs &amp; Infrastructure</span></div></div>
+          <div className="col-lg-6 d-flex flex-column">
+            <MultiSelect fill label="Repositories" options={sortAsc(repositoryOptions(data))} value={v.repositories} onChange={(x) => set('repositories', x)}
+              extraFields={[{ key: 'role', label: 'Role', options: sortAsc(['Frontend', 'Backend', 'Full Stack', 'Mobile', 'Monorepo', 'Shared Library', 'Infrastructure', 'Documentation', 'Website'], (x) => x) }]}
+              help="Repositories that host source code or docs for this application." />
+          </div>
+          <div className="col-lg-6 d-flex flex-column">
+            <MultiSelect fill label="Components (shared, owned by other applications)" options={sortAsc(componentOptions(data, (c) => !ownComponentIds.has(c.id)))} value={v.sharedComponents} onChange={(x) => set('sharedComponents', x)}
               help={app ? `${ownComponents.length} own component(s) are linked automatically through their parent application.` : 'Own components are added after creation from the Components page.'} />
           </div>
-          <div className="col-lg-6"><MultiSelect label="APIs & Services provided" options={providedOptions} value={v.providedApis} onChange={(x) => set('providedApis', x)} help="An API has exactly one provider application; APIs already provided elsewhere are hidden." /></div>
-          <div className="col-lg-6"><MultiSelect label="APIs & Services consumed" options={apiOptions(data)} value={v.consumedApis} onChange={(x) => set('consumedApis', x)} /></div>
-          <div className="col-lg-6"><MultiSelect label="Infrastructure" options={infrastructureOptions(data)} value={v.infrastructure} onChange={(x) => set('infrastructure', x)} extraFields={[{ key: 'role', label: 'Usage / role' }]} /></div>
-          <div className="col-lg-6">
-            <label className="form-label">Technology Stack</label>
-            <div className="bh-card bh-card-body py-2 mb-3 small">{TECH_ROLES.some((r) => v[r.key].length) ? TECH_ROLES.filter((r) => v[r.key].length).map((r) => <div key={r.key}><strong>{r.label}:</strong> {nameList(data, 'technologies', v[r.key])}</div>) : <span className="text-subtle">Selected in Step 02.</span>}</div>
-            <label className="form-label">Deployments</label>
-            <div className="bh-card bh-card-body py-2 small text-muted">Deployments can be linked directly to an application or to its components.{app && <> Currently {data.deployments.filter((d) => d.applicationId === app.id || ownComponentIds.has(d.componentId)).length} deployment(s).</>}</div>
+          <div className="col-lg-6 d-flex flex-column">
+            <MultiSelect fill label="APIs & Services provided" options={sortAsc(providedOptions)} value={v.providedApis} onChange={(x) => set('providedApis', x)}
+              help="An API has one provider; APIs provided elsewhere are hidden." />
+          </div>
+          <div className="col-lg-6 d-flex flex-column">
+            <MultiSelect fill label="APIs & Services consumed" options={sortAsc(apiOptions(data))} value={v.consumedApis} onChange={(x) => set('consumedApis', x)}
+              help="Internal or third-party APIs called by this application." />
+          </div>
+          <div className="col-lg-6 d-flex flex-column">
+            <MultiSelect fill label="Infrastructure" options={sortAsc(infrastructureOptions(data))} value={v.infrastructure} onChange={(x) => set('infrastructure', x)}
+              extraFields={[{ key: 'role', label: 'Usage / role' }]}
+              help="Hosting, database, source control, or cloud resources linked here." />
+          </div>
+          <div className="col-lg-6 d-flex flex-column mb-3">
+            <div className="mb-3 flex-grow-1 d-flex flex-column">
+              <label className="form-label">Technology Stack</label>
+              <div className="bh-multiselect p-3 small d-flex flex-column gap-1 flex-grow-1">
+                {TECH_ROLES.some((r) => v[r.key].length)
+                  ? TECH_ROLES.filter((r) => v[r.key].length).map((r) => <div key={r.key}><strong>{r.label}:</strong> {nameList(data, 'technologies', v[r.key])}</div>)
+                  : <span className="text-subtle">No technologies selected yet. Configure them in Step 02 (Technical Details).</span>}
+              </div>
+            </div>
+            <div className="flex-grow-1 d-flex flex-column">
+              <label className="form-label">Deployments</label>
+              {(() => {
+                const appDeps = app ? data.deployments.filter((d) => d.applicationId === app.id || ownComponentIds.has(d.componentId)) : [];
+                return (
+                  <>
+                    <div className="bh-multiselect p-3 small d-flex flex-column gap-2 flex-grow-1">
+                      {appDeps.length > 0 ? (
+                        <div className="d-flex flex-wrap gap-2">
+                          {appDeps.map((d) => (
+                            <span key={d.id} className="bh-chip">{d.name}{d.environment ? ` · ${d.environment}` : ''}</span>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-subtle">{app ? 'No deployments recorded for this application yet.' : 'Deployments can be linked after creation.'}</span>
+                      )}
+                    </div>
+                    <div className="form-text">
+                      {app ? `Currently ${appDeps.length} deployment(s) linked to this application or its components.` : 'Managed from the Deployments page directly or via components.'}
+                    </div>
+                  </>
+                );
+              })()}
+            </div>
           </div>
         </div>
       ),
@@ -187,6 +234,7 @@ function WizardBody({ app }) {
       render: () => (
         <ReviewSummary sections={[
           { title: 'Basic Information', fields: [
+            { label: 'Logo', value: <Avatar name={v.name || 'App'} seed={app?.id || v.code} src={v.logoUrl} size={32} /> },
             { label: 'Application Name', value: v.name }, { label: 'Code', value: v.code },
             { label: 'Company', value: byId(data, 'companies', v.ownerId)?.name }, { label: 'Category', value: v.category },
             { label: 'Type', value: v.type }, { label: 'Lifecycle', value: v.lifecycle && <StatusBadge value={v.lifecycle} /> },
