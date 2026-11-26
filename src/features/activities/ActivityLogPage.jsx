@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router';
-import { Plus, Pencil, Trash2, RefreshCcw, Link2, Settings2, History, Lock } from 'lucide-react';
+import { History, Lock } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
 import SummaryCards from '../../components/common/SummaryCards';
 import FilterBar from '../../components/tables/FilterBar';
@@ -11,11 +11,10 @@ import { useRegistry } from '../../hooks/useRegistry';
 import { useFilters } from '../../hooks/useFilters';
 import { useFormat } from '../../hooks/useFormat';
 import { ACTIVITY_CATEGORIES } from '../../services/activity.service';
+import { ACTIVITY_CATEGORY_STYLES } from '../../constants/ui';
 import { entityForId, routeFor } from '../../services/schema';
 import { matchesSearch } from '../../services/query.service';
 import { applicationOptions } from '../../utils/options';
-
-const CAT_STYLE = { create: [Plus, 'success'], update: [Pencil, 'info'], delete: [Trash2, 'danger'], lifecycle: [RefreshCcw, 'warning'], relationship: [Link2, 'orange'], system: [Settings2, 'gray'] };
 
 export default function ActivityLogPage() {
   const { data } = useRegistry();
@@ -31,7 +30,7 @@ export default function ActivityLogPage() {
     && (!from || a.timestamp >= new Date(`${from}T00:00:00`).toISOString())
     && (!to || a.timestamp <= new Date(`${to}T23:59:59.999`).toISOString()));
   const summary = Object.entries(ACTIVITY_CATEGORIES).map(([k, label]) => ({
-    key: k, label, value: data.activities.filter((a) => a.category === k).length, icon: CAT_STYLE[k][0], tone: CAT_STYLE[k][1],
+    key: k, label, value: data.activities.filter((a) => a.category === k).length, icon: ACTIVITY_CATEGORY_STYLES[k][0], tone: ACTIVITY_CATEGORY_STYLES[k][1],
     onClick: () => f.setFilter('category', f.filters.category === k ? '' : k), active: f.filters.category === k,
   }));
   const exists = (id) => {
@@ -42,7 +41,7 @@ export default function ActivityLogPage() {
     { key: 'id', label: 'Activity ID', render: (a) => <span className="bh-id">{a.id}</span> },
     { key: 'timestamp', label: 'Timestamp', render: (a) => <span style={{ whiteSpace: 'nowrap' }}>{fmt.dateTime(a.timestamp)}</span> },
     { key: 'actor', label: 'Actor' },
-    { key: 'action', label: 'Action', render: (a) => { const [Icon, tone] = CAT_STYLE[a.category] || CAT_STYLE.system; return <span className={`bh-badge bh-tone-${tone}`}><Icon size={12} />{a.action}</span>; } },
+    { key: 'action', label: 'Action', render: (a) => { const [Icon, tone] = ACTIVITY_CATEGORY_STYLES[a.category] || ACTIVITY_CATEGORY_STYLES.system; return <span className={`bh-badge bh-tone-${tone}`}><Icon size={12} />{a.action}</span>; } },
     { key: 'resourceType', label: 'Resource Type' },
     { key: 'resourceId', label: 'Resource ID', render: (a) => { if (!a.resourceId) return <span className="text-subtle">—</span>; const to = exists(a.resourceId); return to ? <Link to={to} className="bh-id">{a.resourceId}</Link> : <span className="bh-id" title="Record no longer exists or has no page">{a.resourceId}</span>; } },
     { key: 'description', label: 'Description', sortable: false, render: (a) => <span className="text-muted">{a.description}</span> },

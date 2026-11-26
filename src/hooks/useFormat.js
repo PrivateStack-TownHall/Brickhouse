@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useRegistry } from './useRegistry';
 import { formatDate, formatTime, relativeTime } from '../helpers';
+import { DAY_MS } from '../constants/registry';
 
 /** Date/time formatters that follow Settings → System Preferences. */
 export function useFormat() {
@@ -16,7 +17,7 @@ export function useFormat() {
       if (!v) return '—';
       const d = new Date(v);
       const today = new Date(); today.setHours(0, 0, 0, 0);
-      const days = Math.floor((today - new Date(d).setHours(0, 0, 0, 0)) / 86400000);
+      const days = Math.floor((today - new Date(d).setHours(0, 0, 0, 0)) / DAY_MS);
       if (days <= 0) return `Today, ${formatTime(d, timeFormat)}`;
       if (days === 1) return `Yesterday, ${formatTime(d, timeFormat)}`;
       if (days < 7) return `${days} days ago`;

@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import {
-  Bell, CheckCheck, Trash2, RefreshCw, AlertTriangle, Rocket, Activity, Search, ExternalLink, X, FilterX, Check,
+  Bell, CheckCheck, Trash2, RefreshCw, AlertTriangle, Activity, ExternalLink, X, Check,
 } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
 import SummaryCards from '../../components/common/SummaryCards';
+import FilterBar from '../../components/tables/FilterBar';
 import TableFooter from '../../components/tables/TableFooter';
 import EmptyState from '../../components/common/EmptyState';
 import Modal from '../../components/dialogs/Modal';
@@ -12,13 +13,8 @@ import ConfirmDialog from '../../components/dialogs/ConfirmDialog';
 import StatusBadge from '../../components/badges/StatusBadge';
 import { useNotifications } from '../../hooks/useNotifications';
 import { useFormat } from '../../hooks/useFormat';
-
-const KIND_META = {
-  sync: { label: 'Git Sync', icon: RefreshCw },
-  deployment: { label: 'Deployment', icon: Rocket },
-  error: { label: 'Error', icon: AlertTriangle },
-  activity: { label: 'Registry', icon: Activity },
-};
+import { usePagination } from '../../hooks/usePagination';
+import { NOTIFICATION_KIND_META } from '../../constants/ui';
 
 export default function NotificationsPage() {
   const { notifications, unreadCount, markRead, markAllRead, removeNotification, clearNotifications } = useNotifications();
@@ -28,8 +24,6 @@ export default function NotificationsPage() {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('all'); // all | unread | read
   const [kind, setKind] = useState('all');     // all | sync | alerts | activity
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
   const [selected, setSelected] = useState(null);
   const [confirmAction, setConfirmAction] = useState(null); // { type: 'single' | 'read' | 'all', item? }
 
@@ -46,9 +40,7 @@ export default function NotificationsPage() {
     });
   }, [notifications, search, status, kind]);
 
-  const pages = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const safePage = Math.min(page, pages);
-  const visible = filtered.slice((safePage - 1) * pageSize, safePage * pageSize);
+  const { page: safePage, pageSize, setPage, setPageSize, pages, visible } = usePagination(filtered, 10);
 
   const syncCount = notifications.filter((n) => n.kind === 'sync').length;
   const alertCount = notifications.filter((n) => n.kind === 'error' || n.kind === 'deployment').length;
@@ -149,16 +141,14 @@ export default function NotificationsPage() {
       <SummaryCards items={summary} min={160} />
 
       <div className="bh-card">
-        <div className="bh-filterbar">
-          <div className="bh-search">
-            <Search size={15} />
-            <input
-              className="form-control form-control-sm"
-              placeholder="Search notifications…"
-              value={search}
-              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            />
-          </div>
+        <FilterBar
+          search={search}
+          onSearch={(val) => { setSearch(val); setPage(1); }}
+          searchSize="sm"
+          placeholder="Search notifications…"
+          active={filtersActive}
+          onClear={clearFilters}
+        >
           <select
             className="form-select form-select-sm"
             style={{ width: 'auto' }}
@@ -182,12 +172,7 @@ export default function NotificationsPage() {
             <option value="alerts">Errors & Failed Deployments</option>
             <option value="activity">Registry Events</option>
           </select>
-          {filtersActive && (
-            <button type="button" className="btn btn-ghost btn-sm" onClick={clearFilters}>
-              <FilterX size={15} />Clear filters
-            </button>
-          )}
-        </div>
+        </FilterBar>
 
         {visible.length === 0 ? (
           <EmptyState
@@ -200,7 +185,7 @@ export default function NotificationsPage() {
         ) : (
           <div className="p-2 d-flex flex-column gap-1">
             {visible.map((n) => {
-              const meta = KIND_META[n.kind] || KIND_META.activity;
+              const meta = NOTIFICATION_KIND_META[n.kind] || NOTIFICATION_KIND_META.activity;
               const Icon = meta.icon;
               return (
                 <div key={n.id} className={`bh-notif-item border ${!n.read ? 'unread' : ''}`} style={{ borderColor: 'var(--bh-border)' }}>
@@ -259,7 +244,7 @@ export default function NotificationsPage() {
           total={filtered.length}
           pages={pages}
           onPage={setPage}
-          onPageSize={(s) => { setPageSize(s); setPage(1); }}
+          onPageSize={setPageSize}
           noun="notifications"
         />
       </div>
@@ -293,7 +278,7 @@ export default function NotificationsPage() {
         )}
       >
         {selected && (() => {
-          const meta = KIND_META[selected.kind] || KIND_META.activity;
+          const meta = NOTIFICATION_KIND_META[selected.kind] || NOTIFICATION_KIND_META.activity;
           const Icon = meta.icon;
           return (
             <div className="d-flex flex-column gap-3">

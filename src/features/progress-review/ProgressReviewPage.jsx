@@ -2,11 +2,13 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import {
   Code2, GitBranch, GitPullRequest, GitMerge, Clock3, Users, FlaskConical, BarChart3, FolderGit2, User, ListTree, Info,
-  ExternalLink, Layers, Github, PieChart, Target, Trophy, GitCommitHorizontal, CalendarDays, AppWindow, RefreshCw,
+  Layers, Github, PieChart, Target, Trophy, GitCommitHorizontal, CalendarDays, AppWindow, RefreshCw,
 } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
 import StatCard from '../../components/common/StatCard';
 import SectionCard from '../../components/common/SectionCard';
+import AlertBanner from '../../components/common/AlertBanner';
+import ExtLink from '../../components/common/ExtLink';
 import DetailTabs from '../../components/common/DetailTabs';
 import SelectMenu from '../../components/common/SelectMenu';
 import Trend, { pctChange } from '../../components/common/Trend';
@@ -39,6 +41,8 @@ import {
 } from '../../services/git-integrations.service';
 import { applicationsOfRepo } from '../../services/query.service';
 import { applicationOptions } from '../../utils/options';
+import { BRANCH_KINDS } from '../../constants/registry';
+import { PR_STATUS_COLORS } from '../../constants/git';
 import { shortMonth, titleCase } from '../../helpers';
 
 const SECTIONS = [
@@ -50,8 +54,6 @@ const SECTIONS = [
   { key: 'branches', label: 'Branches', icon: ListTree },
   { key: 'commits', label: 'Commits', icon: Layers },
 ];
-const PR_COLORS = { open: 'var(--bh-info)', merged: 'var(--bh-success)', closed: 'var(--bh-gray-500)' };
-const BRANCH_KINDS = ['main', 'develop', 'feature', 'fix', 'release', 'chore'];
 
 export default function ProgressReviewPage() {
   const { data, run } = useRegistry();
@@ -168,7 +170,7 @@ export default function ProgressReviewPage() {
   const othersTotal = activeProjects.slice(5).reduce((a, p) => a + p.commits, 0);
   const distribution = [...top.map((p, i) => ({ label: p.application.name, value: p.commits, color: seriesColor(i) })), ...(othersTotal ? [{ label: 'Others', value: othersTotal, color: 'var(--bh-gray-300)' }] : [])];
   const trend = top.map((p, i) => ({ name: p.application.name, color: seriesColor(i), values: bucketize(p.series) }));
-  const prDonut = ['open', 'merged', 'closed'].map((k) => ({ label: titleCase(k), value: s.totals[`${k}Prs`], color: PR_COLORS[k] }));
+  const prDonut = ['open', 'merged', 'closed'].map((k) => ({ label: titleCase(k), value: s.totals[`${k}Prs`], color: PR_STATUS_COLORS[k] }));
   const branchDonut = BRANCH_KINDS.map((k, i) => ({ label: titleCase(k), value: s.branchKinds[k] || 0, color: seriesColor(i) })).filter((d) => d.value > 0);
   const allPrs = s.byRepo.flatMap((r) => r.prList.map((p) => ({ ...p, repository: r.repository, key: `${r.repository.id}#${p.number}`, createdAt: p.createdAt ? new Date(p.createdAt) : s.dayIndexToDate(p.idx) })));
   const allBranches = s.byRepo.flatMap((r) => r.branchList.map((b) => ({ ...b, repository: r.repository, key: `${r.repository.id}:${b.name}`, lastCommitAt: s.dayIndexToDate(b.lastIdx) })));
@@ -330,7 +332,7 @@ export default function ProgressReviewPage() {
           { key: 'committedAt', label: 'Date', render: (c) => <span className="text-nowrap">{fmt.dateTime(c.committedAt)}</span> },
           { key: 'repository', label: 'Repository', sortValue: (c) => c.repository?.name, render: (c) => <span className="d-inline-flex align-items-center gap-1"><Github size={14} /><EntityLink entity="repositories" record={c.repository} /></span> },
           { key: 'message', label: 'Commit message', sortable: false },
-          { key: 'sha', label: 'SHA', render: (c) => (c.url ? <a href={c.url} target="_blank" rel="noreferrer" className="mono d-inline-flex gap-1 align-items-center">{c.sha}<ExternalLink size={11} /></a> : <span className="mono">{c.sha}</span>) },
+          { key: 'sha', label: 'SHA', render: (c) => (c.url ? <ExtLink href={c.url} className="mono" iconSize={11}>{c.sha}</ExtLink> : <span className="mono">{c.sha}</span>) },
         ]} />
       )}
     </SectionCard>
@@ -368,21 +370,13 @@ export default function ProgressReviewPage() {
           </>
         )} />
       {source.kind === 'sample' ? (
-        <div className="bh-sample-banner mb-4 align-items-center justify-content-between flex-wrap">
-          <div className="d-flex align-items-start gap-2 flex-grow-1 min-w-0">
-            <FlaskConical size={18} color="var(--bh-warning)" className="flex-shrink-0 mt-1" />
-            <div><strong>{source.label}.</strong> {source.description} <Link to="/settings?section=integrations">Settings → Integrations</Link></div>
-          </div>
-          {syncButtons}
-        </div>
+        <AlertBanner tone="warning" icon={FlaskConical} className="mb-4 align-items-center justify-content-between flex-wrap" actions={syncButtons}>
+          <strong>{source.label}.</strong> {source.description} <Link to="/settings?section=integrations">Settings → Integrations</Link>
+        </AlertBanner>
       ) : (
-        <div className="bh-sample-banner mb-4 align-items-center justify-content-between flex-wrap" style={{ background: 'var(--bh-info-soft)', borderColor: 'rgba(47,111,178,.3)' }}>
-          <div className="d-flex align-items-start gap-2 flex-grow-1 min-w-0">
-            <Info size={18} color="var(--bh-info)" className="flex-shrink-0 mt-1" />
-            <div><strong>{source.label}.</strong> {source.description} <Link to="/settings?section=integrations">Sync commits in Settings → Integrations</Link>.</div>
-          </div>
-          {syncButtons}
-        </div>
+        <AlertBanner tone="info" icon={Info} className="mb-4 align-items-center justify-content-between flex-wrap" actions={syncButtons}>
+          <strong>{source.label}.</strong> {source.description} <Link to="/settings?section=integrations">Sync commits in Settings → Integrations</Link>.
+        </AlertBanner>
       )}
       <div className="mb-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 168px), 1fr))', gap: 14 }}>
         {metrics.map((m) => <StatCard key={m.label} {...m} />)}
@@ -495,7 +489,7 @@ export default function ProgressReviewPage() {
                 onClear={() => setPrSearch('')}
               />
               <DataTable rows={filteredPrs} pageSize={5} rowKey={(p) => p.key} initialSort={{ key: 'createdAt', dir: 'desc' }} noun="pull requests" columns={[
-                { key: 'number', label: 'PR', render: (p) => (p.url ? <a href={p.url} target="_blank" rel="noreferrer" className="mono d-inline-flex align-items-center gap-1" title={p.title || ''}>#{p.number}<ExternalLink size={11} /></a> : <span className="mono" title={p.title || ''}>#{p.number}</span>) },
+                { key: 'number', label: 'PR', render: (p) => (p.url ? <ExtLink href={p.url} className="mono" iconSize={11} title={p.title || ''}>#{p.number}</ExtLink> : <span className="mono" title={p.title || ''}>#{p.number}</span>) },
                 { key: 'repository', label: 'Repository', sortValue: (p) => p.repository.name, render: (p) => <EntityLink entity="repositories" record={p.repository} /> },
                 { key: 'status', label: 'Status', render: (p) => <StatusBadge value={p.status} /> },
                 { key: 'author', label: 'Author', render: (p) => <span className="mono">{p.author}</span> },

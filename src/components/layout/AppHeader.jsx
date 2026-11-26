@@ -1,32 +1,17 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  Bell, Menu, Database, CheckCheck, AlertTriangle, Compass, ExternalLink,
-  RefreshCw, Rocket, Activity, Settings, X,
+  Bell, Menu, CheckCheck, Compass, ExternalLink, Activity, Settings, X,
 } from 'lucide-react';
 import Breadcrumb from './Breadcrumb';
 import GlobalSearch from './GlobalSearch';
 import { useRegistry } from '../../hooks/useRegistry';
 import { useNotifications } from '../../hooks/useNotifications';
 import { useFormat } from '../../hooks/useFormat';
-
-function useOutside(onClose) {
-  const ref = useRef(null);
-  useEffect(() => {
-    const h = (e) => ref.current && !ref.current.contains(e.target) && onClose();
-    document.addEventListener('mousedown', h);
-    return () => document.removeEventListener('mousedown', h);
-  }, [onClose]);
-  return ref;
-}
-
-const KIND_ICON = {
-  sync: RefreshCw,
-  deployment: Rocket,
-  error: AlertTriangle,
-  activity: Activity,
-};
+import { useOutsideClick } from '../../hooks/useOutsideClick';
+import { DEFAULT_LIGHTHOUSE_URL } from '../../constants/registry';
+import { NOTIFICATION_KIND_META } from '../../constants/ui';
 
 export default function AppHeader({ onMenu }) {
   const { data } = useRegistry();
@@ -35,13 +20,13 @@ export default function AppHeader({ onMenu }) {
   const navigate = useNavigate();
   const [menu, setMenu] = useState(null);
   const [tab, setTab] = useState('all');
-  const close = () => setMenu(null);
-  const notifRef = useOutside(close);
+  const close = useCallback(() => setMenu(null), []);
+  const notifRef = useOutsideClick(close);
   const visibleNotes = useMemo(
     () => (tab === 'unread' ? notifications.filter((n) => !n.read) : notifications),
     [notifications, tab],
   );
-  const lighthouseUrl = data.settings?.general?.lighthouseUrl || 'http://localhost:5174';
+  const lighthouseUrl = data.settings?.general?.lighthouseUrl || DEFAULT_LIGHTHOUSE_URL;
 
   const onOpenNote = (n) => {
     markRead(n.id);
@@ -107,7 +92,7 @@ export default function AppHeader({ onMenu }) {
                   </div>
                 ) : (
                   visibleNotes.map((n) => {
-                    const Icon = KIND_ICON[n.kind] || Activity;
+                    const Icon = NOTIFICATION_KIND_META[n.kind]?.icon || Activity;
                     return (
                       <div key={n.id} className={`bh-notif-item ${!n.read ? 'unread' : ''}`}>
                         <button type="button" className="bh-notif-btn" onClick={() => onOpenNote(n)}>

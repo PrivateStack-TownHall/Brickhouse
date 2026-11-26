@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Search } from 'lucide-react';
 import { useRegistry } from '../../hooks/useRegistry';
+import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { ENTITIES, routeFor } from '../../services/schema';
 import { matchesSearch } from '../../services/query.service';
 import EntityIcon from '../common/EntityIcon';
@@ -15,7 +16,8 @@ export default function GlobalSearch() {
   const [q, setQ] = useState('');
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
-  const box = useRef(null);
+  const close = useCallback(() => setOpen(false), []);
+  const box = useOutsideClick(close);
   const results = useMemo(() => {
     if (q.trim().length < 2) return [];
     return SEARCHABLE.flatMap((e) => (data[e] || [])
@@ -23,14 +25,12 @@ export default function GlobalSearch() {
       .map((r) => ({ entity: e, record: r }))).slice(0, 12);
   }, [q, data]);
   useEffect(() => {
-    const onDoc = (e) => box.current && !box.current.contains(e.target) && setOpen(false);
     const onKey = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); box.current?.querySelector('input')?.focus(); }
     };
-    document.addEventListener('mousedown', onDoc);
     document.addEventListener('keydown', onKey);
-    return () => { document.removeEventListener('mousedown', onDoc); document.removeEventListener('keydown', onKey); };
-  }, []);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [box]);
   const go = (r) => {
     const to = routeFor(r.entity, r.record.id);
     if (to) navigate(to);

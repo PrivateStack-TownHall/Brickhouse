@@ -11,7 +11,7 @@ import SectionCard from '../../components/common/SectionCard';
 import Trend, { pctChange } from '../../components/common/Trend';
 import SelectMenu from '../../components/common/SelectMenu';
 import QuickLinkGrid from '../../components/common/QuickLinkGrid';
-import Avatar from '../../components/common/Avatar';
+import RecordIdentity from '../../components/common/RecordIdentity';
 import IdChip from '../../components/common/IdChip';
 import StackedBar from '../../components/charts/StackedBar';
 import BarChart from '../../components/charts/BarChart';
@@ -23,17 +23,15 @@ import { useRegistry } from '../../hooks/useRegistry';
 import { useFormat } from '../../hooks/useFormat';
 import { useDeleteRecord } from '../../hooks/useDeleteRecord';
 import { LIFECYCLES } from '../../services/schema';
+import { DAY_MS } from '../../constants/registry';
+import { OVERVIEW_PERIODS, OVERVIEW_MONTH_RANGES } from '../../constants/ui';
 import { LIFECYCLE_BAR } from '../../components/charts/palette';
 import { companyOf, relationCount } from '../../services/query.service';
 import { validateDataset } from '../../services/validation.service';
 import { buildGitData, summarizeGit } from '../../services/git-analytics.service';
 import { shortMonth, titleCase } from '../../helpers';
 
-const PERIODS = [{ value: 7, label: 'Last 7 Days' }, { value: 30, label: 'Last 30 Days' }, { value: 90, label: 'Last 90 Days' }];
-const MONTH_RANGES = [{ value: 6, label: 'Last 6 Months' }, { value: 12, label: 'Last 12 Months' }];
-const DAY = 86400000;
-
-const recentCount = (rows) => rows.filter((r) => r.createdAt && Date.now() - new Date(r.createdAt).getTime() <= 30 * DAY).length;
+const recentCount = (rows) => rows.filter((r) => r.createdAt && Date.now() - new Date(r.createdAt).getTime() <= 30 * DAY_MS).length;
 
 const headlineVariants = {
   hidden: { opacity: 0 },
@@ -88,7 +86,7 @@ export default function OverviewPage() {
 
   const columns = [
     { key: 'id', label: 'ID', render: (a) => <IdChip id={a.id} /> },
-    { key: 'name', label: 'Application', render: (a) => <div className="d-flex align-items-center gap-2"><Avatar name={a.name} seed={a.id} src={a.logoUrl} size={30} /><Link to={`/applications/${a.id}`} className="cell-strong" onClick={(e) => e.stopPropagation()}>{a.name}</Link></div> },
+    { key: 'name', label: 'Application', render: (a) => <RecordIdentity name={a.name} seed={a.id} src={a.logoUrl} size={30} to={`/applications/${a.id}`} onLinkClick={(e) => e.stopPropagation()} /> },
     { key: 'company', label: 'Company', render: (a) => <span className="d-inline-flex align-items-center gap-1 text-nowrap"><Building2 size={14} className="text-muted" />{companyOf(data, a)?.name || '—'}</span> },
     { key: 'lifecycle', label: 'Lifecycle', render: (a) => <StatusBadge value={a.lifecycle} /> },
     { key: 'updatedAt', label: 'Updated', render: (a) => <span className="text-nowrap">{fmt.friendly(a.updatedAt)}</span> },
@@ -112,7 +110,7 @@ export default function OverviewPage() {
       <motion.div className="row g-4 mb-4" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.32, delay: 0.12 }}>
         <div className="col-12">
           <SectionCard icon={Code2} title="Commit Activity" subtitle="Number of code commits per day across all repositories." badge={<GitSourceBadge source={gitData.source} />}
-            actions={<SelectMenu ariaLabel="Commit period" value={period} onChange={setPeriod} options={PERIODS} />}>
+            actions={<SelectMenu ariaLabel="Commit period" value={period} onChange={setPeriod} options={OVERVIEW_PERIODS} />}>
             <div className="d-flex align-items-end gap-4 mb-2 flex-wrap">
               <div>
                 <div style={{ fontSize: 34, fontWeight: 800, lineHeight: 1 }}>{git.totals.commits}</div>
@@ -171,7 +169,7 @@ export default function OverviewPage() {
         </div>
         <div className="col-xl-7">
           <SectionCard icon={BarChartBig} title="Registration Trend" subtitle="Applications registered per month (record creation date)."
-            actions={<SelectMenu ariaLabel="Registration range" value={months} onChange={setMonths} options={MONTH_RANGES} />}>
+            actions={<SelectMenu ariaLabel="Registration range" value={months} onChange={setMonths} options={OVERVIEW_MONTH_RANGES} />}>
             <BarChart data={registrations} gradient valueLabel="applications registered" ariaLabel="Applications registered per month" height={210} maxBar={64} maxTicks={12} />
           </SectionCard>
         </div>

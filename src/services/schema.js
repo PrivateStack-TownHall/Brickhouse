@@ -2,6 +2,8 @@
 // foreign keys and canonical values. This is the single description of the data model
 // used by storage, validation, CRUD and the Data Management page.
 
+import { DEFAULT_LIGHTHOUSE_URL } from '../constants/registry.js';
+
 export const APP_VERSION = '1.0.0';
 export const SCHEMA_VERSION = 2;
 export const STORAGE_KEY = 'brickhouse.registry';
@@ -156,7 +158,7 @@ export const ENTITY_KEYS = Object.keys(ENTITIES);
 export const RELATION_KEYS = Object.keys(RELATIONS);
 
 export const DEFAULT_SETTINGS = {
-  general: { appName: 'BRICKHOUSE', description: 'Application Registry & Ecosystem Inventory for VSG Group', organization: 'VSG Group', ownerName: 'Registry Owner', theme: 'Brickhouse (default)', lighthouseUrl: 'http://localhost:5174' },
+  general: { appName: 'BRICKHOUSE', description: 'Application Registry & Ecosystem Inventory for VSG Group', organization: 'VSG Group', ownerName: 'Registry Owner', theme: 'Brickhouse (default)', lighthouseUrl: DEFAULT_LIGHTHOUSE_URL },
   preferences: { themeMode: 'light', dateFormat: 'DD MMM YYYY', timeFormat: '24h' },
   integrations: {
     github: { organization: '', apiBaseUrl: 'https://api.github.com', notes: '' },

@@ -1,13 +1,12 @@
 import { useMemo, useState } from 'react';
-import { Layers, MapPin, AppWindow } from 'lucide-react';
-import { Link, useNavigate } from 'react-router';
-import { Plus, Server, Cpu, Database, HardDrive, Network, ShieldCheck } from 'lucide-react';
+import { Layers, MapPin, AppWindow, Plus, Server } from 'lucide-react';
+import { useNavigate } from 'react-router';
 import PageHeader from '../../components/common/PageHeader';
 import SummaryCards from '../../components/common/SummaryCards';
 import FilterDropdown from '../../components/tables/FilterDropdown';
 import DataView from '../../components/data/DataView';
 import IdChip from '../../components/common/IdChip';
-import Avatar from '../../components/common/Avatar';
+import RecordIdentity from '../../components/common/RecordIdentity';
 import RowActions from '../../components/tables/RowActions';
 import StatusBadge from '../../components/badges/StatusBadge';
 import EmptyState from '../../components/common/EmptyState';
@@ -17,17 +16,11 @@ import { useFilters } from '../../hooks/useFilters';
 import { useDeleteRecord } from '../../hooks/useDeleteRecord';
 import { infrastructureUsage, matchesSearch } from '../../services/query.service';
 import { INFRASTRUCTURE_STATUSES } from '../../services/schema';
+import { INFRASTRUCTURE_GROUPS } from '../../constants/registry';
+import { INFRASTRUCTURE_GROUP_ICONS } from '../../constants/ui';
 import { applicationOptions } from '../../utils/options';
 import { resolveLogo } from '../../assets/logos';
 import InfrastructureFormModal from './InfrastructureFormModal';
-
-const GROUPS = {
-  compute: { label: 'Compute', categories: ['Compute', 'Hosting'], icon: Cpu, tone: 'info', hint: 'Compute & hosting' },
-  database: { label: 'Database', categories: ['Database'], icon: Database, tone: 'success' },
-  storage: { label: 'Storage', categories: ['Storage'], icon: HardDrive, tone: 'warning' },
-  network: { label: 'Network', categories: ['Network', 'CDN'], icon: Network, tone: 'navy', hint: 'Network & CDN' },
-  security: { label: 'Security', categories: ['Security'], icon: ShieldCheck, tone: 'danger' },
-};
 
 export default function InfrastructurePage() {
   const { data } = useRegistry();
@@ -44,16 +37,16 @@ export default function InfrastructurePage() {
     && (!f.filters.resourceType || i.resourceType === f.filters.resourceType)
     && (!f.filters.status || i.status === f.filters.status)
     && (!f.filters.application || usage[i.id].applications.some((a) => a.record.id === f.filters.application))
-    && (!f.filters.group || GROUPS[f.filters.group].categories.includes(i.category)));
+    && (!f.filters.group || INFRASTRUCTURE_GROUPS[f.filters.group].categories.includes(i.category)));
   const summary = [
     { key: 'total', label: 'Total Infrastructure', value: data.infrastructure.length, icon: Server, tone: 'orange' },
-    ...Object.entries(GROUPS).map(([k, g]) => ({ key: k, label: g.label, hint: g.hint, icon: g.icon, tone: g.tone, value: data.infrastructure.filter((i) => g.categories.includes(i.category)).length, onClick: () => f.setFilter('group', f.filters.group === k ? '' : k), active: f.filters.group === k })),
+    ...Object.entries(INFRASTRUCTURE_GROUPS).map(([k, g]) => ({ key: k, label: g.label, hint: g.hint, icon: INFRASTRUCTURE_GROUP_ICONS[k][0], tone: INFRASTRUCTURE_GROUP_ICONS[k][1], value: data.infrastructure.filter((i) => g.categories.includes(i.category)).length, onClick: () => f.setFilter('group', f.filters.group === k ? '' : k), active: f.filters.group === k })),
   ];
   const byProvider = providers.map((p) => ({ label: p, value: data.infrastructure.filter((i) => i.provider === p).length })).sort((a, b) => b.value - a.value);
   const usedBy = (i) => usage[i.id].components.length + usage[i.id].deployments.length + usage[i.id].apis.length;
   const columns = [
     { key: 'id', label: 'Infrastructure ID', render: (i) => <IdChip id={i.id} /> },
-    { key: 'name', label: 'Infrastructure Name', render: (i) => <div className="d-flex align-items-center gap-2"><Avatar name={i.name} seed={i.id} src={i.logoUrl || resolveLogo(i.provider)} size={32} /><Link to={`/infrastructure/${i.id}`} className="cell-strong">{i.name}</Link></div> },
+    { key: 'name', label: 'Infrastructure Name', render: (i) => <RecordIdentity name={i.name} seed={i.id} src={i.logoUrl || resolveLogo(i.provider)} to={`/infrastructure/${i.id}`} /> },
     { key: 'provider', label: 'Provider' },
     { key: 'category', label: 'Category' },
     { key: 'resourceType', label: 'Resource Type', render: (i) => i.resourceType || '—' },

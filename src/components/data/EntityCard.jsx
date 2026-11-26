@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router';
 import Avatar from '../common/Avatar';
 import IdChip from '../common/IdChip';
+import ChipList from '../common/ChipList';
 import RowActions from '../tables/RowActions';
 
 export default function EntityCard({ title, id, to, avatar, avatarSrc, status, subtitle, description, meta = [], tags = [], actions }) {
@@ -28,7 +29,7 @@ export default function EntityCard({ title, id, to, avatar, avatarSrc, status, s
         </div>
       </div>
       <div className="bh-ecard-desc text-truncate-2">{description || <span className="text-subtle">No description.</span>}</div>
-      {tags.length > 0 && <div className="d-flex flex-wrap gap-1">{tags.slice(0, 4).map((t) => <span key={t} className="bh-chip">{t}</span>)}{tags.length > 4 && <span className="bh-chip">+{tags.length - 4}</span>}</div>}
+      <ChipList items={tags} max={4} />
       {meta.length > 0 && (
         <div className="bh-ecard-foot">
           {meta.filter((m) => m && m.text).map((m, i) => <span key={i}>{m.icon && <m.icon size={13} />}<span className="text-truncate">{m.text}</span></span>)}

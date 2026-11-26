@@ -1,13 +1,13 @@
 import { useMemo } from 'react';
-import { Layers, GitBranch, Tag } from 'lucide-react';
+import { Layers, GitBranch, Tag, Plus, Boxes, Shapes } from 'lucide-react';
 import { Link, useNavigate } from 'react-router';
-import { Plus, Boxes, Monitor, ServerCog, Plug, Library, Palette, Shapes } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
 import SummaryCards from '../../components/common/SummaryCards';
 import FilterDropdown from '../../components/tables/FilterDropdown';
 import DataView from '../../components/data/DataView';
 import IdChip from '../../components/common/IdChip';
-import Avatar from '../../components/common/Avatar';
+import RecordIdentity from '../../components/common/RecordIdentity';
+import ChipList from '../../components/common/ChipList';
 import { appLogoSrc } from '../../assets/logos';
 import RowActions from '../../components/tables/RowActions';
 import StatusBadge from '../../components/badges/StatusBadge';
@@ -18,6 +18,7 @@ import { useFilters } from '../../hooks/useFilters';
 import { useDeleteRecord } from '../../hooks/useDeleteRecord';
 import { byId, linked, matchesSearch } from '../../services/query.service';
 import { LIFECYCLES } from '../../services/schema';
+import { COMPONENT_BUCKET_META } from '../../constants/ui';
 import { applicationOptions, companyOptions, technologyOptions } from '../../utils/options';
 
 // Summary buckets: layer-based (Frontend/Backend) and type-based (Service/Library/UI).
@@ -49,17 +50,17 @@ export default function ComponentsPage() {
   const bucketCard = (key, label, icon, tone) => ({ key, label, icon, tone, value: data.components.filter(bucket[key]).length, onClick: () => f.setFilter('bucket', f.filters.bucket === key ? '' : key), active: f.filters.bucket === key });
   const summary = [
     { key: 'total', label: 'Total Components', value: data.components.length, icon: Boxes, tone: 'orange' },
-    bucketCard('frontend', 'Frontend', Monitor, 'info'), bucketCard('backend', 'Backend', ServerCog, 'navy'), bucketCard('service', 'API / Service', Plug, 'success'),
-    bucketCard('library', 'Library', Library, 'warning'), bucketCard('ui', 'UI', Palette, 'danger'), bucketCard('other', 'Other', Shapes, 'gray'),
+    ...COMPONENT_BUCKET_META.map((b) => bucketCard(b.key, b.label, b.icon, b.tone)),
+    bucketCard('other', 'Other', Shapes, 'gray'),
   ];
   const columns = [
     { key: 'id', label: 'Component ID', render: (c) => <IdChip id={c.id} /> },
-    { key: 'name', label: 'Component Name', render: (c) => <div className="d-flex align-items-center gap-2"><Avatar name={c.name} seed={c.id} src={appLogoSrc(rel[c.id].app)} size={32} /><div className="min-w-0"><Link to={`/components/${c.id}`} className="cell-strong">{c.name}</Link><div className="text-subtle mono" style={{ fontSize: 11.5 }}>{c.code} · v{c.version}</div></div></div> },
+    { key: 'name', label: 'Component Name', render: (c) => <RecordIdentity name={c.name} seed={c.id} src={appLogoSrc(rel[c.id].app)} to={`/components/${c.id}`} subtitle={`${c.code} · v${c.version}`} subtitleMono /> },
     { key: 'application', label: 'Application', sortValue: (c) => rel[c.id].app?.name, render: (c) => <EntityLink entity="applications" record={rel[c.id].app} /> },
     { key: 'type', label: 'Type' },
     { key: 'layer', label: 'Layer' },
     { key: 'repository', label: 'Repository', sortValue: (c) => rel[c.id].repos[0]?.name, render: (c) => rel[c.id].repos.map((r) => r.name).join(', ') || <span className="text-subtle">—</span> },
-    { key: 'technologies', label: 'Technologies', sortable: false, render: (c) => <div className="d-flex flex-wrap gap-1" style={{ maxWidth: 240 }}>{rel[c.id].techs.slice(0, 3).map((t) => <span key={t.id} className="bh-chip">{t.name}</span>)}{rel[c.id].techs.length > 3 && <span className="bh-chip">+{rel[c.id].techs.length - 3}</span>}</div> },
+    { key: 'technologies', label: 'Technologies', sortable: false, render: (c) => <ChipList items={rel[c.id].techs} max={3} getKey={(t) => t.id} getLabel={(t) => t.name} style={{ maxWidth: 240 }} /> },
     { key: 'lifecycle', label: 'Status', sortValue: (c) => LIFECYCLES.indexOf(c.lifecycle), render: (c) => <StatusBadge value={c.lifecycle} /> },
     { key: 'actions', label: '', sortable: false, render: (c) => <RowActions label={c.name} viewTo={`/components/${c.id}`} editTo={`/components/${c.id}/edit`} onDelete={() => requestDelete('components', c.id)} /> },
   ];

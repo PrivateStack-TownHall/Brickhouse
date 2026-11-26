@@ -1,9 +1,7 @@
-import { Plus, Pencil, Trash2, RefreshCcw, Link2, Settings2 } from 'lucide-react';
 import { ACTIVITY_CATEGORIES } from '../../services/activity.service';
+import { ACTIVITY_CATEGORY_STYLES } from '../../constants/ui';
 import { useFormat } from '../../hooks/useFormat';
 import EmptyState from './EmptyState';
-
-const ICONS = { create: [Plus, 'success'], update: [Pencil, 'info'], delete: [Trash2, 'danger'], lifecycle: [RefreshCcw, 'warning'], relationship: [Link2, 'orange'], system: [Settings2, 'gray'] };
 
 export default function ActivityTimeline({ activities, empty = 'No activity recorded yet.' }) {
   const fmt = useFormat();
@@ -11,7 +9,7 @@ export default function ActivityTimeline({ activities, empty = 'No activity reco
   return (
     <div className="d-flex flex-column gap-3">
       {activities.map((a) => {
-        const [Icon, tone] = ICONS[a.category] || ICONS.system;
+        const [Icon, tone] = ACTIVITY_CATEGORY_STYLES[a.category] || ACTIVITY_CATEGORY_STYLES.system;
         return (
           <div key={a.id} className="d-flex gap-3">
             <span className={`bh-rel-icon bh-tone-${tone}`}><Icon size={15} /></span>

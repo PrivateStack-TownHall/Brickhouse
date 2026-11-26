@@ -1,11 +1,43 @@
-import { transaction } from './registry.service';
-import { logActivity } from './activity.service';
+import { transaction } from './registry.service.js';
+import { logActivity } from './activity.service.js';
+import { GIT_PROVIDERS, BROAD_CLASSIC_SCOPES, GIT_SYNC_LIMITS } from '../constants/git.js';
 
-export const GIT_PROVIDERS = [
-  { key: 'github', label: 'GitHub', apiBaseUrl: 'https://api.github.com' },
-  { key: 'gitlab', label: 'GitLab', apiBaseUrl: 'https://gitlab.com/api/v4' },
-  { key: 'bitbucket', label: 'Bitbucket', apiBaseUrl: 'https://api.bitbucket.org/2.0' },
-];
+export { GIT_PROVIDERS };
+
+function providerAuthHeaders(provider, token = '') {
+  const headers = { Accept: provider === 'github' ? 'application/vnd.github+json' : 'application/json' };
+  const trimmed = token?.trim();
+  if (trimmed) {
+    headers[provider === 'gitlab' ? 'PRIVATE-TOKEN' : 'Authorization'] = provider === 'gitlab' ? trimmed : `Bearer ${trimmed}`;
+  }
+  return headers;
+}
+
+function mergeSyncedCommits(commits, incomingCommits, tx, at) {
+  let added = 0;
+  for (const commit of incomingCommits) {
+    const index = commits.findIndex((c) => c.repositoryId === commit.repositoryId && (c.sha === commit.sha || (c.sha.length >= 7 && (commit.sha.startsWith(c.sha) || c.sha.startsWith(commit.sha)))));
+    if (index >= 0) commits[index] = { ...commits[index], ...commit };
+    else { commits.push({ ...commit, id: tx.nextId('GC'), createdAt: at }); added += 1; }
+  }
+  return added;
+}
+
+function mergeSyncedRepository(repo, syncResult, at) {
+  return {
+    ...repo,
+    mainBranch: syncResult.metadata?.mainBranch || repo.mainBranch,
+    language: syncResult.metadata?.language || repo.language,
+    visibility: syncResult.metadata?.visibility || repo.visibility,
+    description: repo.description && repo.description !== 'Kept in registry' ? repo.description : (syncResult.metadata?.description || repo.description),
+    topics: syncResult.metadata?.topics?.length ? syncResult.metadata.topics : repo.topics,
+    accessStatus: syncResult.metadata?.accessStatus || 'accessible',
+    ...(Array.isArray(syncResult.branches) ? { syncedBranches: syncResult.branches } : {}),
+    ...(Array.isArray(syncResult.prs) ? { syncedPrs: syncResult.prs } : {}),
+    syncedAt: at,
+    updatedAt: at,
+  };
+}
 
 export function integrationConnections(settings = {}) {
   if (Array.isArray(settings.connections)) return settings.connections;
@@ -194,23 +226,22 @@ export async function fetchIntegrationCommits(connection, repositories, token = 
     const endpoint = connection.provider === 'github' ? `${base}/repos/${path.split('/').map(encodeURIComponent).join('/')}/commits`
       : connection.provider === 'gitlab' ? `${base}/projects/${encodeURIComponent(path)}/repository/commits`
         : `${base}/repositories/${path.split('/').map(encodeURIComponent).join('/')}/commits${repo.mainBranch ? `/${encodeURIComponent(repo.mainBranch)}` : ''}`;
-    const headers = { Accept: connection.provider === 'github' ? 'application/vnd.github+json' : 'application/json' };
-    if (token.trim()) headers[connection.provider === 'gitlab' ? 'PRIVATE-TOKEN' : 'Authorization'] = connection.provider === 'gitlab' ? token.trim() : `Bearer ${token.trim()}`;
+    const headers = providerAuthHeaders(connection.provider, token);
     const commits = [];
     let next = null;
     let truncated = false;
     try {
-      for (let page = 1; page <= 5; page += 1) {
+      for (let page = 1; page <= GIT_SYNC_LIMITS.maxPages; page += 1) {
         const url = new URL(next || endpoint);
         if (!next) {
-          url.searchParams.set(connection.provider === 'bitbucket' ? 'pagelen' : 'per_page', '100');
+          url.searchParams.set(connection.provider === 'bitbucket' ? 'pagelen' : 'per_page', String(GIT_SYNC_LIMITS.perPage));
           url.searchParams.set('page', String(page));
           if (repo.mainBranch && connection.provider !== 'bitbucket') url.searchParams.set(connection.provider === 'github' ? 'sha' : 'ref_name', repo.mainBranch);
         }
         if (url.origin !== new URL(endpoint).origin || url.pathname !== new URL(endpoint).pathname || url.username || url.password) throw new Error('The provider returned an unsafe pagination URL.');
         let response;
         try {
-          response = await activeFetch(url.href, { headers, signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(20000)]) : AbortSignal.timeout(20000), credentials: 'omit', redirect: 'error', referrerPolicy: 'no-referrer' });
+          response = await activeFetch(url.href, { headers, signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(GIT_SYNC_LIMITS.timeoutMs)]) : AbortSignal.timeout(GIT_SYNC_LIMITS.timeoutMs), credentials: 'omit', redirect: 'error', referrerPolicy: 'no-referrer' });
         } catch (e) {
           if (signal?.aborted) throw e;
           throw new Error(e.name === 'TimeoutError' ? 'Request timed out. Try syncing again.' : 'Request failed. Check your connection and the provider’s browser (CORS) access.');
@@ -230,9 +261,9 @@ export async function fetchIntegrationCommits(connection, repositories, token = 
         if (!Array.isArray(items)) throw new Error('The provider returned an invalid commit list.');
         commits.push(...items.map((item) => commitRecord(item, repo, connection, path)));
         next = connection.provider === 'bitbucket' ? body.next || null : null;
-        const more = connection.provider === 'bitbucket' ? !!next : items.length === 100;
+        const more = connection.provider === 'bitbucket' ? !!next : items.length === GIT_SYNC_LIMITS.perPage;
         if (!more) break;
-        if (page === 5) truncated = true;
+        if (page === GIT_SYNC_LIMITS.maxPages) truncated = true;
       }
       successes.push({ repositoryId: repo.id, commits, truncated });
     } catch (e) {
@@ -263,7 +294,7 @@ async function safeGitHubJson(url, headers, { signal, fetchImpl }) {
   try {
     const response = await fetchImpl(url, {
       headers,
-      signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(15000)]) : AbortSignal.timeout(15000),
+      signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(GIT_SYNC_LIMITS.extrasTimeoutMs)]) : AbortSignal.timeout(GIT_SYNC_LIMITS.extrasTimeoutMs),
       credentials: 'omit',
       redirect: 'error',
       referrerPolicy: 'no-referrer',
@@ -279,8 +310,7 @@ async function safeGitHubJson(url, headers, { signal, fetchImpl }) {
 
 async function fetchGitHubExtras(base, path, token, { signal, fetchImpl }) {
   const encodedPath = path.split('/').map(encodeURIComponent).join('/');
-  const headers = { Accept: 'application/vnd.github+json' };
-  if (token?.trim()) headers.Authorization = `Bearer ${token.trim()}`;
+  const headers = providerAuthHeaders('github', token);
 
   const [repoRes, branchesRes, prsRes] = await Promise.all([
     safeGitHubJson(`${base}/repos/${encodedPath}`, headers, { signal, fetchImpl }),
@@ -405,11 +435,7 @@ export function applyIntegrationSync(ds, connection, sync) {
   const at = new Date().toISOString();
   tx.set('commits', commits);
   for (const success of successes) {
-    for (const commit of success.commits) {
-      const index = commits.findIndex((c) => c.repositoryId === commit.repositoryId && (c.sha === commit.sha || (c.sha.length >= 7 && (commit.sha.startsWith(c.sha) || c.sha.startsWith(commit.sha)))));
-      if (index >= 0) commits[index] = { ...commits[index], ...commit };
-      else { commits.push({ ...commit, id: tx.nextId('GC'), createdAt: at }); added += 1; }
-    }
+    added += mergeSyncedCommits(commits, success.commits, tx, at);
     if (Array.isArray(success.branches)) totalBranches += success.branches.length;
     if (Array.isArray(success.prs)) totalPrs += success.prs.length;
   }
@@ -418,24 +444,8 @@ export function applyIntegrationSync(ds, connection, sync) {
   const inaccessibleSet = new Set(sync.inaccessibleIds || []);
   const updatedRepos = (ds.repositories || []).map((r) => {
     const s = byRepoSuccess.get(r.id);
-    if (s) {
-      return {
-        ...r,
-        mainBranch: s.metadata?.mainBranch || r.mainBranch,
-        language: s.metadata?.language || r.language,
-        visibility: s.metadata?.visibility || r.visibility,
-        description: r.description && r.description !== 'Kept in registry' ? r.description : (s.metadata?.description || r.description),
-        topics: s.metadata?.topics?.length ? s.metadata.topics : r.topics,
-        accessStatus: s.metadata?.accessStatus || 'accessible',
-        ...(Array.isArray(s.branches) ? { syncedBranches: s.branches } : {}),
-        ...(Array.isArray(s.prs) ? { syncedPrs: s.prs } : {}),
-        syncedAt: at,
-        updatedAt: at,
-      };
-    }
-    if (inaccessibleSet.has(r.id)) {
-      return { ...r, accessStatus: 'inaccessible' };
-    }
+    if (s) return mergeSyncedRepository(r, s, at);
+    if (inaccessibleSet.has(r.id)) return { ...r, accessStatus: 'inaccessible' };
     return r;
   });
   tx.set('repositories', updatedRepos);
@@ -460,32 +470,13 @@ export function applySingleRepoSync(ds, repo, sync) {
   }
   const tx = transaction(ds);
   const commits = [...(ds.commits || [])];
-  let added = 0;
   const at = new Date().toISOString();
   tx.set('commits', commits);
-  for (const commit of s.commits) {
-    const index = commits.findIndex((c) => c.repositoryId === commit.repositoryId && (c.sha === commit.sha || (c.sha.length >= 7 && (commit.sha.startsWith(c.sha) || c.sha.startsWith(commit.sha)))));
-    if (index >= 0) commits[index] = { ...commits[index], ...commit };
-    else { commits.push({ ...commit, id: tx.nextId('GC'), createdAt: at }); added += 1; }
-  }
-  tx.set('repositories', (ds.repositories || []).map((r) => r.id === repo.id ? {
-    ...r,
-    mainBranch: s.metadata?.mainBranch || r.mainBranch,
-    language: s.metadata?.language || r.language,
-    visibility: s.metadata?.visibility || r.visibility,
-    description: r.description && r.description !== 'Kept in registry' ? r.description : (s.metadata?.description || r.description),
-    topics: s.metadata?.topics?.length ? s.metadata.topics : r.topics,
-    accessStatus: s.metadata?.accessStatus || 'accessible',
-    ...(Array.isArray(s.branches) ? { syncedBranches: s.branches } : {}),
-    ...(Array.isArray(s.prs) ? { syncedPrs: s.prs } : {}),
-    syncedAt: at,
-    updatedAt: at,
-  } : r));
+  const added = mergeSyncedCommits(commits, s.commits, tx, at);
+  tx.set('repositories', (ds.repositories || []).map((r) => (r.id === repo.id ? mergeSyncedRepository(r, s, at) : r)));
   logActivity(tx, { category: 'system', action: 'Repository synchronized', resourceType: 'Repository', resourceId: repo.id, description: `Synced ${repo.name} from GitHub: ${added} new commits, ${s.branches?.length ?? 0} branches, ${s.prs?.length ?? 0} PRs.` });
   return { dataset: tx.data, result: { added, branches: s.branches?.length ?? 0, prs: s.prs?.length ?? 0 } };
 }
-
-const BROAD_CLASSIC_SCOPES = new Set(['repo', 'delete_repo', 'admin:org', 'write:org', 'workflow', 'admin:repo_hook']);
 
 /** Test connectivity and token validity against provider API */
 export async function testGitConnection(connection, token = '', { signal, fetchImpl, useServerToken = false } = {}) {
@@ -494,10 +485,7 @@ export async function testGitConnection(connection, token = '', { signal, fetchI
   const activeFetch = resolveFetchImpl(connection, token, { fetchImpl, useServerToken });
   const hasAuth = Boolean(token?.trim() || useServerToken);
   const base = apiBase(connection);
-  const headers = { Accept: connection.provider === 'github' ? 'application/vnd.github+json' : 'application/json' };
-  if (token?.trim()) {
-    headers[connection.provider === 'gitlab' ? 'PRIVATE-TOKEN' : 'Authorization'] = connection.provider === 'gitlab' ? token.trim() : `Bearer ${token.trim()}`;
-  }
+  const headers = providerAuthHeaders(connection.provider, token);
 
   let endpoint;
   if (connection.provider === 'github') {
@@ -512,7 +500,7 @@ export async function testGitConnection(connection, token = '', { signal, fetchI
   try {
     response = await activeFetch(endpoint, {
       headers,
-      signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(15000)]) : AbortSignal.timeout(15000),
+      signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(GIT_SYNC_LIMITS.extrasTimeoutMs)]) : AbortSignal.timeout(GIT_SYNC_LIMITS.extrasTimeoutMs),
       credentials: 'omit',
       redirect: 'error',
       referrerPolicy: 'no-referrer',
