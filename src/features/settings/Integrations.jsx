@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import {
   Github, Gitlab, Box, Plus, Pencil, Trash2, RefreshCw, ExternalLink,
-  Key, CheckCircle2, AlertCircle, Info, ShieldCheck, Check, Eye, EyeOff, X,
+  Key, CheckCircle2, AlertCircle, ShieldCheck, AlertTriangle,
 } from 'lucide-react';
 import FormField from '../../components/forms/FormField';
 import FormSelect from '../../components/forms/FormSelect';
@@ -20,6 +20,7 @@ import {
   validateIntegration,
   saveIntegration,
   removeIntegration,
+  fetchServerTokenStatus,
   fetchIntegrationFullSync,
   applyIntegrationSync,
   testGitConnection,
@@ -28,20 +29,14 @@ import { resolveLogo } from '../../assets/logos';
 
 const ICONS = { github: Github, gitlab: Gitlab, bitbucket: Box };
 
-function loadSavedTokens() {
-  const result = {};
-  try {
-    for (let i = 0; i < sessionStorage.length; i++) {
-      const key = sessionStorage.key(i);
-      if (key && key.startsWith('bh_token_')) {
-        const id = key.replace('bh_token_', '');
-        result[id] = sessionStorage.getItem(key) || '';
-      }
-    }
-  } catch {
-    // sessionStorage unavailable
-  }
-  return result;
+function envVarNameFor(connection) {
+  const provider = String(connection?.provider || 'github').toUpperCase();
+  const suffix = String(connection?.organization || '')
+    .trim()
+    .replace(/[^a-zA-Z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+    .toUpperCase();
+  return suffix ? `BRICKHOUSE_${provider}_TOKEN_${suffix}` : `BRICKHOUSE_${provider}_TOKEN`;
 }
 
 export default function Integrations() {
@@ -53,8 +48,7 @@ export default function Integrations() {
   const [editing, setEditing] = useState(null);
   const [errors, setErrors] = useState({});
   const [removing, setRemoving] = useState(null);
-  const [tokens, setTokens] = useState(() => loadSavedTokens());
-  const [visibleTokens, setVisibleTokens] = useState({});
+  const [serverTokenStatus, setServerTokenStatus] = useState({ available: false, loading: true, statuses: {} });
   const [busy, setBusy] = useState(null);
   const [testing, setTesting] = useState(null);
   const [testResults, setTestResults] = useState({});
@@ -64,18 +58,22 @@ export default function Integrations() {
 
   useEffect(() => () => controller.current?.abort(), []);
 
-  const handleTokenChange = (connectionId, value) => {
-    setTokens((prev) => ({ ...prev, [connectionId]: value }));
-    try {
-      if (value) {
-        sessionStorage.setItem(`bh_token_${connectionId}`, value);
-      } else {
-        sessionStorage.removeItem(`bh_token_${connectionId}`);
-      }
-    } catch {
-      // sessionStorage unavailable
+  const refreshEnvStatus = async (showToast = false) => {
+    setServerTokenStatus((prev) => ({ ...prev, loading: true }));
+    const res = await fetchServerTokenStatus(connections);
+    setServerTokenStatus({ ...res, loading: false });
+    if (showToast) {
+      toast(res.available ? '.env token status refreshed.' : 'Local .env proxy is unavailable in static mode.', res.available ? 'success' : 'error');
     }
   };
+
+  useEffect(() => {
+    let active = true;
+    fetchServerTokenStatus(connections).then((res) => {
+      if (active) setServerTokenStatus({ ...res, loading: false });
+    });
+    return () => { active = false; };
+  }, [data.settings.integrations]);
 
   const edit = (record) => {
     setErrors({});
@@ -100,23 +98,26 @@ export default function Integrations() {
     setTesting(connection.id);
     setTestResults((prev) => ({ ...prev, [connection.id]: null }));
     try {
-      const res = await testGitConnection(connection, tokens[connection.id] || '');
+      const useServerToken = Boolean(serverTokenStatus.statuses?.[connection.id]?.configured);
+      const res = await testGitConnection(connection, '', { useServerToken });
       const exhausted = Boolean(res.rateLimitExhausted);
       const resetNote = res.rateLimitResetAt ? ` · resets at ${fmt.dateTime(res.rateLimitResetAt)}` : '';
+      const viaLabel = res.authSource === 'server-env' ? ' via .env proxy' : '';
       setTestResults((prev) => ({
         ...prev,
         [connection.id]: {
           ok: !exhausted,
           warning: exhausted,
+          scopeWarning: res.scopeWarning || null,
           message: exhausted
-            ? `Rate limit exhausted (0 / ${res.rateLimitTotal || 60} remaining)${resetNote}. Add a Personal Access Token (PAT) for 5,000 req/hr.`
+            ? `Rate limit exhausted (0 / ${res.rateLimitTotal || 60} remaining)${resetNote}. Configure a PAT in .env for 5,000 req/hr.`
             : res.authenticated
-              ? `Connected as ${res.user ? `@${res.user}` : 'authenticated user'}`
+              ? `Connected as ${res.user ? `@${res.user}` : 'authenticated user'}${viaLabel}`
               : 'Public API access verified (unauthenticated)',
           rateLimit: !exhausted && res.rateLimitRemaining !== null ? `${res.rateLimitRemaining} / ${res.rateLimitTotal || 5000} remaining` : null,
         },
       }));
-      if (exhausted) toast('API rate limit exhausted (0 remaining). Add a PAT or wait for reset.', 'error', { skipNotification: true });
+      if (exhausted) toast('API rate limit exhausted (0 remaining). Configure a PAT in .env or wait for reset.', 'error', { skipNotification: true });
       else toast('Connection successful!', 'success');
     } catch (e) {
       setTestResults((prev) => ({
@@ -136,7 +137,8 @@ export default function Integrations() {
     setBusy(connection.id);
     setReports((previous) => ({ ...previous, [connection.id]: null }));
     try {
-      const result = await fetchIntegrationFullSync(connection, data.repositories, tokens[connection.id] || '', { signal: request.signal });
+      const useServerToken = Boolean(serverTokenStatus.statuses?.[connection.id]?.configured);
+      const result = await fetchIntegrationFullSync(connection, data.repositories, '', { signal: request.signal, useServerToken });
       request.signal.throwIfAborted();
       const saved = (result.successes.length || result.inaccessibleIds?.length)
         ? (result.successes.length ? run(applyIntegrationSync, connection, result) : { added: 0, repositories: 0, branches: 0, prs: 0 })
@@ -147,7 +149,7 @@ export default function Integrations() {
       const summaryMsg = result.rateLimited
         ? (saved.repositories > 0
           ? `${saved.repositories} repositories synced; ${saved.added} new commits${extraInfo}. Rate limit reached (${result.skippedCount || 0} skipped).`
-          : `Rate limit reached — 0 repositories synced. Add a GitHub Personal Access Token (PAT) for 5,000 req/hr.`)
+          : `Rate limit reached — 0 repositories synced. Add a GitHub PAT in .env for 5,000 req/hr.`)
         : failedAll
           ? `Sync failed for all ${result.failures.length} repositories.`
           : `${saved.repositories} repositories synced; ${saved.added} new commits${extraInfo}.${result.failures.length ? ` ${result.failures.length} failed — see details.` : ''}`;
@@ -184,14 +186,24 @@ export default function Integrations() {
           <h2 className="bh-card-title">Git Integrations</h2>
           <p className="bh-card-sub">Connect your GitHub, GitLab, or Bitbucket accounts to synchronize commit history and graphs.</p>
         </div>
-        <button
-          type="button"
-          className="btn btn-primary"
-          disabled={!!busy}
-          onClick={() => edit({ id: crypto.randomUUID(), provider: 'github', name: '', organization: '', apiBaseUrl: GIT_PROVIDERS[0].apiBaseUrl, notes: '' })}
-        >
-          <Plus size={16} />Add integration
-        </button>
+        <div className="d-flex gap-2 align-items-center flex-wrap">
+          <button
+            type="button"
+            className="btn btn-outline-secondary"
+            disabled={!!busy || serverTokenStatus.loading}
+            onClick={() => refreshEnvStatus(true)}
+          >
+            <RefreshCw size={15} className={serverTokenStatus.loading ? 'bh-spin' : ''} />Check .env
+          </button>
+          <button
+            type="button"
+            className="btn btn-primary"
+            disabled={!!busy}
+            onClick={() => edit({ id: crypto.randomUUID(), provider: 'github', name: '', organization: '', apiBaseUrl: GIT_PROVIDERS[0].apiBaseUrl, notes: '' })}
+          >
+            <Plus size={16} />Add integration
+          </button>
+        </div>
       </div>
 
       {/* GitHub & Git Connection Guide */}
@@ -224,7 +236,7 @@ export default function Integrations() {
                   <strong>Private Repository:</strong> <em>Wajib menggunakan Personal Access Token (PAT)</em> dengan izin <code>Contents: Read-only</code> (untuk commits, branches &amp; info repo) dan opsional <code>Pull requests: Read-only</code> (untuk daftar PR real).
                 </li>
                 <li>
-                  <strong>Keuntungan menggunakan Token:</strong> Rate limit kuota GitHub naik drastis dari 60 menjadi <strong>5,000 requests/jam</strong>.
+                  <strong>Keamanan Token (.env / .env.local):</strong> PAT disimpan di file <code>.env</code> (atau <code>.env.local</code>, keduanya masuk <code>.gitignore</code>) dan dikirim hanya dari server proxy lokal — token tidak pernah masuk ke browser, <code>database/*.json</code>, <code>localStorage</code>, maupun backup. Kuota naik menjadi <strong>5,000 requests/jam</strong>.
                 </li>
               </ul>
               <div className="d-flex gap-2 flex-wrap align-items-center pt-1">
@@ -293,7 +305,20 @@ export default function Integrations() {
                   </p>
                 </div>
               </div>
-              <div className="d-flex gap-1 align-items-center">
+              <div className="d-flex gap-1 align-items-center flex-wrap">
+                {serverTokenStatus.available ? (
+                  serverTokenStatus.statuses?.[connection.id]?.configured ? (
+                    <span className="bh-badge bh-tone-success" title={`Masked: ${serverTokenStatus.statuses[connection.id].masked || '****'}`}>
+                      .env PAT active
+                    </span>
+                  ) : (
+                    <span className="bh-badge bh-tone-warning">
+                      .env PAT missing
+                    </span>
+                  )
+                ) : (
+                  <span className="bh-badge bh-tone-gray">Static mode</span>
+                )}
                 <span className={`bh-badge bh-tone-${connection.lastSyncedAt ? 'success' : 'gray'}`}>
                   {connection.lastSyncedAt ? 'Snapshot synced' : 'Not synced'}
                 </span>
@@ -315,59 +340,44 @@ export default function Integrations() {
 
               <div className="mb-3">
                 {(() => {
-                  const tokenId = `pat-${connection.id}`;
-                  const tokenVal = tokens[connection.id] || '';
-                  const isVisible = Boolean(visibleTokens[connection.id]);
-                  const providerHelp = connection.provider === 'github'
-                    ? 'GitHub: Permissions required -> Repository permissions > Contents: Read-only.'
-                    : connection.provider === 'gitlab'
-                      ? 'GitLab: use a Personal Access Token with read_api access.'
-                      : 'Bitbucket Cloud: use an app password or bearer token with repository read access.';
-                  return (
-                    <FormField
-                      id={tokenId}
-                      label={`Personal Access Token (PAT) · ${connection.name}`}
-                      help={`${providerHelp} Stored in this browser tab session only — never saved to database/*.json, Local Storage, or backups.`}
-                    >
-                      <div className="input-group">
-                        <input
-                          id={tokenId}
-                          className="form-control"
-                          type={isVisible ? 'text' : 'password'}
-                          autoComplete="off"
-                          spellCheck={false}
-                          value={tokenVal}
-                          disabled={!!busy}
-                          onChange={(e) => handleTokenChange(connection.id, e.target.value)}
-                          placeholder="Optional for public repositories; required for private repositories"
-                        />
-                        <button
-                          type="button"
-                          className="btn btn-outline-secondary d-inline-flex align-items-center"
-                          aria-label={isVisible ? `Hide token for ${connection.name}` : `Show token for ${connection.name}`}
-                          title={isVisible ? 'Hide token' : 'Show token'}
-                          disabled={!!busy}
-                          onClick={() => setVisibleTokens((prev) => ({ ...prev, [connection.id]: !prev[connection.id] }))}
-                        >
-                          {isVisible ? <EyeOff size={16} /> : <Eye size={16} />}
-                        </button>
-                        {tokenVal && (
-                          <button
-                            type="button"
-                            className="btn btn-outline-secondary d-inline-flex align-items-center"
-                            aria-label={`Clear token for ${connection.name}`}
-                            title="Clear token from session"
-                            disabled={!!busy}
-                            onClick={() => {
-                              handleTokenChange(connection.id, '');
-                              setVisibleTokens((prev) => ({ ...prev, [connection.id]: false }));
-                            }}
-                          >
-                            <X size={16} />
-                          </button>
-                        )}
+                  const envInfo = serverTokenStatus.statuses?.[connection.id];
+                  const orgVar = envVarNameFor(connection);
+                  const providerVar = `BRICKHOUSE_${String(connection.provider || 'github').toUpperCase()}_TOKEN`;
+                  if (!serverTokenStatus.available) {
+                    return (
+                      <div className="p-2 px-3 rounded border bg-body-tertiary text-muted small d-flex align-items-center gap-2">
+                        <AlertCircle size={16} className="flex-shrink-0" />
+                        <span>Local <code>.env</code> proxy is inactive in static mode. Public API requests only (60 req/hr).</span>
                       </div>
-                    </FormField>
+                    );
+                  }
+                  if (envInfo?.configured) {
+                    return (
+                      <div className="p-2 px-3 rounded border small d-flex align-items-start gap-2" style={{ background: 'var(--bh-success-soft, rgba(25,135,84,.08))', borderColor: 'rgba(25,135,84,.28)' }}>
+                        <CheckCircle2 size={16} color="var(--bh-success)" className="flex-shrink-0 mt-1" />
+                        <div className="min-w-0">
+                          <div className="fw-semibold text-success">
+                            Token active from <code>.env</code> ({envInfo.masked})
+                          </div>
+                          <div className="text-muted">
+                            Source: {envInfo.source === 'env-org' ? <><code>{orgVar}</code> (org override)</> : <><code>{providerVar}</code> (provider default)</>}. Token stays on the local server and is never sent to the browser.
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  }
+                  return (
+                    <div className="p-2 px-3 rounded border small d-flex align-items-start gap-2 bg-warning-subtle text-warning-emphasis" style={{ borderColor: 'rgba(217,119,6,.3)' }}>
+                      <AlertTriangle size={16} className="flex-shrink-0 mt-1" />
+                      <div className="min-w-0">
+                        <div className="fw-semibold">
+                          No PAT found in <code>.env</code> for <code>{connection.organization}</code>
+                        </div>
+                        <div>
+                          Add <code>{orgVar}</code> or <code>{providerVar}</code> in <code>.env</code> (see <code>.env.example</code>), then click <strong>Check .env</strong>.
+                        </div>
+                      </div>
+                    </div>
                   );
                 })()}
               </div>
@@ -407,20 +417,27 @@ export default function Integrations() {
               </div>
 
               {testResult && (
-                <div
-                  className={`mt-2 p-2 rounded small d-flex align-items-center gap-2 ${
-                    testResult.ok
-                      ? 'bg-success-subtle text-success'
-                      : testResult.warning
-                        ? 'bg-warning-subtle text-warning-emphasis'
-                        : 'bg-danger-subtle text-danger'
-                  }`}
-                >
-                  {testResult.ok ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
-                  <div>
-                    <span>{testResult.message}</span>
-                    {testResult.rateLimit && <span className="ms-2 text-muted">({testResult.rateLimit})</span>}
+                <div className="mt-2 d-flex flex-column gap-1">
+                  <div
+                    className={`p-2 rounded small d-flex align-items-center gap-2 ${
+                      testResult.ok
+                        ? 'bg-success-subtle text-success'
+                        : testResult.warning
+                          ? 'bg-warning-subtle text-warning-emphasis'
+                          : 'bg-danger-subtle text-danger'
+                    }`}
+                  >
+                    {testResult.ok ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
+                    <div>
+                      <span>{testResult.message}</span>
+                      {testResult.rateLimit && <span className="ms-2 text-muted">({testResult.rateLimit})</span>}
+                    </div>
                   </div>
+                  {testResult.scopeWarning && (
+                    <div className="p-2 rounded small bg-warning-subtle text-warning-emphasis">
+                      {testResult.scopeWarning}
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -507,12 +524,6 @@ export default function Integrations() {
           onCancel={() => setRemoving(null)}
           onConfirm={() => {
             run(removeIntegration, removing.id);
-            setTokens((previous) => {
-              const next = { ...previous };
-              delete next[removing.id];
-              return next;
-            });
-            try { sessionStorage.removeItem(`bh_token_${removing.id}`); } catch { /* ignore */ }
             setRemoving(null);
             toast('Integration removed.');
           }}
