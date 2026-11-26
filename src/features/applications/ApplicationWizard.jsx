@@ -18,6 +18,7 @@ import { useToast } from '../../hooks/useToast';
 import { createEntity, updateEntity } from '../../services/registry.service';
 import { byId, componentsOfApp, providerOfApi } from '../../services/query.service';
 import { LIFECYCLES } from '../../services/schema';
+import { APPLICATION_TECH_ROLES, ENVIRONMENT_GUIDE, REPOSITORY_ROLES } from '../../constants/registry';
 import {
   companyOptions, repositoryOptions, componentOptions, technologyOptions, infrastructureOptions, apiOptions, linkValues, nameList,
 } from '../../utils/options';
@@ -27,31 +28,13 @@ const FIELDS = ['name', 'code', 'ownerId', 'category', 'type', 'lifecycle', 'des
 
 const sortAsc = (arr, labelOf = (x) => x.label) => [...arr].sort((a, b) => String(labelOf(a)).localeCompare(String(labelOf(b)), undefined, { sensitivity: 'base' }));
 
-const ENV_GUIDE = {
-  development: 'Lingkungan lokal developer untuk coding, eksperimen, dan debugging awal.',
-  preview: 'Lingkungan pratinjau sementara (per branch / PR) untuk mengecek hasil build.',
-  staging: 'Lingkungan uji coba pra-rilis mirip production untuk QA dan UAT.',
-  production: 'Lingkungan live utama yang diakses langsung oleh pengguna akhir.',
-};
-
-// Step 02 technology roles → catalog categories offered for each (disjoint so each tech appears in one card).
-const TECH_ROLES = [
-  { key: 'techLanguage', role: 'Programming Language', label: 'Programming Language', categories: ['Programming Language'] },
-  { key: 'techFrontend', role: 'Frontend Technology', label: 'Frontend Technology', categories: ['Frontend Framework', 'Styling', 'Library'] },
-  { key: 'techBackend', role: 'Backend Technology', label: 'Backend Technology', categories: ['Backend Framework', 'Runtime'] },
-  { key: 'techDatabase', role: 'Database', label: 'Database', categories: ['Database'] },
-  { key: 'techOrm', role: 'ORM / Data Access', label: 'ORM / Data Access', categories: ['ORM'] },
-  { key: 'techTesting', role: 'Testings', label: 'Testings', categories: ['Testing'] },
-  { key: 'techTools', role: 'Additional Tools', label: 'Additional Tools', categories: ['DevOps', 'Other'] },
-];
-
 function initialValues(ds, app) {
   const base = app
     ? Object.fromEntries(FIELDS.map((f) => [f, app[f] ?? (f === 'tags' || f === 'environments' ? [] : '')]))
     : { name: '', code: '', ownerId: '', category: '', type: '', lifecycle: 'planning', description: '', purpose: '', websiteUrl: '', documentationUrl: '', tags: [], architecture: '', platform: '', hosting: '', environments: [] };
   const id = app?.id;
   const techLinks = id ? ds.applicationTechnologies.filter((l) => l.applicationId === id) : [];
-  for (const r of TECH_ROLES) base[r.key] = techLinks.filter((l) => l.role === r.role).map((l) => ({ targetId: l.technologyId, version: l.version || '' }));
+  for (const r of APPLICATION_TECH_ROLES) base[r.key] = techLinks.filter((l) => l.role === r.role).map((l) => ({ targetId: l.technologyId, version: l.version || '' }));
   base.repositories = id ? linkValues(ds, 'applicationRepositories', 'applicationId', 'repositoryId', id, ['role']) : [];
   base.sharedComponents = id ? linkValues(ds, 'applicationComponents', 'applicationId', 'componentId', id, ['role']) : [];
   base.providedApis = id ? linkValues(ds, 'applicationApis', 'applicationId', 'apiId', id, ['role']) : [];
@@ -87,7 +70,7 @@ function WizardBody({ app }) {
       { relation: 'applicationComponents', side: 'from', items: v.sharedComponents.map((x) => ({ ...x, role: x.role || 'Shared dependency' })) },
       { relation: 'applicationApis', side: 'from', items: v.providedApis.map((x) => ({ targetId: x.targetId, role: 'provider' })) },
       { relation: 'apiConsumers', side: 'to', items: v.consumedApis.map((x) => ({ targetId: x.targetId })) },
-      { relation: 'applicationTechnologies', side: 'from', items: TECH_ROLES.flatMap((r) => v[r.key].map((x) => ({ targetId: x.targetId, role: r.role, version: x.version || '' }))) },
+      { relation: 'applicationTechnologies', side: 'from', items: APPLICATION_TECH_ROLES.flatMap((r) => v[r.key].map((x) => ({ targetId: x.targetId, role: r.role, version: x.version || '' }))) },
       { relation: 'applicationInfrastructure', side: 'from', items: v.infrastructure },
     ];
     if (app) {
@@ -131,7 +114,7 @@ function WizardBody({ app }) {
           <div className="col-md-6"><FormField label="Architecture / Structure" placeholder="e.g. SPA + REST API" {...bind('architecture')} /></div>
           <div className="col-md-6"><FormField label="Application Platform" placeholder="e.g. Web, Mobile (Android, iOS)" {...bind('platform')} /></div>
           <div className="col-12 mb-2"><div className="bh-section-title"><Cpu size={15} className="bh-section-icon" /><span>Technology Stack · from the Technology Master Catalog</span></div></div>
-          {TECH_ROLES.map((r) => (
+          {APPLICATION_TECH_ROLES.map((r) => (
             <div className="col-md-6 col-lg-4 d-flex flex-column" key={r.key}>
               <MultiSelect fill label={r.label} options={sortAsc(technologyOptions(data, r.categories))} value={v[r.key]} onChange={(x) => set(r.key, x)}
                 extraFields={[{ key: 'version', label: 'Version' }]} emptyText="No catalog entries in this category yet. Add them in Technology Stack." />
@@ -154,7 +137,7 @@ function WizardBody({ app }) {
                 {sortAsc(cat.environments, (x) => x).map((e) => (
                   <div key={e} className="d-flex align-items-center gap-2">
                     <span className="badge text-bg-light border text-capitalize flex-shrink-0" style={{ minWidth: 92 }}>{e}</span>
-                    <span className="text-muted">{ENV_GUIDE[e] || 'Environment deployment aplikasi.'}</span>
+                    <span className="text-muted">{ENVIRONMENT_GUIDE[e] || 'Environment deployment aplikasi.'}</span>
                   </div>
                 ))}
               </div>
@@ -172,7 +155,7 @@ function WizardBody({ app }) {
           <div className="col-12 mt-1 mb-2"><div className="bh-section-title"><Link2 size={15} className="bh-section-icon" /><span>Linked Repositories, Components, APIs &amp; Infrastructure</span></div></div>
           <div className="col-lg-6 d-flex flex-column">
             <MultiSelect fill label="Repositories" options={sortAsc(repositoryOptions(data))} value={v.repositories} onChange={(x) => set('repositories', x)}
-              extraFields={[{ key: 'role', label: 'Role', options: sortAsc(['Frontend', 'Backend', 'Full Stack', 'Mobile', 'Monorepo', 'Shared Library', 'Infrastructure', 'Documentation', 'Website'], (x) => x) }]}
+              extraFields={[{ key: 'role', label: 'Role', options: sortAsc(REPOSITORY_ROLES, (x) => x) }]}
               help="Repositories that host source code or docs for this application." />
           </div>
           <div className="col-lg-6 d-flex flex-column">
@@ -196,8 +179,8 @@ function WizardBody({ app }) {
             <div className="mb-3 flex-grow-1 d-flex flex-column">
               <label className="form-label">Technology Stack</label>
               <div className="bh-multiselect p-3 small d-flex flex-column gap-1 flex-grow-1">
-                {TECH_ROLES.some((r) => v[r.key].length)
-                  ? TECH_ROLES.filter((r) => v[r.key].length).map((r) => <div key={r.key}><strong>{r.label}:</strong> {nameList(data, 'technologies', v[r.key])}</div>)
+                {APPLICATION_TECH_ROLES.some((r) => v[r.key].length)
+                  ? APPLICATION_TECH_ROLES.filter((r) => v[r.key].length).map((r) => <div key={r.key}><strong>{r.label}:</strong> {nameList(data, 'technologies', v[r.key])}</div>)
                   : <span className="text-subtle">No technologies selected yet. Configure them in Step 02 (Technical Details).</span>}
               </div>
             </div>
@@ -244,7 +227,7 @@ function WizardBody({ app }) {
           { title: 'Technical Details', fields: [
             { label: 'Architecture', value: v.architecture }, { label: 'Platform', value: v.platform }, { label: 'Hosting', value: v.hosting },
             { label: 'Environments', value: v.environments.join(', ') },
-            ...TECH_ROLES.map((r) => ({ label: r.label, value: v[r.key].map((x) => `${byId(data, 'technologies', x.targetId)?.name}${x.version ? ` ${x.version}` : ''}`).join(', ') })),
+            ...APPLICATION_TECH_ROLES.map((r) => ({ label: r.label, value: v[r.key].map((x) => `${byId(data, 'technologies', x.targetId)?.name}${x.version ? ` ${x.version}` : ''}`).join(', ') })),
           ] },
           { title: 'Relationships', fields: [
             { label: 'Repositories', value: nameList(data, 'repositories', v.repositories) },

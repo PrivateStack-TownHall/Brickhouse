@@ -1,33 +1,39 @@
-import { useState } from 'react';
 import Modal from '../../components/dialogs/Modal';
 import FormField from '../../components/forms/FormField';
 import FormSelect from '../../components/forms/FormSelect';
 import FormTextarea from '../../components/forms/FormTextarea';
 import LogoField from '../../components/forms/LogoField';
-import { useRegistry } from '../../hooks/useRegistry';
-import { useToast } from '../../hooks/useToast';
-import { createEntity, updateEntity, ValidationError } from '../../services/registry.service';
+import { useEntityFormModal } from '../../hooks/useEntityFormModal';
 import { INFRASTRUCTURE_STATUSES } from '../../services/schema';
 
 /** Registers a resource (instance) at a provider, e.g. Provider: Supabase → Resource: Orange LMS Database. */
 export default function InfrastructureFormModal({ resource, onClose, onCreated }) {
-  const { data, run } = useRegistry();
-  const toast = useToast();
-  const [v, setV] = useState(() => resource ? { logoUrl: '', ...resource } : { name: '', provider: '', category: '', resourceType: '', region: '', dashboardUrl: '', logoUrl: '', description: '', status: 'active' });
-  const [errors, setErrors] = useState({});
-  const set = (k, val) => { setV((s) => ({ ...s, [k]: val })); setErrors((e) => ({ ...e, [k]: undefined })); };
+  const { data, values: v, set, errors, save } = useEntityFormModal({
+    entity: 'infrastructure',
+    record: resource,
+    initialValues: () => (resource ? { logoUrl: '', ...resource } : { name: '', provider: '', category: '', resourceType: '', region: '', dashboardUrl: '', logoUrl: '', description: '', status: 'active' }),
+    onClose,
+    onCreated,
+    createMessage: (id) => `Infrastructure ${id} registered.`,
+    updateMessage: (id) => `Infrastructure ${id} updated.`,
+  });
+
   const providers = [...new Set(data.infrastructure.map((i) => i.provider))].sort();
-  const save = () => {
-    const values = { name: v.name, provider: v.provider, category: v.category, resourceType: v.resourceType, region: v.region, dashboardUrl: v.dashboardUrl, logoUrl: v.logoUrl, description: v.description, status: v.status };
-    try {
-      if (resource) { run(updateEntity, 'infrastructure', resource.id, values); toast(`Infrastructure ${resource.id} updated.`); onClose(); } else { const id = run(createEntity, 'infrastructure', values); toast(`Infrastructure ${id} registered.`); onClose(); onCreated?.(id); }
-    } catch (e) {
-      if (e instanceof ValidationError) setErrors(e.errors); else toast(e.message, 'error');
-    }
-  };
+  const handleSave = () => save({
+    name: v.name,
+    provider: v.provider,
+    category: v.category,
+    resourceType: v.resourceType,
+    region: v.region,
+    dashboardUrl: v.dashboardUrl,
+    logoUrl: v.logoUrl,
+    description: v.description,
+    status: v.status,
+  });
+
   return (
     <Modal open size="lg" title={resource ? `Edit ${resource.name}` : 'Add Infrastructure'} onClose={onClose}
-      footer={<><button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button><button type="button" className="btn btn-primary" onClick={save}>{resource ? 'Save Changes' : 'Add Infrastructure'}</button></>}>
+      footer={<><button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button><button type="button" className="btn btn-primary" onClick={handleSave}>{resource ? 'Save Changes' : 'Add Infrastructure'}</button></>}>
       <div className="row">
         <div className="col-md-6"><FormField label="Provider" required list="bh-providers" value={v.provider} onChange={(e) => set('provider', e.target.value)} error={errors.provider} placeholder="e.g. Supabase" help="The vendor or platform." /></div>
         <datalist id="bh-providers">{providers.map((p) => <option key={p} value={p} />)}</datalist>

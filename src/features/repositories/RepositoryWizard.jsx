@@ -13,12 +13,12 @@ import { useRegistry } from '../../hooks/useRegistry';
 import { useToast } from '../../hooks/useToast';
 import { createEntity, updateEntity } from '../../services/registry.service';
 import { VISIBILITIES, ACCESS_STATUSES } from '../../services/schema';
+import { ACCESS_STATUS_LABELS, REPOSITORY_LANGUAGES, REPOSITORY_ROLES } from '../../constants/registry';
 import { applicationOptions, componentOptions, linkValues, nameList } from '../../utils/options';
 import { slugify } from '../../helpers';
 import NotFoundPage from '../overview/NotFoundPage';
 
 const FIELDS = ['name', 'code', 'provider', 'organization', 'url', 'type', 'visibility', 'accessStatus', 'mainBranch', 'language', 'description', 'topics'];
-const LANGUAGES = ['JavaScript', 'TypeScript', 'PHP', 'Go', 'Python', 'Dart', 'Java', 'Kotlin', 'Swift', 'C#', 'Ruby', 'Rust', 'HCL', 'Other'];
 
 export default function RepositoryWizard({ mode = 'create' }) {
   const { id } = useParams();
@@ -74,9 +74,9 @@ function Body({ repo }) {
           <div className="col-md-8"><FormField label="Repository URL" type="url" placeholder="https://github.com/org/repo" {...bind('url')} /></div>
           <div className="col-md-3"><FormSelect label="Repository Type" required options={data.categories.repositoryTypes} {...bindSelect('type')} /></div>
           <div className="col-md-3"><FormSelect label="Visibility" required options={VISIBILITIES} {...bindSelect('visibility')} /></div>
-          <div className="col-md-3"><FormSelect label="Access Status" options={ACCESS_STATUSES.map((a) => ({ value: a, label: a === 'inaccessible' ? 'Inaccessible (404)' : a === 'unknown' ? 'Not checked' : 'Accessible' }))} {...bindSelect('accessStatus')} help="Last manual access check." /></div>
+          <div className="col-md-3"><FormSelect label="Access Status" options={ACCESS_STATUSES.map((a) => ({ value: a, label: ACCESS_STATUS_LABELS[a] }))} {...bindSelect('accessStatus')} help="Last manual access check." /></div>
           <div className="col-md-3"><FormField label="Primary Branch" placeholder="main" {...bind('mainBranch')} /></div>
-          <div className="col-md-6"><FormSelect label="Default Language" options={LANGUAGES} format={(x) => x} {...bindSelect('language')} /></div>
+          <div className="col-md-6"><FormSelect label="Default Language" options={REPOSITORY_LANGUAGES} format={(x) => x} {...bindSelect('language')} /></div>
           <div className="col-md-6" />
           <div className="col-12"><FormTextarea label="Description" {...bind('description')} /></div>
           <div className="col-12"><TagInput label="Topics / Tags" value={v.topics} onChange={(t) => set('topics', t)} /></div>
@@ -88,7 +88,7 @@ function Body({ repo }) {
       render: () => (
         <div className="row">
           <div className="col-lg-6"><MultiSelect label="Applications" options={applicationOptions(data)} value={v.applications} onChange={(x) => set('applications', x)}
-            extraFields={[{ key: 'role', label: 'Role', options: ['Frontend', 'Backend', 'Full Stack', 'Mobile', 'Monorepo', 'Shared Library', 'Infrastructure', 'Documentation', 'Website'] }]}
+            extraFields={[{ key: 'role', label: 'Role', options: REPOSITORY_ROLES }]}
             help="A repository can serve several applications." /></div>
           <div className="col-lg-6"><MultiSelect label="Components" options={componentOptions(data)} value={v.components} onChange={(x) => set('components', x)}
             extraFields={[{ key: 'path', label: 'Path in repo (optional)' }]} help="Components whose source lives in this repository." /></div>
