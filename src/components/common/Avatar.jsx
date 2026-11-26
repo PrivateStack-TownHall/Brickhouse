@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { resolveLogo } from '../../assets/logos';
 
 // Initials avatar with a stable color per name (mockup: "OL", "SC", "MM" tiles).
@@ -15,7 +16,10 @@ export function initials(name = '') {
 }
 
 export default function Avatar({ name, seed, size = 34, round = false, src }) {
-  const logoUrl = src || resolveLogo(name, seed);
+  const [failedSrc, setFailedSrc] = useState(null);
+  const custom = src && src !== failedSrc ? src : null;
+  const fallback = resolveLogo(name, seed);
+  const logoUrl = custom || (fallback && fallback !== failedSrc ? fallback : null);
   if (logoUrl) {
     return (
       <span
@@ -41,6 +45,7 @@ export default function Avatar({ name, seed, size = 34, round = false, src }) {
         <img
           src={logoUrl}
           alt={name}
+          onError={() => setFailedSrc(logoUrl)}
           style={{
             width: '100%',
             height: '100%',

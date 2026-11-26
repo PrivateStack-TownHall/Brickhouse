@@ -4,7 +4,7 @@ import Avatar from '../common/Avatar';
 import IdChip from '../common/IdChip';
 import RowActions from '../tables/RowActions';
 
-export default function EntityCard({ title, id, to, avatar, status, subtitle, description, meta = [], tags = [], actions }) {
+export default function EntityCard({ title, id, to, avatar, avatarSrc, status, subtitle, description, meta = [], tags = [], actions }) {
   const navigate = useNavigate();
   return (
     <motion.article
@@ -17,7 +17,7 @@ export default function EntityCard({ title, id, to, avatar, status, subtitle, de
       whileTap={{ scale: 0.99 }}
     >
       <div className="d-flex align-items-start justify-content-between gap-2">
-        <Avatar name={avatar || title} seed={id} size={44} />
+        <Avatar name={avatar || title} seed={id} src={avatarSrc} size={44} />
         {actions && <RowActions label={title} {...actions} />}
       </div>
       <div className="min-w-0">

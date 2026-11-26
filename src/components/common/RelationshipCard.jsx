@@ -46,12 +46,14 @@ export default function RelationshipCard({ icon: Icon, entity, title, subtitle, 
   );
 }
 
-export function RelationshipRow({ entity, record, meta, badge, onUnlink }) {
+export function RelationshipRow({ entity, record, avatarSrc, meta, badge, onUnlink }) {
   const to = routeFor(entity, record.id);
-  const hasLogo = resolveLogo(record.name, record.id);
+  const customLogo = entity === 'apis'
+    ? undefined
+    : (avatarSrc || record.logoUrl || (entity === 'infrastructure' ? resolveLogo(record.provider) : undefined) || resolveLogo(record.name, record.id));
   const body = (
     <>
-      {hasLogo ? <Avatar name={record.name} seed={record.id} size={28} /> : <EntityIcon entity={entity} boxed />}
+      {customLogo ? <Avatar name={record.name} seed={record.id} src={customLogo} size={28} /> : <EntityIcon entity={entity} boxed />}
       <div className="min-w-0 flex-grow-1">
         <div className="fw-semibold text-truncate">{record.name || record.id}</div>
         <div className="text-subtle text-truncate" style={{ fontSize: 12 }}><span className="bh-id">{record.id}</span>{meta && <> · {meta}</>}</div>
