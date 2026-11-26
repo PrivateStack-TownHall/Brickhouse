@@ -9,6 +9,7 @@ const isBlank = (v) => v === undefined || v === null || (typeof v === 'string' &
 const isUrl = (v) => {
   try { const u = new URL(v); return u.protocol === 'http:' || u.protocol === 'https:'; } catch { return false; }
 };
+const isLogoValue = (v) => isUrl(v) || /^data:image\/(png|jpe?g|webp|gif|svg\+xml);base64,[A-Za-z0-9+/=]+$/i.test(String(v).trim());
 
 const FIELD_LABELS = {
   name: 'Name', code: 'Code', ownerId: 'Company ownership', category: 'Category', type: 'Type', lifecycle: 'Lifecycle',
@@ -41,7 +42,8 @@ export function validateRecord(entity, values, ds, { id = null } = {}) {
     }
   }
   for (const [k, v] of Object.entries(values)) {
-    if (/(Url|URL)$/.test(k) && !isBlank(v) && !isUrl(v)) errors[k] = 'Enter a full URL starting with http:// or https://';
+    if (k === 'logoUrl' && !isBlank(v) && !isLogoValue(v)) errors[k] = 'Enter a full http(s):// image URL or upload an image file.';
+    else if (k !== 'logoUrl' && /(Url|URL)$/.test(k) && !isBlank(v) && !isUrl(v)) errors[k] = 'Enter a full URL starting with http:// or https://';
   }
   if (entity === 'endpoints' && values.path && !String(values.path).startsWith('/')) errors.path = 'Path must start with "/".';
   return errors;
