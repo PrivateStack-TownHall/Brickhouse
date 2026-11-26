@@ -1,7 +1,11 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { Pencil, Trash2, Info, Server } from 'lucide-react';
+import { Info, Server } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
+import DetailActions from '../../components/common/DetailActions';
+import AlertBanner from '../../components/common/AlertBanner';
+import SectionCard from '../../components/common/SectionCard';
+import ExtLink from '../../components/common/ExtLink';
 import StatusBadge from '../../components/badges/StatusBadge';
 import ReviewSummary from '../../components/common/ReviewSummary';
 import RelationshipCard from '../../components/common/RelationshipCard';
@@ -11,7 +15,6 @@ import { useRegistry } from '../../hooks/useRegistry';
 import { useFormat } from '../../hooks/useFormat';
 import { useDeleteRecord } from '../../hooks/useDeleteRecord';
 import { infrastructureUsage } from '../../services/query.service';
-import { ExtLink } from '../applications/ApplicationDetailPage';
 import InfrastructureFormModal from './InfrastructureFormModal';
 import NotFoundPage from '../overview/NotFoundPage';
 
@@ -32,38 +35,19 @@ export default function InfrastructureDetailPage() {
         avatar={<Avatar name={inf.name} seed={inf.id} src={inf.logoUrl || resolveLogo(inf.provider)} size={48} />}
         meta={<div className="d-flex gap-2 align-items-center"><span className="bh-id">{inf.id}</span><StatusBadge value={inf.status} /><span className="bh-chip">{inf.provider}</span><span className="bh-chip">{inf.category}</span></div>}
         description={inf.description}
-        actions={(
-          <>
-            <button type="button" className="btn btn-secondary" onClick={() => setEditing(true)}><Pencil size={16} />Edit</button>
-            <button type="button" className="btn btn-outline-danger" onClick={() => requestDelete('infrastructure', id, () => navigate('/infrastructure'))}><Trash2 size={16} />Delete</button>
-          </>
-        )} />
-      <div className="bh-sample-banner mb-4" style={{ background: 'var(--bh-info-soft)', borderColor: 'rgba(47,111,178,.3)' }}>
-        <Info size={18} color="var(--bh-info)" className="flex-shrink-0" />
-        <div>Registry record only. Utilization and health are not tracked without a provider integration.</div>
-      </div>
+        actions={<DetailActions onEdit={() => setEditing(true)} onDelete={() => requestDelete('infrastructure', id, () => navigate('/infrastructure'))} />} />
+      <AlertBanner tone="info" icon={Info} className="mb-4">
+        Registry record only. Utilization and health are not tracked without a provider integration.
+      </AlertBanner>
       <div className="row g-4">
         <div className="col-xl-5 d-flex flex-column gap-4">
-          <div className="bh-card h-100">
-            <div className="bh-card-header colored">
-              <div className="d-flex align-items-center">
-                <span className="bh-card-header-icon">
-                  <Server size={18} />
-                </span>
-                <div>
-                  <h3 className="bh-card-title">Resource</h3>
-                  <p className="bh-card-sub">Cloud asset configuration, provider, and region</p>
-                </div>
-              </div>
-            </div>
-            <div className="bh-card-body">
-              <ReviewSummary sections={[{ title: 'Resource Details', icon: Server, fields: [
-                { label: 'Provider', value: inf.provider }, { label: 'Resource Type', value: inf.resourceType }, { label: 'Category', value: inf.category },
-                { label: 'Region', value: inf.region }, { label: 'Dashboard', value: <ExtLink href={inf.dashboardUrl} />, wide: true },
-                { label: 'Created', value: fmt.date(inf.createdAt) }, { label: 'Updated', value: fmt.date(inf.updatedAt) },
-              ] }]} />
-            </div>
-          </div>
+          <SectionCard variant="colored" icon={Server} title="Resource" subtitle="Cloud asset configuration, provider, and region">
+            <ReviewSummary sections={[{ title: 'Resource Details', icon: Server, fields: [
+              { label: 'Provider', value: inf.provider }, { label: 'Resource Type', value: inf.resourceType }, { label: 'Category', value: inf.category },
+              { label: 'Region', value: inf.region }, { label: 'Dashboard', value: <ExtLink href={inf.dashboardUrl} />, wide: true },
+              { label: 'Created', value: fmt.date(inf.createdAt) }, { label: 'Updated', value: fmt.date(inf.updatedAt) },
+            ] }]} />
+          </SectionCard>
           <RelationshipCard title={`Other ${inf.provider} resources`} items={siblings.map((s) => ({ entity: 'infrastructure', record: s, meta: s.resourceType, badge: <StatusBadge value={s.status} /> }))} emptyText="No other resources at this provider." />
         </div>
         <div className="col-xl-7 d-flex flex-column gap-4">

@@ -1,6 +1,9 @@
 import { Link, useNavigate, useParams } from 'react-router';
-import { Pencil, Trash2, Plus, Boxes } from 'lucide-react';
+import { Plus, Boxes } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
+import DetailActions from '../../components/common/DetailActions';
+import SectionCard from '../../components/common/SectionCard';
+import ChipList from '../../components/common/ChipList';
 import StatusBadge from '../../components/badges/StatusBadge';
 import ReviewSummary from '../../components/common/ReviewSummary';
 import RelationshipCard from '../../components/common/RelationshipCard';
@@ -41,36 +44,18 @@ export default function ComponentDetailPage() {
         avatar={<Avatar name={c.name} seed={c.id} src={appLogoSrc(app)} size={48} />}
         meta={<div className="d-flex gap-2 align-items-center flex-wrap"><span className="bh-id">{c.id}</span><StatusBadge value={c.lifecycle} /><span className="bh-chip">{c.layer}</span><span className="bh-chip">{c.type}</span></div>}
         description={c.description}
-        actions={(
-          <>
-            <Link to={`/components/${id}/edit`} className="btn btn-secondary"><Pencil size={16} />Edit</Link>
-            <button type="button" className="btn btn-outline-danger" onClick={() => requestDelete('components', id, () => navigate('/components'))}><Trash2 size={16} />Delete</button>
-          </>
-        )} />
+        actions={<DetailActions editTo={`/components/${id}/edit`} onDelete={() => requestDelete('components', id, () => navigate('/components'))} />} />
       <div className="row g-4">
         <div className="col-xl-6">
-          <div className="bh-card h-100">
-            <div className="bh-card-header colored">
-              <div className="d-flex align-items-center">
-                <span className="bh-card-header-icon">
-                  <Boxes size={18} />
-                </span>
-                <div>
-                  <h3 className="bh-card-title">Component</h3>
-                  <p className="bh-card-sub">Component details, parent application, and capabilities</p>
-                </div>
-              </div>
-            </div>
-            <div className="bh-card-body">
-              <ReviewSummary sections={[{ title: 'Component Details', icon: Boxes, fields: [
-                { label: 'Parent Application', value: <EntityLink entity="applications" record={app} showId /> },
-                { label: 'Code', value: <span className="mono">{c.code}</span> }, { label: 'Version', value: c.version },
-                { label: 'Category', value: c.category }, { label: 'Role', value: c.role },
-                { label: 'Capabilities', value: (c.capabilities || []).map((x) => <span key={x} className="bh-chip me-1">{x}</span>) },
-                { label: 'Created', value: fmt.date(c.createdAt) }, { label: 'Updated', value: fmt.date(c.updatedAt) },
-              ] }]} />
-            </div>
-          </div>
+          <SectionCard variant="colored" icon={Boxes} title="Component" subtitle="Component details, parent application, and capabilities">
+            <ReviewSummary sections={[{ title: 'Component Details', icon: Boxes, fields: [
+              { label: 'Parent Application', value: <EntityLink entity="applications" record={app} showId /> },
+              { label: 'Code', value: <span className="mono">{c.code}</span> }, { label: 'Version', value: c.version },
+              { label: 'Category', value: c.category }, { label: 'Role', value: c.role },
+              { label: 'Capabilities', value: <ChipList items={c.capabilities} /> },
+              { label: 'Created', value: fmt.date(c.createdAt) }, { label: 'Updated', value: fmt.date(c.updatedAt) },
+            ] }]} />
+          </SectionCard>
         </div>
         <div className="col-xl-6">
           <RelationshipCard entity="technologies" title="Technology Stack" items={techs.map(({ link, record }) => ({ key: link.id, entity: 'technologies', record, meta: `${link.role || record.category}${link.version ? ` · v${link.version}` : ''}`, onUnlink: () => unlink('componentTechnologies', link.id) }))} />

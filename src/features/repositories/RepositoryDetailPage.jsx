@@ -1,10 +1,13 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
-import { Pencil, Trash2, GitBranch, Activity, RefreshCw, ExternalLink } from 'lucide-react';
+import { GitBranch, Activity, RefreshCw, ExternalLink } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
+import DetailActions from '../../components/common/DetailActions';
+import SectionCard from '../../components/common/SectionCard';
 import StatusBadge from '../../components/badges/StatusBadge';
 import ReviewSummary from '../../components/common/ReviewSummary';
 import RelationshipCard from '../../components/common/RelationshipCard';
+import ChipList from '../../components/common/ChipList';
 import DataTable from '../../components/tables/DataTable';
 import { useRegistry } from '../../hooks/useRegistry';
 import { useFormat } from '../../hooks/useFormat';
@@ -16,18 +19,12 @@ import { removeLink } from '../../services/registry.service';
 import { buildGitData, summarizeGit } from '../../services/git-analytics.service';
 import { integrationConnections, fetchServerTokenStatus, syncSingleGitHubRepo, applySingleRepoSync } from '../../services/git-integrations.service';
 import GitSourceBadge from '../../components/badges/GitSourceBadge';
-import { ExtLink } from '../applications/ApplicationDetailPage';
+import ExtLink from '../../components/common/ExtLink';
 import AccessBadge from '../../components/badges/AccessBadge';
 import Avatar from '../../components/common/Avatar';
 import { appLogoSrc } from '../../assets/logos';
+import { REPOSITORY_ACTIVITY_PERIODS } from '../../constants/ui';
 import NotFoundPage from '../overview/NotFoundPage';
-
-const ACTIVITY_PERIODS = [
-  { value: 'all', label: 'All recorded' },
-  { value: '30', label: 'Last 30 days' },
-  { value: '90', label: 'Last 90 days' },
-  { value: '365', label: 'Last 1 year' },
-];
 
 export default function RepositoryDetailPage() {
   const { id } = useParams();
@@ -72,7 +69,7 @@ export default function RepositoryDetailPage() {
   const unlink = (rel, linkId) => { run(removeLink, rel, linkId); toast('Relationship removed.'); };
 
   const isGitHub = repo.provider?.toLowerCase() === 'github' && !!repo.url;
-  const periodLabel = ACTIVITY_PERIODS.find((p) => p.value === activityPeriod)?.label.toLowerCase() || 'all recorded';
+  const periodLabel = REPOSITORY_ACTIVITY_PERIODS.find((p) => p.value === activityPeriod)?.label.toLowerCase() || 'all recorded';
 
   const handleSyncGitHub = async () => {
     if (syncing || !isGitHub) return;
@@ -109,7 +106,7 @@ export default function RepositoryDetailPage() {
         meta={<div className="d-flex gap-2 align-items-center"><span className="bh-id">{repo.id}</span><StatusBadge value={repo.visibility} /><AccessBadge value={repo.accessStatus} /><span className="bh-chip">{repo.provider}</span></div>}
         description={repo.description}
         actions={(
-          <>
+          <DetailActions editTo={`/repositories/${id}/edit`} onDelete={() => requestDelete('repositories', id, () => navigate('/repositories'))}>
             {isGitHub && (
               <>
                 <button type="button" className="btn btn-secondary" disabled={syncing} onClick={handleSyncGitHub}>
@@ -121,48 +118,30 @@ export default function RepositoryDetailPage() {
                 </a>
               </>
             )}
-            <Link to={`/repositories/${id}/edit`} className="btn btn-secondary"><Pencil size={16} />Edit</Link>
-            <button type="button" className="btn btn-outline-danger" onClick={() => requestDelete('repositories', id, () => navigate('/repositories'))}><Trash2 size={16} />Delete</button>
-          </>
+          </DetailActions>
         )} />
       <div className="row g-4">
         <div className="col-xl-7">
-          <div className="bh-card mb-4">
-            <div className="bh-card-header colored">
-              <div className="d-flex align-items-center">
-                <span className="bh-card-header-icon">
-                  <GitBranch size={18} />
-                </span>
-                <div>
-                  <h3 className="bh-card-title">Repository</h3>
-                  <p className="bh-card-sub">Repository configuration, branch, and upstream links</p>
-                </div>
-              </div>
-            </div>
-            <div className="bh-card-body">
-              <ReviewSummary sections={[{ title: 'Repository Details', icon: GitBranch, fields: [
-                { label: 'Provider', value: repo.provider }, { label: 'Organization / Group', value: repo.organization }, { label: 'Type', value: <span className="text-capitalize">{repo.type}</span> },
-                { label: 'Primary Branch', value: <span className="mono">{repo.mainBranch}</span> }, { label: 'Language', value: repo.language }, { label: 'Code', value: repo.code },
-                { label: 'URL', value: <ExtLink href={repo.url} />, wide: true },
-                { label: 'Topics', value: (repo.topics || []).map((t) => <span key={t} className="bh-chip me-1">{t}</span>) },
-                { label: 'Created', value: fmt.date(repo.createdAt) }, { label: 'Updated', value: fmt.date(repo.updatedAt) },
-              ] }]} />
-            </div>
-          </div>
+          <SectionCard variant="colored" fullHeight={false} className="mb-4" icon={GitBranch} title="Repository" subtitle="Repository configuration, branch, and upstream links">
+            <ReviewSummary sections={[{ title: 'Repository Details', icon: GitBranch, fields: [
+              { label: 'Provider', value: repo.provider }, { label: 'Organization / Group', value: repo.organization }, { label: 'Type', value: <span className="text-capitalize">{repo.type}</span> },
+              { label: 'Primary Branch', value: <span className="mono">{repo.mainBranch}</span> }, { label: 'Language', value: repo.language }, { label: 'Code', value: repo.code },
+              { label: 'URL', value: <ExtLink href={repo.url} />, wide: true },
+              { label: 'Topics', value: <ChipList items={repo.topics} /> },
+              { label: 'Created', value: fmt.date(repo.createdAt) }, { label: 'Updated', value: fmt.date(repo.updatedAt) },
+            ] }]} />
+          </SectionCard>
           {git && (
-            <div className="bh-card mb-4">
-              <div className="bh-card-header colored flex-wrap">
-                <div className="d-flex align-items-center">
-                  <span className="bh-card-header-icon">
-                    <Activity size={18} />
-                  </span>
-                  <div>
-                    <div className="d-flex gap-2 align-items-center flex-wrap">
-                      <h3 className="bh-card-title">Development activity <span className="bh-card-count">· {periodLabel}</span></h3>
-                      <GitSourceBadge source={gitData.source} />
-                    </div>
-                  </div>
-                </div>
+            <SectionCard
+              variant="colored"
+              fullHeight={false}
+              className="mb-4"
+              headerClassName="flex-wrap"
+              icon={Activity}
+              title="Development activity"
+              count={`· ${periodLabel}`}
+              badge={<GitSourceBadge source={gitData.source} />}
+              actions={(
                 <div className="d-flex align-items-center gap-2">
                   <select
                     aria-label="Activity period"
@@ -176,40 +155,34 @@ export default function RepositoryDetailPage() {
                       borderColor: 'rgba(255,255,255,0.22)',
                     }}
                   >
-                    {ACTIVITY_PERIODS.map((p) => (
+                    {REPOSITORY_ACTIVITY_PERIODS.map((p) => (
                       <option key={p.value} value={p.value} style={{ color: '#0f2d4a' }}>{p.label}</option>
                     ))}
                   </select>
                   <Link to="/progress" className="btn btn-ghost btn-sm">Progress & Review</Link>
                 </div>
-              </div>
-              <div className="bh-card-body">
-                <ReviewSummary sections={[{ title: '', fields: [
-                  { label: 'Commits', value: git.commits },
-                  { label: 'Active branches', value: git.branches },
-                  { label: 'Pull requests', value: `${git.prs} (${git.openPrs} open)` },
-                  { label: 'Contributors', value: git.contributors },
-                  { label: 'Last commit', value: git.lastCommitAt ? fmt.date(git.lastCommitAt) : '—' },
-                ] }]} />
-              </div>
-            </div>
+              )}
+            >
+              <ReviewSummary sections={[{ title: '', fields: [
+                { label: 'Commits', value: git.commits },
+                { label: 'Active branches', value: git.branches },
+                { label: 'Pull requests', value: `${git.prs} (${git.openPrs} open)` },
+                { label: 'Contributors', value: git.contributors },
+                { label: 'Last commit', value: git.lastCommitAt ? fmt.date(git.lastCommitAt) : '—' },
+              ] }]} />
+            </SectionCard>
           )}
           {gitData.source.kind === 'recorded' && (
-            <div className="bh-card">
-              <div className="bh-card-header colored">
-                <div className="d-flex align-items-center">
-                  <span className="bh-card-header-icon">
-                    <GitBranch size={18} />
-                  </span>
-                  <div>
-                    <div className="d-flex gap-2 align-items-center">
-                      <h3 className="bh-card-title">Recorded commits <span className="bh-card-count">({recorded.length})</span></h3>
-                      <GitSourceBadge source={gitData.source} />
-                    </div>
-                  </div>
-                </div>
-                <Link to="/progress" className="btn btn-ghost btn-sm">Progress & Review</Link>
-              </div>
+            <SectionCard
+              variant="colored"
+              fullHeight={false}
+              noBody
+              icon={GitBranch}
+              title="Recorded commits"
+              count={recorded.length}
+              badge={<GitSourceBadge source={gitData.source} />}
+              actions={<Link to="/progress" className="btn btn-ghost btn-sm">Progress & Review</Link>}
+            >
               <DataTable
                 rows={recorded}
                 rowKey={(c) => c.id}
@@ -241,10 +214,9 @@ export default function RepositoryDetailPage() {
                     render: (c) => {
                       const shortSha = (c.sha || '').slice(0, 7);
                       return c.url ? (
-                        <a href={c.url} target="_blank" rel="noreferrer" className="bh-idchip text-decoration-none d-inline-flex align-items-center gap-1" title={c.sha}>
+                        <ExtLink href={c.url} className="bh-idchip text-decoration-none" iconSize={11} title={c.sha}>
                           <span>{shortSha}</span>
-                          <ExternalLink size={11} />
-                        </a>
+                        </ExtLink>
                       ) : (
                         <span className="bh-idchip" title={c.sha}>{shortSha}</span>
                       );
@@ -252,7 +224,7 @@ export default function RepositoryDetailPage() {
                   },
                 ]}
               />
-            </div>
+            </SectionCard>
           )}
         </div>
         <div className="col-xl-5 d-flex flex-column gap-4">
