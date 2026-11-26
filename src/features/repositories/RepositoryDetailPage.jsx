@@ -17,6 +17,8 @@ import { integrationConnections, syncSingleGitHubRepo, applySingleRepoSync } fro
 import GitSourceBadge from '../../components/badges/GitSourceBadge';
 import { ExtLink } from '../applications/ApplicationDetailPage';
 import AccessBadge from '../../components/badges/AccessBadge';
+import Avatar from '../../components/common/Avatar';
+import { appLogoSrc } from '../../assets/logos';
 import NotFoundPage from '../overview/NotFoundPage';
 
 const ACTIVITY_PERIODS = [
@@ -99,6 +101,7 @@ export default function RepositoryDetailPage() {
   return (
     <>
       <PageHeader title={repo.name}
+        avatar={<Avatar name={repo.name} seed={repo.id} src={appLogoSrc(allApps[0])} size={48} />}
         meta={<div className="d-flex gap-2 align-items-center"><span className="bh-id">{repo.id}</span><StatusBadge value={repo.visibility} /><AccessBadge value={repo.accessStatus} /><span className="bh-chip">{repo.provider}</span></div>}
         description={repo.description}
         actions={(

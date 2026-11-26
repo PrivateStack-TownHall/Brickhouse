@@ -9,6 +9,7 @@ import FilterDropdown from '../../components/tables/FilterDropdown';
 import DataView from '../../components/data/DataView';
 import IdChip from '../../components/common/IdChip';
 import Avatar from '../../components/common/Avatar';
+import { appLogoSrc } from '../../assets/logos';
 import RowActions from '../../components/tables/RowActions';
 import StatusBadge from '../../components/badges/StatusBadge';
 import EntityLink from '../../components/common/EntityLink';
@@ -49,7 +50,7 @@ export default function DeploymentsPage() {
   const tabs = ['all', 'production', 'staging', 'development', 'preview'].map((k) => ({ key: k, label: k === 'all' ? 'All' : k[0].toUpperCase() + k.slice(1), count: k === 'all' ? data.deployments.length : n((d) => d.environment === k) }));
   const columns = [
     { key: 'id', label: 'Deployment ID', render: (d) => <IdChip id={d.id} /> },
-    { key: 'name', label: 'Deployment Name', render: (d) => <div className="d-flex align-items-center gap-2"><Avatar name={d.name} seed={d.id} size={32} /><div className="min-w-0"><Link to={`/deployments/${d.id}`} className="cell-strong">{d.name}</Link><div className="text-subtle mono" style={{ fontSize: 11.5 }}>{d.branch} · {d.version}</div></div></div> },
+    { key: 'name', label: 'Deployment Name', render: (d) => <div className="d-flex align-items-center gap-2"><Avatar name={d.name} seed={d.id} src={appLogoSrc(appOf[d.id])} size={32} /><div className="min-w-0"><Link to={`/deployments/${d.id}`} className="cell-strong">{d.name}</Link><div className="text-subtle mono" style={{ fontSize: 11.5 }}>{d.branch} · {d.version}</div></div></div> },
     { key: 'component', label: 'Component', sortValue: (d) => byId(data, 'components', d.componentId)?.name, render: (d) => <EntityLink entity="components" record={byId(data, 'components', d.componentId)} /> },
     { key: 'application', label: 'Application', sortValue: (d) => appOf[d.id]?.name, render: (d) => <EntityLink entity="applications" record={appOf[d.id]} /> },
     { key: 'environment', label: 'Environment', render: (d) => <StatusBadge value={d.environment} dot={false} /> },
@@ -60,7 +61,7 @@ export default function DeploymentsPage() {
     { key: 'actions', label: '', sortable: false, render: (d) => <RowActions label={d.name} viewTo={`/deployments/${d.id}`} editTo={`/deployments/${d.id}/edit`} onDelete={() => requestDelete('deployments', d.id)} /> },
   ];
   const card = (d) => ({
-    title: d.name, id: d.id, to: `/deployments/${d.id}`, subtitle: byId(data, 'components', d.componentId)?.name || appOf[d.id]?.name, description: d.notes,
+    title: d.name, id: d.id, to: `/deployments/${d.id}`, avatarSrc: appLogoSrc(appOf[d.id]), subtitle: byId(data, 'components', d.componentId)?.name || appOf[d.id]?.name, description: d.notes,
     status: <StatusBadge value={d.status} />,
     meta: [{ icon: Globe2, text: d.environment }, { icon: Server, text: d.platform }, { icon: Tag, text: d.version }, { icon: CalendarClock, text: fmt.friendly(d.lastDeployedAt || d.updatedAt) }],
     actions: { viewTo: `/deployments/${d.id}`, editTo: `/deployments/${d.id}/edit`, onDelete: () => requestDelete('deployments', d.id) },

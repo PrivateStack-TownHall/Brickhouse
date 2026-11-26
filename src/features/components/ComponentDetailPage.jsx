@@ -5,6 +5,8 @@ import StatusBadge from '../../components/badges/StatusBadge';
 import ReviewSummary from '../../components/common/ReviewSummary';
 import RelationshipCard from '../../components/common/RelationshipCard';
 import EntityLink from '../../components/common/EntityLink';
+import Avatar from '../../components/common/Avatar';
+import { appLogoSrc } from '../../assets/logos';
 import { useRegistry } from '../../hooks/useRegistry';
 import { useFormat } from '../../hooks/useFormat';
 import { useToast } from '../../hooks/useToast';
@@ -36,6 +38,7 @@ export default function ComponentDetailPage() {
   return (
     <>
       <PageHeader title={c.name}
+        avatar={<Avatar name={c.name} seed={c.id} src={appLogoSrc(app)} size={48} />}
         meta={<div className="d-flex gap-2 align-items-center flex-wrap"><span className="bh-id">{c.id}</span><StatusBadge value={c.lifecycle} /><span className="bh-chip">{c.layer}</span><span className="bh-chip">{c.type}</span></div>}
         description={c.description}
         actions={(

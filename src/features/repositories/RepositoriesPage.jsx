@@ -8,6 +8,7 @@ import FilterDropdown from '../../components/tables/FilterDropdown';
 import DataView from '../../components/data/DataView';
 import IdChip from '../../components/common/IdChip';
 import Avatar from '../../components/common/Avatar';
+import { appLogoSrc } from '../../assets/logos';
 import RowActions from '../../components/tables/RowActions';
 import StatusBadge from '../../components/badges/StatusBadge';
 import AccessBadge from '../../components/badges/AccessBadge';
@@ -49,7 +50,7 @@ export default function RepositoriesPage() {
   ];
   const columns = [
     { key: 'id', label: 'Repository ID', render: (r) => <IdChip id={r.id} /> },
-    { key: 'name', label: 'Repository Name', render: (r) => <div className="d-flex align-items-center gap-2"><Avatar name={r.name} seed={r.id} size={32} /><div className="min-w-0"><Link to={`/repositories/${r.id}`} className="cell-strong">{r.name}</Link><div className="text-subtle" style={{ fontSize: 12 }}>{appsOf[r.id].map((a) => a.name).join(', ') || 'No application'}</div></div></div> },
+    { key: 'name', label: 'Repository Name', render: (r) => <div className="d-flex align-items-center gap-2"><Avatar name={r.name} seed={r.id} src={appLogoSrc(appsOf[r.id][0])} size={32} /><div className="min-w-0"><Link to={`/repositories/${r.id}`} className="cell-strong">{r.name}</Link><div className="text-subtle" style={{ fontSize: 12 }}>{appsOf[r.id].map((a) => a.name).join(', ') || 'No application'}</div></div></div> },
     { key: 'provider', label: 'Provider', render: (r) => <div className="d-flex align-items-center gap-2"><Avatar name={r.provider} size={20} /><span>{r.provider}</span></div> },
     { key: 'organization', label: 'Organization', render: (r) => r.organization || '—' },
     { key: 'url', label: 'URL', render: (r) => (r.url ? <a href={r.url} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} className="text-truncate d-inline-block" style={{ maxWidth: 180 }}>{r.url.replace(/^https?:\/\//, '')}</a> : <span className="text-subtle">—</span>) },
@@ -62,7 +63,7 @@ export default function RepositoriesPage() {
     { key: 'actions', label: '', sortable: false, render: (r) => <RowActions label={r.name} viewTo={`/repositories/${r.id}`} editTo={`/repositories/${r.id}/edit`} onDelete={() => requestDelete('repositories', r.id)} /> },
   ];
   const card = (r) => ({
-    title: r.name, id: r.id, to: `/repositories/${r.id}`, subtitle: r.organization, avatar: r.name,
+    title: r.name, id: r.id, to: `/repositories/${r.id}`, subtitle: r.organization, avatar: r.name, avatarSrc: appLogoSrc(appsOf[r.id][0]),
     description: r.description || appsOf[r.id].map((a) => a.name).join(', '), tags: r.topics || [],
     status: <AccessBadge value={r.accessStatus} />,
     meta: [{ icon: Github, text: r.provider }, { icon: Layers, text: r.type }, { icon: GitBranch, text: r.mainBranch }, { icon: AppWindow, text: `${appsOf[r.id].length} app${appsOf[r.id].length === 1 ? '' : 's'}` }],

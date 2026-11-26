@@ -5,6 +5,8 @@ import StatusBadge from '../../components/badges/StatusBadge';
 import ReviewSummary from '../../components/common/ReviewSummary';
 import RelationshipCard from '../../components/common/RelationshipCard';
 import EntityLink from '../../components/common/EntityLink';
+import Avatar from '../../components/common/Avatar';
+import { appLogoSrc } from '../../assets/logos';
 import { useRegistry } from '../../hooks/useRegistry';
 import { useFormat } from '../../hooks/useFormat';
 import { useDeleteRecord } from '../../hooks/useDeleteRecord';
@@ -28,6 +30,7 @@ export default function DeploymentDetailPage() {
   return (
     <>
       <PageHeader title={d.name}
+        avatar={<Avatar name={d.name} seed={d.id} src={appLogoSrc(app)} size={48} />}
         meta={<div className="d-flex gap-2 align-items-center"><span className="bh-id">{d.id}</span><StatusBadge value={d.environment} dot={false} /><StatusBadge value={d.status} /></div>}
         description={d.notes}
         actions={(

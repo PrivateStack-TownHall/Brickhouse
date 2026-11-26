@@ -8,6 +8,7 @@ import FilterDropdown from '../../components/tables/FilterDropdown';
 import DataView from '../../components/data/DataView';
 import IdChip from '../../components/common/IdChip';
 import Avatar from '../../components/common/Avatar';
+import { appLogoSrc } from '../../assets/logos';
 import RowActions from '../../components/tables/RowActions';
 import StatusBadge from '../../components/badges/StatusBadge';
 import EntityLink from '../../components/common/EntityLink';
@@ -53,7 +54,7 @@ export default function ComponentsPage() {
   ];
   const columns = [
     { key: 'id', label: 'Component ID', render: (c) => <IdChip id={c.id} /> },
-    { key: 'name', label: 'Component Name', render: (c) => <div className="d-flex align-items-center gap-2"><Avatar name={c.name} seed={c.id} size={32} /><div className="min-w-0"><Link to={`/components/${c.id}`} className="cell-strong">{c.name}</Link><div className="text-subtle mono" style={{ fontSize: 11.5 }}>{c.code} · v{c.version}</div></div></div> },
+    { key: 'name', label: 'Component Name', render: (c) => <div className="d-flex align-items-center gap-2"><Avatar name={c.name} seed={c.id} src={appLogoSrc(rel[c.id].app)} size={32} /><div className="min-w-0"><Link to={`/components/${c.id}`} className="cell-strong">{c.name}</Link><div className="text-subtle mono" style={{ fontSize: 11.5 }}>{c.code} · v{c.version}</div></div></div> },
     { key: 'application', label: 'Application', sortValue: (c) => rel[c.id].app?.name, render: (c) => <EntityLink entity="applications" record={rel[c.id].app} /> },
     { key: 'type', label: 'Type' },
     { key: 'layer', label: 'Layer' },
@@ -63,7 +64,7 @@ export default function ComponentsPage() {
     { key: 'actions', label: '', sortable: false, render: (c) => <RowActions label={c.name} viewTo={`/components/${c.id}`} editTo={`/components/${c.id}/edit`} onDelete={() => requestDelete('components', c.id)} /> },
   ];
   const card = (c) => ({
-    title: c.name, id: c.id, to: `/components/${c.id}`, subtitle: rel[c.id].app?.name, description: c.description,
+    title: c.name, id: c.id, to: `/components/${c.id}`, avatarSrc: appLogoSrc(rel[c.id].app), subtitle: rel[c.id].app?.name, description: c.description,
     tags: rel[c.id].techs.map((t) => t.name), status: <StatusBadge value={c.lifecycle} />,
     meta: [{ icon: Layers, text: `${c.layer} · ${c.type}` }, { icon: GitBranch, text: rel[c.id].repos.map((r) => r.name).join(', ') }, { icon: Tag, text: c.version && `v${c.version}` }],
     actions: { viewTo: `/components/${c.id}`, editTo: `/components/${c.id}/edit`, onDelete: () => requestDelete('components', c.id) },
