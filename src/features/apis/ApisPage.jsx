@@ -7,7 +7,7 @@ import SummaryCards from '../../components/common/SummaryCards';
 import FilterDropdown from '../../components/tables/FilterDropdown';
 import DataView from '../../components/data/DataView';
 import IdChip from '../../components/common/IdChip';
-import Avatar from '../../components/common/Avatar';
+import RecordIdentity from '../../components/common/RecordIdentity';
 import RowActions from '../../components/tables/RowActions';
 import StatusBadge from '../../components/badges/StatusBadge';
 import EntityLink from '../../components/common/EntityLink';
@@ -45,7 +45,7 @@ export default function ApisPage() {
   ];
   const columns = [
     { key: 'id', label: 'API ID', render: (a) => <IdChip id={a.id} /> },
-    { key: 'name', label: 'API / Service Name', render: (a) => <div className="d-flex align-items-center gap-2"><Avatar name={a.name} seed={a.id} size={32} /><div className="min-w-0"><Link to={`/apis/${a.id}`} className="cell-strong">{a.name}</Link><div className="text-subtle" style={{ fontSize: 12 }}>{rel[a.id].consumers.length} consumer(s) · {data.endpoints.filter((e) => e.apiId === a.id).length} endpoint(s)</div></div></div> },
+    { key: 'name', label: 'API / Service Name', render: (a) => <RecordIdentity name={a.name} seed={a.id} to={`/apis/${a.id}`} subtitle={`${rel[a.id].consumers.length} consumer(s) · ${data.endpoints.filter((e) => e.apiId === a.id).length} endpoint(s)`} /> },
     { key: 'provider', label: 'Provider Application', sortValue: (a) => rel[a.id].provider?.name, render: (a) => (rel[a.id].provider ? <EntityLink entity="applications" record={rel[a.id].provider} /> : <span className="text-subtle">{a.exposure === 'external' ? 'External' : '—'}</span>) },
     { key: 'serviceType', label: 'Service Type' },
     { key: 'protocol', label: 'Protocol', render: (a) => <span className="bh-chip">{a.protocol}</span> },
