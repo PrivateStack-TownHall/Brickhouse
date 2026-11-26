@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router';
-import { motion } from 'framer-motion';
 import Avatar from '../common/Avatar';
 import IdChip from '../common/IdChip';
 import RowActions from '../tables/RowActions';
@@ -7,14 +6,12 @@ import RowActions from '../tables/RowActions';
 export default function EntityCard({ title, id, to, avatar, avatarSrc, status, subtitle, description, meta = [], tags = [], actions }) {
   const navigate = useNavigate();
   return (
-    <motion.article
+    <article
       className="bh-ecard"
       onClick={() => to && navigate(to)}
       onKeyDown={(e) => e.key === 'Enter' && e.target === e.currentTarget && to && navigate(to)}
       tabIndex={0}
       aria-label={title}
-      whileHover={{ y: -3, transition: { duration: 0.15 } }}
-      whileTap={{ scale: 0.99 }}
     >
       <div className="d-flex align-items-start justify-content-between gap-2">
         <Avatar name={avatar || title} seed={id} src={avatarSrc} size={44} />
@@ -37,6 +34,6 @@ export default function EntityCard({ title, id, to, avatar, avatarSrc, status, s
           {meta.filter((m) => m && m.text).map((m, i) => <span key={i}>{m.icon && <m.icon size={13} />}<span className="text-truncate">{m.text}</span></span>)}
         </div>
       )}
-    </motion.article>
+    </article>
   );
 }
