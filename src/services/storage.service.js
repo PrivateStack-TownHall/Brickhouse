@@ -4,7 +4,7 @@
 // Seed files are never modified. Local Storage is never silently reset.
 import { STORAGE_KEY, SCHEMA_VERSION, ENTITY_KEYS, RELATION_KEYS, DEFAULT_SETTINGS } from './schema';
 import { buildSeedDataset } from './seed';
-import { reconcileSequences, formatId } from './id-generator.service';
+import { reconcileSequences, formatId, parseIdNumber } from './id-generator.service';
 import { integrationConnections } from './git-integrations.service';
 
 const RECOVERY_KEY = `${STORAGE_KEY}.recovery`;
@@ -25,11 +25,43 @@ function storage() {
 export function normalizeDataset(ds, seed = buildSeedDataset()) {
   const out = { ...ds };
   for (const k of [...ENTITY_KEYS, ...RELATION_KEYS]) if (!Array.isArray(out[k])) out[k] = [];
-  const existingCompanyIds = new Set((out.companies || []).map((c) => c.id));
+  const companies = [...(out.companies || [])];
+  const existingCompanyIds = new Set(companies.map((c) => c.id));
   for (const sc of seed.companies || []) {
-    if (!existingCompanyIds.has(sc.id)) out.companies.push(sc);
+    if (!existingCompanyIds.has(sc.id)) companies.push(sc);
   }
+  out.companies = companies;
+
+  // Keep seed technology catalog additions and Node.js Runtime fix synced into existing browser storage.
+  const techs = (out.technologies || []).map((t) => (
+    t.id === 'TECH-004' && t.name === 'Node.js' && t.category === 'Programming Language'
+      ? { ...t, category: 'Runtime' }
+      : t
+  ));
+  const existingTechIds = new Set(techs.map((t) => t.id));
+  const existingTechNames = new Set(techs.map((t) => String(t.name || '').trim().toLowerCase()));
+  let maxTechNum = techs.reduce((m, t) => Math.max(m, parseIdNumber(t.id)), 0);
+  for (const st of seed.technologies || []) {
+    const key = String(st.name || '').trim().toLowerCase();
+    if (existingTechNames.has(key)) continue;
+    let id = st.id;
+    if (existingTechIds.has(id)) {
+      maxTechNum += 1;
+      id = formatId('TECH', maxTechNum);
+    } else {
+      maxTechNum = Math.max(maxTechNum, parseIdNumber(id));
+    }
+    techs.push({ ...st, id });
+    existingTechIds.add(id);
+    existingTechNames.add(key);
+  }
+  out.technologies = techs;
+
   out.categories = { ...seed.categories, ...(out.categories || {}) };
+  out.categories.technologyCategories = [...new Set([
+    ...(Array.isArray(out.categories.technologyCategories) ? out.categories.technologyCategories : []),
+    ...(seed.categories.technologyCategories || []),
+  ])];
   out.categories.lifecycleOptions = seed.categories.lifecycleOptions; // canonical, not editable
   const s = out.settings || {};
   out.settings = {
