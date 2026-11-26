@@ -82,3 +82,9 @@ export function resolveLogo(name, hint) {
   if (ALIASES[k2]) return ALIASES[k2];
   return undefined;
 }
+
+/** Resolve logo URL for an application (custom logoUrl takes priority over bundled asset). */
+export function appLogoSrc(app) {
+  if (!app) return undefined;
+  return app.logoUrl || resolveLogo(app.name, app.id);
+}
