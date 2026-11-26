@@ -378,5 +378,15 @@
     "status": "active",
     "createdAt": "2026-11-25T15:00:00.000Z",
     "updatedAt": "2026-11-25T15:00:00.000Z"
+  },
+  {
+    "id": "TECH-039",
+    "name": "Supertest",
+    "category": "Testing",
+    "websiteUrl": "https://github.com/ladjs/supertest",
+    "description": "HTTP assertions library for testing Node.js APIs.",
+    "status": "active",
+    "createdAt": "2026-11-25T15:56:00.000Z",
+    "updatedAt": "2026-11-25T15:56:00.000Z"
   }
 ]
