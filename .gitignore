@@ -1,8 +1,6 @@
 node_modules
 dist
 dist-single
-.verification/
-.forgeguard/
 *.log
 .DS_Store
 

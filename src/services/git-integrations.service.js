@@ -95,6 +95,22 @@ function commitRecord(item, repo, connection, path) {
   };
 }
 
+function isRateLimitResponse(response) {
+  if (!response) return false;
+  if (response.status === 429) return true;
+  if (response.status === 403) {
+    const remaining = response.headers?.get?.('x-ratelimit-remaining');
+    return remaining === '0';
+  }
+  return false;
+}
+
+function rateLimitResetIso(response, fallbackEpoch = null) {
+  const headerEpoch = response?.headers?.get?.('x-ratelimit-reset');
+  const epoch = Number(headerEpoch || fallbackEpoch || 0);
+  return Number.isFinite(epoch) && epoch > 0 ? new Date(epoch * 1000).toISOString() : null;
+}
+
 /** Up to 500 latest primary-branch commits per registered repository, with explicit partial failures. */
 export async function fetchIntegrationCommits(connection, repositories, token = '', { signal, fetchImpl = fetch } = {}) {
   const errors = validateIntegration(connection);
@@ -103,7 +119,11 @@ export async function fetchIntegrationCommits(connection, repositories, token = 
   if (!matches.length) throw new Error('No registered repositories match this provider, host and organization. Add a repository or update this integration.');
   const successes = [];
   const failures = [];
-  for (const repo of matches) {
+  let rateLimited = false;
+  let rateLimitReset = null;
+  let skippedCount = 0;
+  for (let idx = 0; idx < matches.length; idx += 1) {
+    const repo = matches[idx];
     signal?.throwIfAborted();
     const path = repositoryPath(repo, connection);
     const base = apiBase(connection);
@@ -131,7 +151,15 @@ export async function fetchIntegrationCommits(connection, repositories, token = 
           if (signal?.aborted) throw e;
           throw new Error(e.name === 'TimeoutError' ? 'Request timed out. Try syncing again.' : 'Request failed. Check your connection and the provider’s browser (CORS) access.');
         }
-        if (!response.ok) throw new Error(response.status === 401 ? 'Authentication failed. Check your access token.' : response.status === 403 || response.status === 429 ? 'Access denied or rate limit reached. Check token permissions or try later.' : response.status === 404 ? 'Repository or branch not found, or the token has no access.' : `Provider returned HTTP ${response.status}.`);
+        if (!response.ok) {
+          if (isRateLimitResponse(response)) {
+            const err = new Error('Rate limit reached (0 remaining). Add a Personal Access Token (PAT) or wait until the quota resets.');
+            err.rateLimited = true;
+            err.resetAt = rateLimitResetIso(response);
+            throw err;
+          }
+          throw new Error(response.status === 401 ? 'Authentication failed. Check your access token.' : response.status === 403 ? 'Access denied or rate limit reached. Check token permissions or try later.' : response.status === 404 ? 'Repository or branch not found, or the token has no access.' : `Provider returned HTTP ${response.status}.`);
+        }
         let body;
         try { body = await response.json(); } catch { throw new Error('The provider returned invalid JSON.'); }
         const items = connection.provider === 'bitbucket' ? body.values : body;
@@ -145,10 +173,16 @@ export async function fetchIntegrationCommits(connection, repositories, token = 
       successes.push({ repositoryId: repo.id, commits, truncated });
     } catch (e) {
       if (signal?.aborted) throw e;
-      failures.push({ repositoryId: repo.id, name: repo.name, message: e.message });
+      failures.push({ repositoryId: repo.id, name: repo.name, message: e.message, rateLimited: Boolean(e.rateLimited) });
+      if (e.rateLimited) {
+        rateLimited = true;
+        rateLimitReset = e.resetAt || null;
+        skippedCount = matches.length - idx - 1;
+        break;
+      }
     }
   }
-  return { successes, failures };
+  return { successes, failures, rateLimited, rateLimitReset, skippedCount };
 }
 
 function classifyBranch(name = '') {
@@ -170,12 +204,12 @@ async function safeGitHubJson(url, headers, { signal, fetchImpl }) {
       redirect: 'error',
       referrerPolicy: 'no-referrer',
     });
-    if (!response.ok) return { ok: false, status: response.status, data: null };
+    if (!response.ok) return { ok: false, status: response.status, rateLimited: isRateLimitResponse(response), data: null };
     const data = await response.json();
-    return { ok: true, status: response.status, data };
+    return { ok: true, status: response.status, rateLimited: false, data };
   } catch (e) {
     if (signal?.aborted) throw e;
-    return { ok: false, status: 0, data: null };
+    return { ok: false, status: 0, rateLimited: false, data: null };
   }
 }
 
@@ -190,7 +224,7 @@ async function fetchGitHubExtras(base, path, token, { signal, fetchImpl }) {
     safeGitHubJson(`${base}/repos/${encodedPath}/pulls?state=all&per_page=100`, headers, { signal, fetchImpl }),
   ]);
 
-  const inaccessible = repoRes.status === 404 || repoRes.status === 403;
+  const inaccessible = !repoRes.rateLimited && (repoRes.status === 404 || repoRes.status === 403);
   const metadata = repoRes.ok && repoRes.data ? {
     mainBranch: repoRes.data.default_branch || '',
     language: repoRes.data.language || '',
@@ -241,7 +275,7 @@ export async function fetchIntegrationFullSync(connection, repositories, token =
   }
 
   for (const failure of commitSync.failures) {
-    if (failure.message?.includes('not found') || failure.message?.includes('Access denied')) {
+    if (!failure.rateLimited && (failure.message?.includes('not found') || failure.message?.includes('Access denied'))) {
       inaccessibleIds.push(failure.repositoryId);
     }
   }
@@ -256,7 +290,14 @@ export async function fetchIntegrationFullSync(connection, repositories, token =
     };
   });
 
-  return { successes, failures: commitSync.failures, inaccessibleIds };
+  return {
+    successes,
+    failures: commitSync.failures,
+    inaccessibleIds,
+    rateLimited: commitSync.rateLimited,
+    rateLimitReset: commitSync.rateLimitReset,
+    skippedCount: commitSync.skippedCount,
+  };
 }
 
 /** Build temporary connection and sync a single GitHub repository on demand. */
@@ -434,12 +475,17 @@ export async function testGitConnection(connection, token = '', { signal, fetchI
     user = data.display_name || data.username || null;
   }
 
+  const remaining = rateRemaining !== null && rateRemaining !== '' ? Number(rateRemaining) : (data.rate ? data.rate.remaining : null);
+  const total = rateLimit !== null && rateLimit !== '' ? Number(rateLimit) : (data.rate ? data.rate.limit : null);
+
   return {
     ok: true,
     user,
     provider: connection.provider,
     authenticated: Boolean(token?.trim()),
-    rateLimitRemaining: rateRemaining ? Number(rateRemaining) : (data.rate ? data.rate.remaining : null),
-    rateLimitTotal: rateLimit ? Number(rateLimit) : (data.rate ? data.rate.limit : null),
+    rateLimitRemaining: remaining,
+    rateLimitTotal: total,
+    rateLimitExhausted: remaining === 0,
+    rateLimitResetAt: rateLimitResetIso(response, data.rate?.reset),
   };
 }

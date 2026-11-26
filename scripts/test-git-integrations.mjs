@@ -220,3 +220,37 @@ test('fetchIntegrationFullSync and syncSingleGitHubRepo fetch commits, branches,
   assert.equal(appliedSingle.result.branches, 2);
   assert.equal(appliedSingle.result.prs, 2);
 });
+
+test('rate-limit exhaustion stops remaining requests early, avoids marking repos inaccessible, and flags testGitConnection', async () => {
+  const other = { ...repo, id: 'REPO-002', name: 'other', url: 'https://github.com/team/other' };
+  const third = { ...repo, id: 'REPO-003', name: 'third', url: 'https://github.com/team/third' };
+  let calls = 0;
+  const full = await service.fetchIntegrationFullSync(connection, [repo, other, third], '', {
+    fetchImpl: async () => {
+      calls += 1;
+      return {
+        ok: false,
+        status: 403,
+        headers: new Map([['x-ratelimit-remaining', '0'], ['x-ratelimit-reset', '1795680000']]),
+        json: async () => ({ message: 'API rate limit exceeded' }),
+      };
+    },
+  });
+  assert.equal(calls, 1);
+  assert.equal(full.rateLimited, true);
+  assert.equal(full.skippedCount, 2);
+  assert.equal(full.inaccessibleIds.length, 0);
+  assert.ok(full.rateLimitReset);
+
+  const testZero = await service.testGitConnection(connection, '', {
+    fetchImpl: async () => ({
+      ok: true,
+      status: 200,
+      headers: new Map([['x-ratelimit-remaining', '0'], ['x-ratelimit-limit', '60'], ['x-ratelimit-reset', '1795680000']]),
+      json: async () => ({ rate: { remaining: 0, limit: 60, reset: 1795680000 } }),
+    }),
+  });
+  assert.equal(testZero.rateLimitExhausted, true);
+  assert.equal(testZero.rateLimitRemaining, 0);
+  assert.ok(testZero.rateLimitResetAt);
+});
