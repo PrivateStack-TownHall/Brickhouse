@@ -10,24 +10,26 @@ export const brandLogos = {
 };
 
 // Vite eager glob imports for structured logo collections
-export const applicationLogos = import.meta.glob('./applications/*.png', { eager: true, import: 'default' });
+export const applicationLogos = import.meta.glob('./applications/*.{png,jpg}', { eager: true, import: 'default' });
 export const platformLogos = import.meta.glob('./platforms/*.png', { eager: true, import: 'default' });
 export const technologyLogos = import.meta.glob('./technologies/*.png', { eager: true, import: 'default' });
 
 const norm = (s) => String(s || '').toLowerCase().replace(/\.js\b/g, 'js').replace(/[^a-z0-9]/g, '');
 
+const applicationLogosByName = Object.fromEntries(
+  Object.entries(applicationLogos).map(([path, url]) => [
+    norm(path.replace(/^.*\/logo-/, '').replace(/\.(png|jpg)$/, '')),
+    url,
+  ]),
+);
+
 const ALIASES = {
   // Applications
-  vincentportfolio: applicationLogos['./applications/logo-vs-portfolio.png'],
-  vsportfolio: applicationLogos['./applications/logo-vs-portfolio.png'],
-  vincentwebresume: applicationLogos['./applications/logo-web-resume.png'],
-  webresume: applicationLogos['./applications/logo-web-resume.png'],
-  wirenwagon: applicationLogos['./applications/logo-wirenwagon.png'],
+  ...applicationLogosByName,
+  vsportfolio: applicationLogosByName.vincentportfolio,
+  webresume: applicationLogosByName.vincentwebresume,
   wirewagon: applicationLogos['./applications/logo-wirenwagon.png'],
-  eduatlas: applicationLogos['./applications/logo-eduatlas.png'],
-  mouthjournal: applicationLogos['./applications/logo-mouthjournal.png'],
-  chibiroom: applicationLogos['./applications/logo-chibiroom.png'],
-  chibi: applicationLogos['./applications/logo-chibi.png'],
+  githubrepositoryexplorer: applicationLogosByName.githubrepositoriesexplorer,
 
   // Platforms / Providers
   github: platformLogos['./platforms/logo-github.png'],
