@@ -929,5 +929,26 @@
     ],
     "createdAt": "2026-11-26T08:43:26.890Z",
     "updatedAt": "2026-11-26T08:43:26.890Z"
+  },
+  {
+    "id": "APP-043",
+    "name": "Taskify",
+    "code": "TASKIFY",
+    "ownerId": "COMP-007",
+    "category": "Main Applications",
+    "type": "Unspecified",
+    "lifecycle": "planning",
+    "description": "",
+    "purpose": "",
+    "websiteUrl": "",
+    "documentationUrl": "",
+    "logoUrl": "",
+    "tags": ["owner-to-confirm"],
+    "architecture": "",
+    "platform": "",
+    "hosting": "",
+    "environments": [],
+    "createdAt": "2026-11-27T00:00:00+07:00",
+    "updatedAt": "2026-11-27T00:00:00+07:00"
   }
 ]

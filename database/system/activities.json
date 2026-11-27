@@ -174,5 +174,16 @@
     "resourceId": "DEP-001",
     "applicationId": "APP-001",
     "description": "Created deployment \"Vincent Portfolio\"."
+  },
+  {
+    "id": "ACT-017",
+    "timestamp": "2026-11-26T17:07:56.892Z",
+    "actor": "Registry Owner",
+    "category": "system",
+    "action": "Git commits synchronized",
+    "resourceType": "Settings",
+    "resourceId": "legacy-github",
+    "applicationId": null,
+    "description": "GitHub · PrivateStack-TownHall: 0 new commits, 87 branches, 117 PRs from 15 repositories; 1 failed; 0 reached the 500-commit limit."
   }
 ]

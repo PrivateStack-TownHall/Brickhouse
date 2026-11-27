@@ -14,7 +14,7 @@
     "description": "",
     "topics": [],
     "createdAt": "2026-11-23T14:38:47Z",
-    "updatedAt": "2026-11-26T08:39:49.079Z",
+    "updatedAt": "2026-11-26T17:07:56.881Z",
     "syncedBranches": [
       {
         "name": "main",
@@ -23,7 +23,7 @@
       }
     ],
     "syncedPrs": [],
-    "syncedAt": "2026-11-26T08:39:49.079Z"
+    "syncedAt": "2026-11-26T17:07:56.881Z"
   },
   {
     "id": "REPO-002",
@@ -40,7 +40,7 @@
     "description": "",
     "topics": [],
     "createdAt": "2026-11-23T14:38:47Z",
-    "updatedAt": "2026-11-26T08:39:49.079Z",
+    "updatedAt": "2026-11-26T17:07:56.881Z",
     "syncedBranches": [
       {
         "name": "master",
@@ -49,7 +49,7 @@
       }
     ],
     "syncedPrs": [],
-    "syncedAt": "2026-11-26T08:39:49.079Z"
+    "syncedAt": "2026-11-26T17:07:56.881Z"
   },
   {
     "id": "REPO-003",
@@ -66,7 +66,7 @@
     "description": "LMS",
     "topics": [],
     "createdAt": "2026-11-23T14:38:47Z",
-    "updatedAt": "2026-11-26T08:39:49.079Z",
+    "updatedAt": "2026-11-26T17:07:56.881Z",
     "syncedBranches": [
       {
         "name": "BE-dev",
@@ -1206,7 +1206,7 @@
         "url": "https://github.com/PrivateStack-TownHall/orange-lms/pull/36"
       }
     ],
-    "syncedAt": "2026-11-26T08:39:49.079Z"
+    "syncedAt": "2026-11-26T17:07:56.881Z"
   },
   {
     "id": "REPO-004",
@@ -1223,7 +1223,7 @@
     "description": "",
     "topics": [],
     "createdAt": "2026-11-23T14:38:47Z",
-    "updatedAt": "2026-11-26T08:39:49.079Z",
+    "updatedAt": "2026-11-26T17:07:56.881Z",
     "syncedBranches": [
       {
         "name": "connect-github",
@@ -1267,7 +1267,7 @@
         "url": "https://github.com/PrivateStack-TownHall/vica-vercel/pull/1"
       }
     ],
-    "syncedAt": "2026-11-26T08:39:49.079Z"
+    "syncedAt": "2026-11-26T17:07:56.881Z"
   },
   {
     "id": "REPO-005",
@@ -1292,7 +1292,7 @@
       "tailwind"
     ],
     "createdAt": "2026-11-23T14:38:47Z",
-    "updatedAt": "2026-11-26T08:39:49.079Z",
+    "updatedAt": "2026-11-26T17:07:56.881Z",
     "syncedBranches": [
       {
         "name": "master",
@@ -1350,7 +1350,7 @@
         "url": "https://github.com/PrivateStack-TownHall/Syllabus/pull/1"
       }
     ],
-    "syncedAt": "2026-11-26T08:39:49.079Z"
+    "syncedAt": "2026-11-26T17:07:56.881Z"
   },
   {
     "id": "REPO-006",
@@ -1367,7 +1367,7 @@
     "description": "Kept in registry",
     "topics": [],
     "createdAt": "2026-11-23T14:38:47Z",
-    "updatedAt": "2026-11-26T08:39:49.079Z",
+    "updatedAt": "2026-11-26T17:07:56.881Z",
     "syncedBranches": [
       {
         "name": "main",
@@ -1381,7 +1381,7 @@
       }
     ],
     "syncedPrs": [],
-    "syncedAt": "2026-11-26T08:39:49.079Z"
+    "syncedAt": "2026-11-26T17:07:56.881Z"
   },
   {
     "id": "REPO-007",
@@ -1415,7 +1415,7 @@
     "description": "",
     "topics": [],
     "createdAt": "2026-11-23T14:38:47Z",
-    "updatedAt": "2026-11-26T08:39:49.079Z",
+    "updatedAt": "2026-11-26T17:07:56.881Z",
     "syncedBranches": [
       {
         "name": "design-stitch",
@@ -1446,7 +1446,7 @@
         "url": "https://github.com/PrivateStack-TownHall/sadino-technology/pull/1"
       }
     ],
-    "syncedAt": "2026-11-26T08:39:49.079Z"
+    "syncedAt": "2026-11-26T17:07:56.881Z"
   },
   {
     "id": "REPO-009",
@@ -1463,7 +1463,7 @@
     "description": "Sekolah Stack => Online Video Learning IT Course ",
     "topics": [],
     "createdAt": "2026-11-23T14:38:47Z",
-    "updatedAt": "2026-11-26T08:39:49.079Z",
+    "updatedAt": "2026-11-26T17:07:56.881Z",
     "syncedBranches": [
       {
         "name": "main",
@@ -1472,7 +1472,7 @@
       }
     ],
     "syncedPrs": [],
-    "syncedAt": "2026-11-26T08:39:49.079Z"
+    "syncedAt": "2026-11-26T17:07:56.881Z"
   },
   {
     "id": "REPO-010",
@@ -1495,7 +1495,7 @@
       "redux"
     ],
     "createdAt": "2026-11-23T14:38:47Z",
-    "updatedAt": "2026-11-26T08:39:49.079Z",
+    "updatedAt": "2026-11-26T17:07:56.881Z",
     "syncedBranches": [
       {
         "name": "main",
@@ -1504,7 +1504,7 @@
       }
     ],
     "syncedPrs": [],
-    "syncedAt": "2026-11-26T08:39:49.079Z"
+    "syncedAt": "2026-11-26T17:07:56.881Z"
   },
   {
     "id": "REPO-011",
@@ -2110,7 +2110,7 @@
     "description": "User confirmed experimental",
     "topics": [],
     "createdAt": "2026-11-23T14:38:47Z",
-    "updatedAt": "2026-11-26T08:39:49.079Z",
+    "updatedAt": "2026-11-26T17:07:56.881Z",
     "syncedBranches": [
       {
         "name": "main",
@@ -2119,7 +2119,7 @@
       }
     ],
     "syncedPrs": [],
-    "syncedAt": "2026-11-26T08:39:49.079Z"
+    "syncedAt": "2026-11-26T17:07:56.881Z"
   },
   {
     "id": "REPO-019",
@@ -2162,7 +2162,7 @@
     "description": "Distinct from Magna Opera",
     "topics": [],
     "createdAt": "2026-11-23T14:38:47Z",
-    "updatedAt": "2026-11-26T08:39:49.079Z",
+    "updatedAt": "2026-11-26T17:07:56.881Z",
     "syncedBranches": [
       {
         "name": "bff",
@@ -2230,7 +2230,7 @@
         "url": "https://github.com/PrivateStack-TownHall/command-centre/pull/1"
       }
     ],
-    "syncedAt": "2026-11-26T08:39:49.079Z"
+    "syncedAt": "2026-11-26T17:07:56.881Z"
   },
   {
     "id": "REPO-021",
@@ -2247,7 +2247,7 @@
     "description": "Core for five Operations APIs",
     "topics": [],
     "createdAt": "2026-11-23T14:38:47Z",
-    "updatedAt": "2026-11-26T08:39:49.079Z",
+    "updatedAt": "2026-11-26T17:07:56.881Z",
     "syncedBranches": [
       {
         "name": "main",
@@ -2256,7 +2256,7 @@
       }
     ],
     "syncedPrs": [],
-    "syncedAt": "2026-11-26T08:39:49.079Z"
+    "syncedAt": "2026-11-26T17:07:56.881Z"
   },
   {
     "id": "REPO-022",
@@ -2327,7 +2327,7 @@
     "description": "",
     "topics": [],
     "createdAt": "2026-11-23T14:38:47Z",
-    "updatedAt": "2026-11-26T08:39:49.079Z",
+    "updatedAt": "2026-11-26T17:07:56.881Z",
     "syncedBranches": [
       {
         "name": "commerce-core_template",
@@ -2387,7 +2387,7 @@
         "url": "https://github.com/PrivateStack-TownHall/api-core_templates/pull/1"
       }
     ],
-    "syncedAt": "2026-11-26T08:39:49.079Z"
+    "syncedAt": "2026-11-26T17:07:56.881Z"
   },
   {
     "id": "REPO-025",
@@ -2430,7 +2430,7 @@
     "description": "Study Case Untuk Soal Bootcamp",
     "topics": [],
     "createdAt": "2026-11-23T14:38:47Z",
-    "updatedAt": "2026-11-26T08:39:49.079Z",
+    "updatedAt": "2026-11-26T17:07:56.881Z",
     "syncedBranches": [
       {
         "name": "byte-burger",
@@ -2513,7 +2513,7 @@
         "url": "https://github.com/PrivateStack-TownHall/bootcamp-study-case/pull/1"
       }
     ],
-    "syncedAt": "2026-11-26T08:39:49.079Z"
+    "syncedAt": "2026-11-26T17:07:56.881Z"
   },
   {
     "id": "REPO-027",
@@ -2642,7 +2642,7 @@
       "typescript"
     ],
     "createdAt": "2026-11-23T14:38:47Z",
-    "updatedAt": "2026-11-26T08:39:49.079Z",
+    "updatedAt": "2026-11-26T17:07:56.881Z",
     "syncedBranches": [
       {
         "name": "master",
@@ -2651,7 +2651,7 @@
       }
     ],
     "syncedPrs": [],
-    "syncedAt": "2026-11-26T08:39:49.079Z"
+    "syncedAt": "2026-11-26T17:07:56.881Z"
   },
   {
     "id": "REPO-032",
